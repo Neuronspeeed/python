@@ -220,7 +220,7 @@ async def good():
 # - Use asyncio.create_task() to track tasks
 # - Always await or gather tasks before exit`,
   },
-  { signature: 'Async performance - when it matters and when it doesn\\'t', description: 'Async overhead: ~1μs per task creation, ~0.1μs context switch. Shines with I/O wait, worthless for CPU work. Measure, don\\'t guess.', complexity: 'Concept', section: 'Why & When', example: `import asyncio
+  { signature: 'Async performance - when it matters and when it doesn\'t', description: 'Async overhead: ~1μs per task creation, ~0.1μs context switch. Shines with I/O wait, worthless for CPU work. Measure, don\'t guess.', complexity: 'Concept', section: 'Why & When', example: `import asyncio
 import time
 
 # PERFORMANCE BREAKDOWN
