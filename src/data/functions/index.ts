@@ -1,12 +1,15 @@
 import { functionsBasicsMethods } from './functionsBasics'
-import { functionsAdvancedMethods } from './functionsAdvanced'
+import { functionsDecoratorsMethods } from './functionsDecorators'
+import { functionsClosureMethods } from './functionsClosure'
 
 // Combined Functions methods - maintains original order
 export const functionsMethods = [
   ...functionsBasicsMethods,
-  ...functionsAdvancedMethods,
+  ...functionsDecoratorsMethods,
+  ...functionsClosureMethods,
 ]
 
 // Re-export individual modules for granular imports
 export { functionsBasicsMethods } from './functionsBasics'
-export { functionsAdvancedMethods } from './functionsAdvanced'
+export { functionsDecoratorsMethods } from './functionsDecorators'
+export { functionsClosureMethods } from './functionsClosure'
