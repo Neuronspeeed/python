@@ -2,43 +2,164 @@ import type { Method } from '../types'
 
 export const intMethods: Method[] = [
   // Fundamentals
-  { signature: 'Integer Basics', description: 'Integers are whole numbers with no decimal places. Python has no size limit for integers. Type is int.', complexity: 'Concept', example: `# Integer literals
+  { section: 'Fundamentals', signature: 'Integer Basics', description: 'Integers are whole numbers. Python has UNLIMITED size (arbitrary precision). Use underscores for readability.', complexity: 'Concept', example: `# Integer literals
 x = 1
 y = 1000000         # Hard to read
-z = 1_000_000       # Use underscores for readability
+z = 1_000_000       # Use underscores for readability (Python 3.6+)
 
 # Check type
 print(type(42))     # <class 'int'>
 
-# No size limit!
-huge = 999999999999999999999999999999
-print(huge)         # Works fine!
+# NO SIZE LIMIT - arbitrary precision!
+huge = 99999999999999999999999999999999999999
+print(huge)         # Works fine! No overflow.
+print(huge + 1)     # Still works!
+
+# Compare to other languages:
+# Java int:  -2³¹ to 2³¹-1 (4 bytes, overflow possible)
+# C int:     -2³¹ to 2³¹-1 (4 bytes, overflow possible)
+# Python:    unlimited size!
 
 # Negative integers
 neg = -42
-print(neg)          # -42` },
-  { signature: 'int vs float', description: 'Integer has no decimal, float has decimal. Mixing int and float in operations usually returns float.', complexity: 'Concept', example: `# Integer vs Float
-x = 1      # int
-y = 1.0    # float
+print(type(neg))    # <class 'int'>` },
+  { section: 'Fundamentals', signature: 'int(x=0)', description: 'Converts number or string to integer. Truncates floats toward zero. Optional base for string parsing.', complexity: 'O(n)', example: `# From floats (truncates toward zero)
+print(int(3.7))      # 3 (drops .7)
+print(int(-3.7))     # -3 (toward zero, not floor!)
+print(int(3.99))     # 3
 
-# Operations with mixed types
-print(1 + 2)      # 3 (int)
-print(1.0 + 2)    # 3.0 (float)
-print(1 * 2)      # 2 (int)
-print(1.0 * 2)    # 2.0 (float)
-
-# Division always returns float
-print(6 / 2)      # 3.0 (float, not int!)
-print(6 // 2)     # 3 (int, floor division)` },
-  // Creation & Conversion
-  { signature: 'int(x=0)', description: 'Creates an integer from a number or string. Truncates floats toward zero.', complexity: 'O(n)', example: `print(int(3.7))      # 3
-print(int(-3.7))     # -3
+# From strings (base 10 default)
 print(int("42"))     # 42
-print(int("25"))     # 25 (from string)
-print(int("1010", 2)) # 10 (binary)` },
-  { signature: 'int(x, base)', description: 'Converts string x in the given base (2-36) to integer.', complexity: 'O(n)', example: `print(int("ff", 16))   # 255 (hex)
-print(int("77", 8))    # 63 (octal)
-print(int("z", 36))    # 35` },
+print(int("  25 "))  # 25 (strips whitespace)
+
+# From strings with different bases
+print(int("1010", 2))   # 10 (binary)
+print(int("ff", 16))    # 255 (hexadecimal)
+print(int("77", 8))     # 63 (octal)
+print(int("z", 36))     # 35 (base 36)
+
+# From booleans
+print(int(True))     # 1
+print(int(False))    # 0` },
+  { section: 'Fundamentals', signature: 'Number Bases', description: 'Python supports binary (0b), octal (0o), hex (0x) literals. Use bin(), oct(), hex() for conversion.', complexity: 'Concept', example: `# Integer literals in different bases
+binary = 0b1010      # 10 in decimal
+octal = 0o12         # 10 in decimal
+hexadecimal = 0xa    # 10 in decimal
+print(binary == octal == hexadecimal)  # True
+
+# Convert TO different bases (returns string)
+n = 42
+print(bin(n))        # '0b101010' (binary)
+print(oct(n))        # '0o52' (octal)
+print(hex(n))        # '0x2a' (hexadecimal)
+
+# Convert FROM different bases (use int with base)
+print(int('101010', 2))  # 42 (from binary string)
+print(int('52', 8))      # 42 (from octal string)
+print(int('2a', 16))     # 42 (from hex string)` },
+
+  // Why & When
+  { section: 'Why & When', signature: 'Why use Integers?', description: 'Use integers for counting, indexing, exact calculations. Unlimited precision - no overflow. Faster than float for whole numbers.', complexity: 'Concept', example: `# GOOD uses for int:
+# - Counting and iteration
+for i in range(10):  # Indices are always ints
+    count += 1
+
+# - Array/list indices
+items = [10, 20, 30]
+print(items[0])  # Index must be int
+
+# - Exact calculations (no rounding errors)
+total = 100 + 200 + 300  # 600 (exact)
+
+# - Large numbers (no overflow!)
+factorial_100 = 1
+for i in range(1, 101):
+    factorial_100 *= i
+# Result: 93326215443944152681699238856266700490715968264...
+# Would overflow in C/Java!
+
+# - Bit manipulation
+flags = 0b1010
+print(flags & 0b0011)  # Bitwise operations
+
+# BAD uses for int:
+# - Measurements with decimals
+# height = 1  # Should be 1.75 (float)
+# - Money (use Decimal for precision)
+# - Ratios/percentages (use float)` },
+  { section: 'Why & When', signature: 'Int vs Float vs Decimal', description: 'Int: exact whole numbers, unlimited size. Float: approximate decimals, fast. Decimal: exact decimals, slow.', complexity: 'Concept', example: `# INT - exact whole numbers, unlimited
+x = 123456789012345678901234567890  # No overflow!
+print(x + 1)  # Exact
+
+# FLOAT - approximate, limited precision
+y = 0.1 + 0.2
+print(y)  # 0.30000000000000004 (WRONG!)
+print(y == 0.3)  # False
+
+# DECIMAL - exact decimals, slower
+from decimal import Decimal
+z = Decimal('0.1') + Decimal('0.2')
+print(z)  # 0.3 (CORRECT!)
+
+# Performance comparison:
+# int:     FAST for whole numbers, slower for huge values
+# float:   FASTEST for decimals (hardware support)
+# Decimal: SLOWEST (software implementation)
+
+# Use cases:
+# int:     counting, indices, large exact values
+# float:   scientific computing, measurements
+# Decimal: money, financial calculations` },
+  { section: 'Why & When', signature: 'Common Integer Patterns', description: 'Modulo for cyclic patterns. Floor division for chunking. Bit operations for flags/optimization.', complexity: 'Concept', example: `# MODULO - cyclic patterns
+# Alternating rows (even/odd)
+for i in range(10):
+    if i % 2 == 0:
+        print(f"Row {i}: even")
+    else:
+        print(f"Row {i}: odd")
+
+# Circular indexing
+items = ['A', 'B', 'C']
+for i in range(10):
+    print(items[i % 3])  # Cycles: A, B, C, A, B, C...
+
+# FLOOR DIVISION - chunking/pagination
+total_items = 47
+page_size = 10
+num_pages = (total_items + page_size - 1) // page_size  # 5 (round up)
+
+# DIVMOD - get quotient and remainder together
+minutes = 125
+hours, mins = divmod(minutes, 60)  # (2, 5) = 2h 5m
+
+# POWER OF 2 CHECK - bit trick
+def is_power_of_2(n):
+    return n > 0 and (n & (n - 1)) == 0
+
+print(is_power_of_2(16))  # True
+print(is_power_of_2(15))  # False` },
+
+  // Creation & Conversion
+  { section: 'Number Base Conversion', signature: 'int(x, base)', description: 'Converts string in given base (2-36) to integer. Case-insensitive for letters.', complexity: 'O(n)', example: `# Binary to int
+print(int("1010", 2))   # 10
+print(int("11111111", 2))  # 255
+
+# Hexadecimal to int (0-9, a-f)
+print(int("ff", 16))    # 255
+print(int("FF", 16))    # 255 (case-insensitive)
+print(int("a5", 16))    # 165
+
+# Octal to int
+print(int("77", 8))     # 63
+print(int("100", 8))    # 64
+
+# Base 36 (0-9, a-z)
+print(int("z", 36))     # 35
+print(int("10", 36))    # 36
+
+# Remove prefix if parsing user input
+hex_str = "0xff"
+print(int(hex_str, 16))  # 255 (0x prefix allowed)` },
 
   // Bit Operations
   { signature: 'int.bit_length()', description: 'Returns the number of bits necessary to represent the integer in binary, excluding sign and leading zeros.', complexity: 'O(1)', example: `print((37).bit_length())   # 6 (100101)
