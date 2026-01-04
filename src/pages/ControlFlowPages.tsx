@@ -2,6 +2,7 @@ import { TypePage } from '../components/TypePage'
 import { fundamentalsMethods } from '../data/fundamentals'
 import { statementsMethods } from '../data/statementsMethods'
 import { conditionalsMethods } from '../data/conditionalsMethods'
+import { conditionalPatternsMethods } from '../data/conditionalPatterns'
 import { matchMethods } from '../data/match'
 import { loopsMethods } from '../data/loopsMethods'
 import { comprehensionsMethods } from '../data/comprehensions'
@@ -96,6 +97,34 @@ export function ConditionalsPage() {
 Default value? name = input or "Guest"
 Dict dispatch? ops['+'] for O(1) lookup`}
       methods={conditionalsMethods}
+    />
+  )
+}
+
+const conditionalPatternsIntro = `Performance and design patterns for Python conditional logic. Learn when to use if-elif vs dict dispatch vs match, how short-circuit evaluation works, and best practices for writing efficient, readable conditional code.
+
+if-elif vs dict: Dictionary dispatch is O(1) lookup—constant time regardless of how many branches. if-elif is O(n) worst case—must check each condition sequentially. Use dict for 5+ simple equality branches. Use if-elif for complex conditions or different variables.
+
+if-elif vs match: match excels at pattern matching and destructuring (Python 3.10+). if-elif is better for boolean combinations (and/or/not) and conditions involving different variables. match is optimized for structural patterns, if-elif for logical combinations.
+
+Short-circuit evaluation: and/or operators stop evaluating as soon as the result is known. This provides both performance benefits (avoid expensive calls) and safety (null checks, division by zero). Put cheap/likely-to-fail conditions first in AND chains.
+
+Ternary expressions: Use for simple value assignment that fits on one readable line. Avoid deep nesting—if it's complex, use if-else for clarity. Ternary is an expression (returns value), not a statement.
+
+Performance Tips: Dictionary lookups are O(1) with hash tables. if-elif chains are O(n) linear search. Pattern matching (match) is O(1) for simple literals, O(n) for complex patterns with guards. Short-circuit evaluation can turn O(n) into O(1) by avoiding unnecessary checks.
+
+Best Practices: Choose the simplest, most readable approach. Dict dispatch for value mapping. match for pattern destructuring. if-elif for boolean logic. Ternary for simple value assignment. Short-circuit for null safety and performance.`
+
+export function ConditionalPatternsPage() {
+  return (
+    <TypePage
+      type="Selection Patterns" badge="O(1)" color="var(--accent-none)"
+      description="Performance comparisons and best practices: if-elif vs dict vs match, short-circuit evaluation, when to use ternary."
+      intro={conditionalPatternsIntro}
+      tip={`Dict dispatch? O(1) for 5+ simple branches
+match vs if? match for patterns, if for boolean logic
+Short-circuit? Put cheap/likely-false conditions first`}
+      methods={conditionalPatternsMethods}
     />
   )
 }

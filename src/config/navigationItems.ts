@@ -12,6 +12,7 @@ export const pythonCoreItems: NavItem[] = [
   { path: ROUTES.FUNDAMENTALS, label: 'Fundamentals', badge: 'py', color: 'var(--accent-functions)' },
   { path: ROUTES.STATEMENTS, label: 'Statements', badge: '=', color: 'var(--accent-none)' },
   { path: ROUTES.CONDITIONALS, label: 'Conditionals', badge: 'if', color: 'var(--accent-none)' },
+  { path: ROUTES.CONDITIONAL_PATTERNS, label: 'Patterns', badge: 'O(1)', color: 'var(--accent-none)' },
   { path: ROUTES.MATCH, label: 'Match', badge: 'match', color: 'var(--accent-none)' },
   { path: ROUTES.LOOPS, label: 'Loops', badge: 'for', color: 'var(--accent-none)' },
   { path: ROUTES.COMPREHENSIONS, label: 'Comprehensions', badge: '[]', color: 'var(--accent-none)' },

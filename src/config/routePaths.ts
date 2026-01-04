@@ -44,6 +44,7 @@ export const ROUTES = {
   // Control Flow
   STATEMENTS: '/statements',
   CONDITIONALS: '/conditionals',
+  CONDITIONAL_PATTERNS: '/conditional-patterns',
   MATCH: '/match',
   LOOPS: '/loops',
   COMPREHENSIONS: '/comprehensions',

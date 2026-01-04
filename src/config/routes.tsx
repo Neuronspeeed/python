@@ -45,6 +45,7 @@ const SetPage = lazyLoad(pages.dataTypes, 'SetPage')
 const FundamentalsPage = lazyLoad(pages.controlFlow, 'FundamentalsPage')
 const StatementsPage = lazyLoad(pages.controlFlow, 'StatementsPage')
 const ConditionalsPage = lazyLoad(pages.controlFlow, 'ConditionalsPage')
+const ConditionalPatternsPage = lazyLoad(pages.controlFlow, 'ConditionalPatternsPage')
 const MatchPage = lazyLoad(pages.controlFlow, 'MatchPage')
 const LoopsPage = lazyLoad(pages.controlFlow, 'LoopsPage')
 const ComprehensionsPage = lazyLoad(pages.controlFlow, 'ComprehensionsPage')
@@ -134,6 +135,7 @@ export const routeConfigs: RouteConfig[] = [
   { path: ROUTES.FUNDAMENTALS, component: FundamentalsPage },
   { path: ROUTES.STATEMENTS, component: StatementsPage },
   { path: ROUTES.CONDITIONALS, component: ConditionalsPage },
+  { path: ROUTES.CONDITIONAL_PATTERNS, component: ConditionalPatternsPage },
   { path: ROUTES.MATCH, component: MatchPage },
   { path: ROUTES.LOOPS, component: LoopsPage },
   { path: ROUTES.COMPREHENSIONS, component: ComprehensionsPage },
