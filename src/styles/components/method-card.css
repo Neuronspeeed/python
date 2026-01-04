@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Method Card Component - Display methods with complexity badges
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.method-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+  position: relative;
+}
+
+.method-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateX(2px);
+}
+
+/* Left border color coding for quick scanning */
+.method-card.complexity-fast {
+  border-left-color: #16a34a;
+}
+
+.method-card.complexity-medium {
+  border-left-color: #ca8a04;
+}
+
+.method-card.complexity-slow {
+  border-left-color: #dc2626;
+}
+
+.method-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.method-signature {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.method-complexity {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+
+.complexity-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+/* Fast - O(1), O(log n) - Warm Green */
+.method-complexity.complexity-fast {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+/* Medium - O(n), O(n log n) - Warm Amber */
+.method-complexity.complexity-medium {
+  background: rgba(202, 138, 4, 0.1);
+  color: #a16207;
+  border: 1px solid rgba(202, 138, 4, 0.2);
+}
+
+/* Slow - O(n²), O(2^n), O(n!) - Warm Red */
+.method-complexity.complexity-slow {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+/* Info - Reference, Concept - Warm Stone (neutral) */
+.method-complexity.complexity-info {
+  background: rgba(120, 113, 108, 0.1);
+  color: #57534e;
+  border: 1px solid rgba(120, 113, 108, 0.2);
+}
+
+.method-card.complexity-info {
+  border-left-color: #78716c;
+}
+
+.method-description {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}

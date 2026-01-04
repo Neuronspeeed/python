@@ -1,0 +1,201 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Learn Index Page - Category cards and features grid
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.learn-index {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.learn-index-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.learn-index-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(42, 157, 143, 0.1), rgba(22, 163, 74, 0.1));
+  border: 1px solid rgba(42, 157, 143, 0.2);
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #D97757;
+  margin-bottom: 1rem;
+}
+
+.learn-index-badge-icon {
+  display: flex;
+}
+
+.learn-index-title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.learn-index-desc {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Category Grid */
+.learn-index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.learn-category-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.4s ease backwards;
+  animation-delay: calc(var(--card-index) * 0.05s);
+}
+
+.learn-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--category-color);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.learn-category-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.learn-category-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.learn-category-difficulty {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.learn-category-name {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.learn-category-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.learn-category-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.learn-category-count {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.learn-category-arrow {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.learn-category-card:hover .learn-category-arrow {
+  transform: translateX(4px);
+  color: var(--category-color);
+}
+
+/* Features Section */
+.learn-index-features {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.learn-index-features-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.learn-index-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.learn-feature-card {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.learn-feature-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, rgba(42, 157, 143, 0.1), rgba(22, 163, 74, 0.1));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: #D97757;
+}
+
+.learn-feature-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.learn-feature-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .learn-index-features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

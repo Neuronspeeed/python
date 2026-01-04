@@ -1,0 +1,145 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CSS Variables, Fonts & Reset
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Light theme (default - Anthropic style) */
+  --bg-page: #FAF9F6;
+  --bg-sidebar: #FAF9F6;
+  --bg-card: #EFEBE4;
+  --bg-code: #1a1a1a;
+  --bg-tip: rgba(0, 0, 0, 0.04);
+  --bg-tag: rgba(0, 0, 0, 0.06);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #7a7a7a;
+  --text-code: #f0f0f0;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.12);
+
+  /* Accent colors for types */
+  --accent-str: #D97757;
+  --accent-int: #5B8DEF;
+  --accent-list: #7B61FF;
+  --accent-dict: #10B981;
+  --accent-set: #EC4899;
+  --accent-tuple: #F59E0B;
+  --accent-bool: #CA8A04;
+  --accent-float: #8B5CF6;
+  --accent-none: #6B7280;
+
+  /* Accent colors for topics */
+  --accent-functions: #F472B6;
+  --accent-oop: #A78BFA;
+  --accent-exceptions: #FB923C;
+  --accent-logging: #4ADE80;
+  --accent-concurrency: #60A5FA;
+  --accent-bigo: #EF4444;
+  --accent-sorting: #F97316;
+  --accent-binary-search: #EAB308;
+  --accent-two-pointers: #84CC16;
+  --accent-backtracking: #22C55E;
+  --accent-dp: #CA8A04;
+  --accent-graph: #8B7355;
+  --accent-greedy: #10B981;
+  --accent-intervals: #6366F1;
+  --accent-segment-tree: #EF4444;
+  --accent-math: #F59E0B;
+  --accent-arrays: #10B981;
+  --accent-linked-list: #8B5CF6;
+  --accent-stack-queue: #A855F7;
+  --accent-binary-tree: #D946EF;
+  --accent-heap: #EC4899;
+  --accent-trie: #F43F5E;
+  --accent-union-find: #64748B;
+  --accent-matrix: #78716C;
+  --accent-bit-ops: #0EA5E9;
+  --accent-stdlib: #3B82F6;
+  --accent-design: #8B5CF6;
+  --accent-generators: #EC4899;
+
+  /* Learn category colors (algorithm patterns) */
+  --accent-sliding-window: #F59E0B;
+  --accent-prefix-sum: #EAB308;
+  --accent-stack: #8B5CF6;
+  --accent-dfs: #8B7355;
+  --accent-bfs: #EC4899;
+  --accent-graphs: #CA8A04;
+
+  /* Card backgrounds */
+  --card-warm: #E8E4DD;
+  --card-sage: #D4E4DD;
+  --card-lavender: #E4E0ED;
+  --card-peach: #F0E4DD;
+  --card-sky: #DCE8ED;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --content-max: 1200px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  /* Typography */
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0a0a0b;
+  --bg-sidebar: #111113;
+  --bg-card: #161618;
+  --bg-code: #0d0d0e;
+  --bg-tip: rgba(255, 255, 255, 0.04);
+  --bg-tag: rgba(255, 255, 255, 0.06);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+
+  --text-primary: #f0f0f2;
+  --text-secondary: #a0a0a5;
+  --text-muted: #6a6a6f;
+  --text-code: #f0f0f0;
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5);
+
+  --card-warm: #1e1c1a;
+  --card-sage: #1a1e1c;
+  --card-lavender: #1c1a1e;
+  --card-peach: #1e1c1a;
+  --card-sky: #1a1c1e;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent-str);
+  color: white;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }

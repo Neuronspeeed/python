@@ -1,0 +1,289 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Category Overview Page - Header, patterns, problems grid
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.learn-overview {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.learn-overview-header {
+  margin-bottom: 2.5rem;
+}
+
+.learn-overview-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.learn-overview-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.learn-overview-difficulty {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.learn-overview-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.learn-overview-desc {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.learn-overview-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.learn-overview-stat {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.learn-overview-stat strong {
+  color: var(--text-primary);
+}
+
+/* Overview Sections */
+.learn-overview-section {
+  margin-bottom: 2.5rem;
+}
+
+.learn-overview-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.learn-overview-section-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(217, 119, 87, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-str);
+}
+
+.learn-overview-section-icon.warning {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+}
+
+.learn-overview-section-icon.why {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent-tuple);
+}
+
+/* Why Use This Section */
+.learn-why-section {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--accent-tuple);
+}
+
+.learn-why-content {
+  margin-top: 0.5rem;
+}
+
+.learn-why-explanation {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.learn-why-keypoint {
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.learn-why-keypoint-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-tuple);
+  margin-bottom: 0.5rem;
+}
+
+.learn-why-keypoint p {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin: 0;
+}
+
+.learn-overview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.learn-overview-list li {
+  position: relative;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.learn-overview-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.875rem;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-str);
+  border-radius: 50%;
+}
+
+.learn-overview-list.mistakes li::before {
+  background: #EF4444;
+}
+
+/* Patterns Grid */
+.learn-patterns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.learn-pattern-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.learn-pattern-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.learn-pattern-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.learn-pattern-complexity {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--accent-str);
+  background: rgba(217, 119, 87, 0.1);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Problems Grid */
+.learn-problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.learn-problem-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.3s ease backwards;
+  animation-delay: calc(var(--card-index) * 0.03s);
+}
+
+.learn-problem-card:hover {
+  border-color: var(--accent-str);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+}
+
+.learn-problem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.learn-problem-difficulty {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.learn-problem-difficulty.easy {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16A34A;
+}
+
+.learn-problem-difficulty.medium {
+  background: rgba(217, 119, 87, 0.1);
+  color: #D97757;
+}
+
+.learn-problem-difficulty.hard {
+  background: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
+}
+
+.learn-problem-leetcode {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.learn-problem-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.learn-problem-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.learn-problem-complexity {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}

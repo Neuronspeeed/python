@@ -1,0 +1,265 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Algorithm Page - Breadcrumb, header, sections, right sidebar
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.learn-algorithm-page {
+  max-width: 100%;
+}
+
+/* Breadcrumb */
+.learn-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.8125rem;
+}
+
+.learn-breadcrumb-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.learn-breadcrumb-link:hover {
+  color: var(--text-primary);
+}
+
+.learn-breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+.learn-breadcrumb-current {
+  color: var(--text-secondary);
+}
+
+/* Algorithm Header */
+.learn-algorithm-header {
+  margin-bottom: 2rem;
+}
+
+.learn-algorithm-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.learn-algorithm-difficulty {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+}
+
+.learn-algorithm-difficulty.easy {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16A34A;
+}
+
+.learn-algorithm-difficulty.medium {
+  background: rgba(217, 119, 87, 0.1);
+  color: #D97757;
+}
+
+.learn-algorithm-difficulty.hard {
+  background: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
+}
+
+.learn-algorithm-complexity {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--bg-tag);
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.learn-algorithm-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.learn-algorithm-desc {
+  font-size: 1.0625rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+/* Algorithm Content Sections */
+.learn-algorithm-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.learn-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.learn-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.learn-section-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(217, 119, 87, 0.1);
+  color: var(--accent-str);
+}
+
+/* Description Card */
+.learn-description-card {
+  background: var(--bg-tip);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.learn-description-card p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.learn-description-card p:last-child {
+  margin-bottom: 0;
+}
+
+/* Algorithm Page Layout with Right Sidebar */
+.learn-algorithm-page {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.learn-algorithm-main {
+  min-width: 0;
+}
+
+/* On This Page Sidebar */
+.learn-on-this-page {
+  position: sticky;
+  top: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.learn-on-this-page-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.learn-on-this-page-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.learn-on-this-page-item {
+  margin-bottom: 0.5rem;
+}
+
+.learn-on-this-page-link {
+  display: block;
+  padding: 0.375rem 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  border-left: 2px solid transparent;
+  padding-left: 0.75rem;
+  margin-left: -0.75rem;
+}
+
+.learn-on-this-page-link:hover {
+  color: var(--text-primary);
+}
+
+.learn-on-this-page-link.active {
+  color: var(--accent-str);
+  border-left-color: var(--accent-str);
+}
+
+/* Complexity Info Box */
+.learn-complexity-box {
+  background: var(--bg-tip);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.learn-complexity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.375rem 0;
+}
+
+.learn-complexity-label {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.learn-complexity-value {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-str);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .learn-algorithm-page {
+    grid-template-columns: 1fr;
+  }
+
+  .learn-on-this-page {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .learn-algorithm-title {
+    font-size: 1.75rem;
+  }
+
+  .learn-section-title {
+    font-size: 1.25rem;
+  }
+
+  .learn-description-card {
+    padding: 1rem;
+  }
+}

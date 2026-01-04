@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DS Category Tabs - Editorial style with warm Anthropic aesthetic
+   Reference | Problems navigation
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ds-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+  padding: 0.25rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+}
+
+.ds-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  letter-spacing: -0.01em;
+}
+
+.ds-tab:hover {
+  color: var(--text-secondary);
+}
+
+.ds-tab.active {
+  color: var(--text-primary);
+  background: var(--bg-card);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ds-tab-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.ds-tab:hover .ds-tab-icon {
+  opacity: 0.7;
+}
+
+.ds-tab.active .ds-tab-icon {
+  opacity: 0.9;
+  color: #D97757;
+}
+
+.ds-tab-name {
+  font-weight: 500;
+}
+
+.ds-tab-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.ds-tab.active .ds-tab-count {
+  color: #D97757;
+  opacity: 1;
+}
+
+/* Dark theme */
+[data-theme="dark"] .ds-tabs {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .ds-tab.active {
+  background: var(--bg-card);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,118 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Section Navigation - Horizontal scrollable pill nav
+   Editorial style with warm Anthropic aesthetic
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-page);
+  padding: 1rem 0;
+  margin: 0 -1rem 1.5rem -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.section-nav-track {
+  display: flex;
+  gap: 0.375rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.25rem 0;
+}
+
+.section-nav-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fade edges for scroll indication */
+.section-nav-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.section-nav-fade-left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-page), transparent);
+  opacity: 0;
+}
+
+.section-nav-fade-right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-page), transparent);
+}
+
+/* Section items - refined pill style */
+.section-nav-item {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.875rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  position: relative;
+}
+
+.section-nav-item:hover {
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.section-nav-item.active {
+  color: #D97757;
+  background: rgba(217, 119, 87, 0.08);
+}
+
+.section-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #D97757;
+}
+
+.section-nav-item.active .section-nav-text {
+  padding-left: 0.5rem;
+}
+
+.section-nav-text {
+  transition: padding 0.15s ease;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .section-nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .section-nav-item.active {
+  background: rgba(217, 119, 87, 0.12);
+}
+
+[data-theme="dark"] .section-nav-fade-left {
+  background: linear-gradient(to right, var(--bg-page), transparent);
+}
+
+[data-theme="dark"] .section-nav-fade-right {
+  background: linear-gradient(to left, var(--bg-page), transparent);
+}
