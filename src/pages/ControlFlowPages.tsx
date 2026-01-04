@@ -2,6 +2,7 @@ import { TypePage } from '../components/TypePage'
 import { fundamentalsMethods } from '../data/fundamentals'
 import { statementsMethods } from '../data/statementsMethods'
 import { conditionalsMethods } from '../data/conditionalsMethods'
+import { matchMethods } from '../data/match'
 import { loopsMethods } from '../data/loopsMethods'
 import { functionsMethods } from '../data/functions'
 import { oopMethods } from '../data/oop'
@@ -88,12 +89,37 @@ export function ConditionalsPage() {
   return (
     <TypePage
       type="Conditionals" badge="if" color="var(--accent-none)"
-      description="Selection and branching with if, match, ternary expressions, and boolean logic."
+      description="Selection and branching with if, ternary expressions, and boolean logic. Dictionary dispatch for cleaner multi-way branching."
       intro={conditionalsIntro}
       tip={`Ternary? x if cond else y
 Default value? name = input or "Guest"
-Match (3.10+)? match val: case pattern:`}
+Dict dispatch? ops['+'] for O(1) lookup`}
       methods={conditionalsMethods}
+    />
+  )
+}
+
+const matchIntro = `Pattern Matching (Python 3.10+) adds structural pattern matching to Python. The \`match\` statement is more powerful than traditional switch—it can destructure sequences, match dictionary keys, bind variables, and use guards.
+
+Match vs If: Use \`match\` when checking the same value against multiple patterns, especially with destructuring. Use \`if/elif\` when conditions involve different variables or complex boolean logic.
+
+Match vs Dict: Dictionary dispatch is O(1) for simple value mapping. Match handles complex patterns (sequences, types, guards) that dictionaries cannot.
+
+Performance: Match statements are O(1) to O(n) depending on patterns. Simple literal matches are optimized by the compiler. Complex patterns with guards may require sequential evaluation.
+
+Python Version: Requires Python 3.10 or later. Will not work in earlier versions.`
+
+export function MatchPage() {
+  return (
+    <TypePage
+      type="Match Statement" badge="match" color="var(--accent-none)"
+      description="Structural pattern matching (Python 3.10+). Destructure sequences, match types, bind variables, use guards. More powerful than switch."
+      intro={matchIntro}
+      tip={`Python 3.10+ only! Not available in 3.9 or earlier
+Literal match? case 200: or case "start":
+Sequence match? case (0, y): or case [first, *rest]:
+Guard? case (x, y) if x > y:`}
+      methods={matchMethods}
     />
   )
 }
