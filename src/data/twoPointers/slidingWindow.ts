@@ -2,6 +2,130 @@ import type { Method } from '../../types'
 
 // Sliding Window + Prefix Sum + String Building
 export const slidingWindowMethods: Method[] = [
+  // Why & When
+  { signature: 'When to use sliding window', description: 'Pattern: contiguous subarray/substring problems with "longest/shortest/count with condition". Recognize by: O(n) possible, window state trackable.', complexity: 'Concept', section: 'Why & When', example: `# SLIDING WINDOW SIGNALS:
+# 1. "Longest/shortest/count SUBARRAY/SUBSTRING"
+# 2. Contiguous elements (no gaps)
+# 3. Condition on window state (sum, unique chars, etc.)
+
+# USE SLIDING WINDOW:
+# ✓ Longest substring without repeating
+# ✓ Minimum window with all chars
+# ✓ Max sum of k consecutive
+# ✓ Count subarrays with sum = k
+
+# DON'T USE (use other techniques):
+# ✗ Subsequence problems (not contiguous) → DP
+# ✗ Global optimization → DP or greedy
+# ✗ Multiple non-overlapping windows → DP
+
+# Example decision:
+# "Longest increasing SUBSTRING" → Sliding window
+# "Longest increasing SUBSEQUENCE" → DP (not contiguous)
+
+# PERFORMANCE:
+# Sliding window: O(n) single pass
+# Nested loops: O(n²) check all subarrays
+# For n = 10,000:
+# Sliding: 10k ops (~1ms)
+# Nested: 100M ops (~100ms)
+
+# WHEN IT DOESN'T WORK:
+# Problem: "Find max sum of k non-consecutive elements"
+# → Can't use window (elements not contiguous)
+# → Use DP or greedy instead`,
+  },
+  { signature: 'Fixed vs variable window - when to use each', description: 'Fixed window: size k known upfront, slide by 1. Variable window: grow right, shrink left when invalid. Fixed is simpler.', complexity: 'Concept', section: 'Why & When', example: `# FIXED WINDOW - size k given
+# Pattern: "...of k consecutive elements"
+def max_sum_k_elements(arr, k):
+    # Window size = k (constant)
+    window = sum(arr[:k])
+    ans = window
+    for i in range(k, len(arr)):
+        window += arr[i] - arr[i-k]  # Slide
+        ans = max(ans, window)
+    return ans
+
+# Use when:
+# - "k consecutive"
+# - "every k elements"
+# - "within k distance"
+
+# VARIABLE WINDOW - size adjusts
+# Pattern: "longest/shortest with condition"
+def longest_sum_at_most_k(arr, k):
+    # Window size varies
+    left = 0
+    curr_sum = 0
+    ans = 0
+    for right in range(len(arr)):
+        curr_sum += arr[right]
+        while curr_sum > k:  # Shrink
+            curr_sum -= arr[left]
+            left += 1
+        ans = max(ans, right - left + 1)
+    return ans
+
+# Use when:
+# - "longest/shortest with..."
+# - "maximum/minimum satisfying..."
+# - Window size not fixed
+
+# COMPLEXITY:
+# Fixed: Always O(n) - clear single pass
+# Variable: O(n) but left pointer resets
+# Both right and left visit each element once!
+
+# GOTCHA: Variable window looks O(n²)
+# while curr_sum > k:  # Inner loop?
+#     left += 1
+# NO! left only moves right, never resets
+# Total iterations: n (not n²)`,
+  },
+  { signature: 'The "at most k" trick for exact k', description: 'Problem: exactly k. Solution: at_most(k) - at_most(k-1). Works because monotonic: at_most increases with k.', complexity: 'Concept', section: 'Why & When', example: `# PATTERN: Count subarrays with EXACTLY k X
+
+# Direct approach: Hard to track exact k
+# Trick: exactly(k) = at_most(k) - at_most(k-1)
+
+# Example: Exactly k distinct elements
+def exactly_k_distinct(arr, k):
+    return at_most_k(arr, k) - at_most_k(arr, k-1)
+
+def at_most_k(arr, k):
+    count = {}
+    left = 0
+    result = 0
+    for right in range(len(arr)):
+        count[arr[right]] = count.get(arr[right], 0) + 1
+        while len(count) > k:  # Shrink
+            count[arr[left]] -= 1
+            if count[arr[left]] == 0:
+                del count[arr[left]]
+            left += 1
+        result += right - left + 1  # All subarrays
+    return result
+
+# WHY THIS WORKS:
+# at_most(k) = {windows with ≤k distinct}
+# at_most(k-1) = {windows with ≤k-1 distinct}
+# Difference = {windows with exactly k distinct}
+
+# WHEN TO USE:
+# - "exactly k distinct/unique/different"
+# - "sum exactly equals k" (use prefix sum instead!)
+# - Any "exactly" that's easier as "at most"
+
+# LIMITATIONS:
+# Doesn't work for:
+# - Non-monotonic conditions
+# - Complex "exactly" constraints
+# - When at_most is hard to compute
+
+# SIMILAR TRICK:
+# exactly(k) = at_least(k) - at_least(k+1)
+# Use whichever is easier to implement!`,
+  },
+
   // Sliding Window
   { signature: 'Sliding Window Pattern', description: 'Window expands right, contracts left when condition breaks. O(n) for subarray/substring problems.', complexity: 'O(n)', section: 'Variable Window', example: `# SLIDING WINDOW TEMPLATE
 def fn(arr):

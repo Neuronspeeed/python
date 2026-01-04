@@ -2,6 +2,52 @@ import type { Method } from '../../types'
 
 // Meeting Rooms + Calendar Scheduling Problems
 export const intervalSchedulingMethods: Method[] = [
+  // Why & When
+  { signature: 'Interval scheduling patterns', description: 'Key insight: sort first! By start for overlap check, by end for greedy selection. Sweep line for concurrent count. Pattern recognition critical.', complexity: 'Concept', section: 'Why & When', example: `# INTERVAL PROBLEM PATTERNS
+
+# PATTERN 1: Check overlap - sort by START
+def can_attend_all(intervals):
+    intervals.sort(key=lambda x: x[0])  # By start
+    for i in range(1, len(intervals)):
+        if intervals[i][0] < intervals[i-1][1]:
+            return False  # Overlap!
+    return True
+
+# PATTERN 2: Max non-overlapping - sort by END
+def max_meetings(intervals):
+    intervals.sort(key=lambda x: x[1])  # By end
+    count = 1
+    end = intervals[0][1]
+    for start, e in intervals[1:]:
+        if start >= end:
+            count += 1
+            end = e
+    return count
+# Greedy: Pick earliest ending first
+
+# PATTERN 3: Min rooms needed - sweep line
+def min_rooms(intervals):
+    events = []
+    for start, end in intervals:
+        events.append((start, 1))   # Meeting starts
+        events.append((end, -1))    # Meeting ends
+    events.sort()
+    rooms = max_rooms = 0
+    for time, delta in events:
+        rooms += delta
+        max_rooms = max(max_rooms, rooms)
+    return max_rooms
+
+# DECISION TREE:
+# "Can attend all?" → Sort by start, check overlap
+# "Max meetings?" → Sort by end, greedy
+# "Min rooms?" → Sweep line / events
+# "Merge overlapping?" → Sort by start, merge
+
+# GOTCHA: Sort by END for greedy max
+# Why? Picking earliest end leaves most room for future`,
+  },
+
   // Meeting Rooms
   { signature: 'Meeting Rooms I', description: 'Can a person attend all meetings? Check if any intervals overlap.', complexity: 'O(n log n)', section: 'Meeting Rooms', example: `def can_attend_meetings(intervals):
     """

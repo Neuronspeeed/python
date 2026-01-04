@@ -2,6 +2,98 @@ import type { Method } from '../../types'
 
 // Kadane's Algorithm + Knapsack Problems
 export const dpKnapsackMethods: Method[] = [
+  // Why & When
+  { signature: 'Kadane\'s algorithm - when to use', description: 'Pattern: maximum/minimum subarray sum/product. O(n) single pass beats O(n²) brute force. Works because optimal subarray either includes current or starts fresh.', complexity: 'Concept', section: 'Why & When', example: `# KADANE'S ALGORITHM PATTERN
+# Maximum subarray sum
+
+def max_subarray(nums):
+    current_sum = max_sum = nums[0]
+    for num in nums[1:]:
+        current_sum = max(num, current_sum + num)
+        # Either extend or start new
+        max_sum = max(max_sum, current_sum)
+    return max_sum
+
+# WHY IT WORKS:
+# At each position, optimal is:
+# - Start new subarray here (num)
+# - Extend previous subarray (current_sum + num)
+# Take max! No need to try all O(n²) subarrays.
+
+# USE KADANE'S WHEN:
+# ✓ Maximum/minimum subarray sum
+# ✓ Maximum subarray product
+# ✓ Best time to buy/sell stock (1 transaction)
+# ✓ Circular array max sum (with modification)
+
+# VARIATIONS:
+# Max product: Track both max and min (negatives!)
+# At least K elements: Use prefix sum + deque
+# Circular: Max of (normal kadane, total - min subarray)
+
+# PERFORMANCE:
+# Kadane: O(n), single pass
+# Brute force: O(n²), check all pairs
+# For n=10,000:
+# Kadane: 10k ops (~0.1ms)
+# Brute: 100M ops (~10ms)`,
+  },
+  { signature: '0/1 Knapsack vs Unbounded - when to use which', description: '0/1: each item once. Unbounded: items unlimited. Coin change is unbounded knapsack. Similar DP, different iteration order.', complexity: 'Concept', section: 'Why & When', example: `# 0/1 KNAPSACK (each item used once)
+def knapsack_01(weights, values, capacity):
+    n = len(weights)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            # Don't take item i-1
+            dp[i][w] = dp[i-1][w]
+            # Take item i-1 (if fits)
+            if w >= weights[i-1]:
+                dp[i][w] = max(
+                    dp[i][w],
+                    dp[i-1][w - weights[i-1]] + values[i-1]
+                )
+                # ^^^ dp[i-1]: can't reuse item
+
+    return dp[n][capacity]
+
+# UNBOUNDED KNAPSACK (items unlimited)
+def knapsack_unbounded(weights, values, capacity):
+    dp = [0] * (capacity + 1)
+
+    for w in range(1, capacity + 1):
+        for i in range(len(weights)):
+            if w >= weights[i]:
+                dp[w] = max(
+                    dp[w],
+                    dp[w - weights[i]] + values[i]
+                )
+                # ^^^ dp[w-weight]: can reuse item
+
+    return dp[capacity]
+
+# WHEN TO USE:
+# 0/1 Knapsack:
+# - "Select items without replacement"
+# - "Each item used at most once"
+# - Subset sum (find subset summing to target)
+
+# Unbounded Knapsack:
+# - "Unlimited items of each type"
+# - Coin change (min coins, count ways)
+# - Rod cutting (max value)
+
+# SPACE OPTIMIZATION:
+# 0/1: Need 2D or reverse iteration
+# Unbounded: 1D forward iteration works!
+
+# Example: Coin Change
+# coins = [1, 2, 5], amount = 11
+# Unbounded (can reuse coins)
+# dp[11] uses dp[10], dp[9], dp[6]
+# Those might already use same coins!`,
+  },
+
   // Kadane & Subarray
   { signature: 'Kadane\'s Algorithm', description: 'Maximum subarray sum in O(n). Track current and global max.', complexity: 'O(n)', section: 'Kadane & Subarray', example: `def max_subarray(nums):
     max_sum = curr_sum = nums[0]
