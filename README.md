@@ -4,6 +4,10 @@ A Python reference with syntax-highlighted code examples. Quick reference for Py
 
 **Live site:** [Pythoneala](https://neuronspeeed.github.io/python/)
 
+## Demo
+
+https://github.com/Neuronspeeed/python/releases/download/v1.0.0/demo.mov
+
 ## Features
 
 - **Python Fundamentals** - Core syntax, statements, conditionals, loops

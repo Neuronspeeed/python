@@ -25,3 +25,8 @@ CLAUDE.md
 *.njsproj
 *.sln
 *.sw?
+
+# Large media files
+*.mov
+*.mp4
+demo.*
