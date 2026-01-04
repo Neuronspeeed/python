@@ -14,6 +14,7 @@ export const pythonCoreItems: NavItem[] = [
   { path: ROUTES.CONDITIONALS, label: 'Conditionals', badge: 'if', color: 'var(--accent-none)' },
   { path: ROUTES.MATCH, label: 'Match', badge: 'match', color: 'var(--accent-none)' },
   { path: ROUTES.LOOPS, label: 'Loops', badge: 'for', color: 'var(--accent-none)' },
+  { path: ROUTES.COMPREHENSIONS, label: 'Comprehensions', badge: '[]', color: 'var(--accent-none)' },
 ]
 
 // DATA TYPES - All built-in types

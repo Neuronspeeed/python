@@ -46,6 +46,7 @@ export const ROUTES = {
   CONDITIONALS: '/conditionals',
   MATCH: '/match',
   LOOPS: '/loops',
+  COMPREHENSIONS: '/comprehensions',
   FUNCTIONS: '/functions',
   OOP: '/oop',
   // Advanced

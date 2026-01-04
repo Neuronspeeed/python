@@ -4,6 +4,7 @@ import { statementsMethods } from '../data/statementsMethods'
 import { conditionalsMethods } from '../data/conditionalsMethods'
 import { matchMethods } from '../data/match'
 import { loopsMethods } from '../data/loopsMethods'
+import { comprehensionsMethods } from '../data/comprehensions'
 import { functionsMethods } from '../data/functions'
 import { oopMethods } from '../data/oop'
 
@@ -146,12 +147,42 @@ export function LoopsPage() {
   return (
     <TypePage
       type="Loops" badge="for" color="var(--accent-none)"
-      description="Python loops: for iterates over sequences, while repeats until condition is false. Comprehensions are powerful shortcuts."
+      description="Python loops: for iterates over sequences, while repeats until condition is false. Includes iteration tools and loop control."
       intro={loopsIntro}
       tip={`Prefer for over while—simpler and faster
 Need index + value? enumerate(arr)
 Pair two lists? zip(a, b)`}
       methods={loopsMethods}
+    />
+  )
+}
+
+const comprehensionsIntro = `Comprehensions provide Python's concise functional syntax for creating collections. They transform one collection into another with filtering and mapping in a single readable expression.
+
+Four Types: List \`[]\` builds entire list in memory. Set \`{}\` creates unique values. Dict \`{k:v}\` creates key-value pairs. Generator \`()\` yields items lazily on demand. All share identical structure: \`[EXPR for VAR in ITERABLE if CONDITION]\`.
+
+Comprehensions vs Loops: Comprehensions are more Pythonic and often faster for simple transformations. Loops are better for complex logic, multiple statements, or when debugging. Choose comprehensions for readability, loops when logic doesn't fit cleanly in one line.
+
+Comprehensions vs map/filter: Comprehensions are more readable and flexible—you can combine mapping and filtering in one expression. \`map\` and \`filter\` are functional-style but less idiomatic in Python. Use comprehensions unless you already have a function to apply.
+
+List vs Generator: Lists \`[]\` build all items immediately (fast iteration, high memory). Generators \`()\` yield items one at a time (slow iteration, constant memory). Use lists for small data or multiple iterations. Use generators for large datasets, pipelines, or one-time iteration.
+
+Memory Trade-offs: List comprehension on 1M items uses ~8MB memory. Generator expression uses ~100 bytes—constant regardless of size. For \`sum(x**2 for x in range(1000000))\` the generator is 80x more memory efficient.
+
+When to Use: Comprehensions shine for simple transforms/filters. If you need to \`if/elif/else\`, multiple statements, or find yourself nesting deeply—use a regular loop instead. Readability trumps brevity.
+
+WARNING: Generators exhaust after one iteration! \`list(gen)\` consumes it—calling \`list(gen)\` again returns empty. Convert to list if you need multiple passes.`
+
+export function ComprehensionsPage() {
+  return (
+    <TypePage
+      type="Comprehensions" badge="[]" color="var(--accent-none)"
+      description="Concise syntax for creating collections: list, dict, set, generator. Transform and filter iterables in one readable expression."
+      intro={comprehensionsIntro}
+      tip={`List vs Generator? [] builds all, () yields lazily
+Memory efficient? Use (x for x in big_data)
+Too complex? Use a regular loop instead`}
+      methods={comprehensionsMethods}
     />
   )
 }
