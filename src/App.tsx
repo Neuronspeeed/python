@@ -59,7 +59,7 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter basename="/my-cheatsheet">
+      <BrowserRouter basename="/python">
         <ScrollToTop />
         <AppContent />
       </BrowserRouter>
