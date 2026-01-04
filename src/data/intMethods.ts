@@ -1,10 +1,40 @@
 import type { Method } from '../types'
 
 export const intMethods: Method[] = [
+  // Fundamentals
+  { signature: 'Integer Basics', description: 'Integers are whole numbers with no decimal places. Python has no size limit for integers. Type is int.', complexity: 'Concept', example: `# Integer literals
+x = 1
+y = 1000000         # Hard to read
+z = 1_000_000       # Use underscores for readability
+
+# Check type
+print(type(42))     # <class 'int'>
+
+# No size limit!
+huge = 999999999999999999999999999999
+print(huge)         # Works fine!
+
+# Negative integers
+neg = -42
+print(neg)          # -42` },
+  { signature: 'int vs float', description: 'Integer has no decimal, float has decimal. Mixing int and float in operations usually returns float.', complexity: 'Concept', example: `# Integer vs Float
+x = 1      # int
+y = 1.0    # float
+
+# Operations with mixed types
+print(1 + 2)      # 3 (int)
+print(1.0 + 2)    # 3.0 (float)
+print(1 * 2)      # 2 (int)
+print(1.0 * 2)    # 2.0 (float)
+
+# Division always returns float
+print(6 / 2)      # 3.0 (float, not int!)
+print(6 // 2)     # 3 (int, floor division)` },
   // Creation & Conversion
   { signature: 'int(x=0)', description: 'Creates an integer from a number or string. Truncates floats toward zero.', complexity: 'O(n)', example: `print(int(3.7))      # 3
 print(int(-3.7))     # -3
 print(int("42"))     # 42
+print(int("25"))     # 25 (from string)
 print(int("1010", 2)) # 10 (binary)` },
   { signature: 'int(x, base)', description: 'Converts string x in the given base (2-36) to integer.', complexity: 'O(n)', example: `print(int("ff", 16))   # 255 (hex)
 print(int("77", 8))    # 63 (octal)

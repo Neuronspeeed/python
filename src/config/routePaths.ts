@@ -53,6 +53,7 @@ export const ROUTES = {
   EXCEPTIONS: '/exceptions',
   LOGGING: '/logging',
   CONCURRENCY: '/concurrency',
+  FILEIO: '/fileio',
   // Algorithms
   BIG_O: '/big-o',
   SORTING: '/sorting',

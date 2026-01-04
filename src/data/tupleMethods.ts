@@ -1,6 +1,56 @@
 import type { Method } from '../types'
 
 export const tupleMethods: Method[] = [
+  // Fundamentals
+  { section: 'Fundamentals', signature: 'Tuple Basics', description: 'Tuples are IMMUTABLE ordered sequences. Create with parentheses (). Can contain any types. Remember: tuples CANNOT be modified after creation.', complexity: 'Concept', example: `# Create tuples with parentheses
+my_tuple = (1, 2, 3)
+mixed = (1, 2.0, "three")  # Different types OK
+print(type(my_tuple))      # <class 'tuple'>
+
+# Empty tuple
+empty = ()
+
+# Single element tuple - MUST have comma!
+single = (1,)     # tuple - correct!
+not_tuple = (1)   # int - just parentheses, no tuple!
+
+# Tuple from other sequences
+tuple("abc")      # ('a', 'b', 'c')
+tuple([1, 2, 3])  # (1, 2, 3)` },
+  { section: 'Fundamentals', signature: 'Tuple Packing & Unpacking', description: 'Pack: create tuple without parentheses. Unpack: extract values into variables. Number of variables must match tuple length.', complexity: 'O(1)', example: `# PACKING - create tuple without ()
+coordinates = 4.21, 9.29     # Packs into tuple
+print(type(coordinates))     # <class 'tuple'>
+
+# UNPACKING - extract values
+x, y = coordinates
+print(x)  # 4.21
+print(y)  # 9.29
+
+# Multiple assignment in one line
+name, age, job = "David", 34, "programmer"
+
+# Must match length!
+# a, b = 1, 2, 3  # ValueError: too many values
+# a, b, c = 1, 2  # ValueError: not enough values
+
+# Unpacking function returns
+def get_user():
+    return "Alice", 30, "admin"
+
+name, age, role = get_user()` },
+  { section: 'Fundamentals', signature: 'Tuple Immutability', description: 'Tuples CANNOT be changed after creation. No item assignment, no append, no remove. Must create new tuple to "change" values.', complexity: 'Concept', example: `# Cannot modify tuples!
+values = (1, 2, 3)
+# values[0] = 99      # TypeError: tuple doesn't support item assignment
+# values.append(4)    # AttributeError: no append method
+
+# To "change", create NEW tuple
+values = (99, 2, 3)  # Reassign to new tuple - OK
+
+# Slicing creates new tuple
+new_values = values[1:]  # (2, 3) - new tuple
+
+# Concatenation creates new tuple
+combined = values + (4, 5)  # (99, 2, 3, 4, 5)` },
   // Why & When
   { section: 'Why & When', signature: 'Why use Tuple?', description: 'Tuples are immutable sequences. Use for fixed data, dict keys, function returns, and when you want to guarantee data won\'t change.', complexity: 'Concept', example: `# Tuple = IMMUTABLE sequence
 # Use when: data shouldn't change, dict keys, returning multiple values

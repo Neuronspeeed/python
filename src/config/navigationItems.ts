@@ -44,6 +44,7 @@ export const toolingItems: NavItem[] = [
   { path: ROUTES.DOCUMENTATION, label: 'Documentation', badge: 'doc', color: 'var(--accent-logging)' },
   { path: ROUTES.LOGGING, label: 'Logging', badge: 'log', color: 'var(--accent-logging)' },
   { path: ROUTES.CONCURRENCY, label: 'Concurrency', badge: 'async', color: 'var(--accent-concurrency)' },
+  { path: ROUTES.FILEIO, label: 'File I/O', badge: 'file', color: 'var(--accent-fileio)' },
 ]
 
 export const algorithmItems: NavItem[] = [

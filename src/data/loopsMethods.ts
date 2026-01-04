@@ -1,6 +1,63 @@
 import type { Method } from '../types'
 
 export const loopsMethods: Method[] = [
+  // Fundamentals
+  { section: 'Fundamentals', signature: 'Why use loops?', description: 'Loops repeat code multiple times. Use while for condition-based repetition, for for iterating over collections.', complexity: 'Concept', example: `# Loops repeat code - computers never get tired!
+# Two types: while and for
+
+# WHILE - repeat WHILE condition is True
+count = 0
+while count < 3:
+    print(count)  # 0, 1, 2
+    count += 1
+
+# FOR - repeat for EACH item in collection
+for letter in "Python":
+    print(letter)  # P, y, t, h, o, n
+
+# Why loops?
+# - Process collections
+# - Repeat until condition met
+# - Avoid copy-paste code` },
+  { section: 'Fundamentals', signature: 'while loop basics', description: 'Repeats WHILE condition is True. Test happens BEFORE each iteration. Must update condition or infinite loop!', complexity: 'O(varies)', example: `# while loop structure:
+# 1. while keyword
+# 2. test condition
+# 3. colon
+# 4. indented body
+
+n = 1
+while n < 5:        # Test condition
+    print(n)        # Body (indented!)
+    n = n + 1       # MUST change n or infinite!
+# Prints: 1, 2, 3, 4
+
+# Process stops when condition becomes False
+# After n=4, loop runs, n becomes 5
+# Then n < 5 is False, loop exits
+
+# DANGER: Infinite loop if condition always True
+# while n < 5:      # n never changes
+#     print(n)      # Prints forever!` },
+  { section: 'Fundamentals', signature: 'for loop basics', description: 'Executes once for EACH item in collection. Number of iterations = number of items. Safer than while (no infinite loops).', complexity: 'O(n)', example: `# for loop structure:
+# 1. for keyword
+# 2. variable name
+# 3. in keyword
+# 4. iterable (string, list, tuple, etc.)
+# 5. colon
+# 6. indented body
+
+# Loop over string
+for letter in "Python":
+    print(letter)
+# P, y, t, h, o, n (6 iterations)
+
+# Loop over list
+for color in ["red", "green", "blue"]:
+    print(color)
+
+# Variable gets each value automatically
+# No need to manually update like while
+# Can't have infinite loop!` },
   // For Loop
   { section: 'For Loop', signature: 'for x in iterable:', description: 'Iterates over each element in an iterable (list, tuple, string, etc.).', complexity: 'O(n)', example: `for i in [1, 2, 3]:
     print(i)  # 1, 2, 3

@@ -2,6 +2,43 @@ import type { Method } from '../../types'
 
 // Why & When, Creation, Adding, Removing, Searching
 export const listBasicsMethods: Method[] = [
+  // Fundamentals
+  { signature: 'List Basics', description: 'Lists are MUTABLE ordered sequences. Create with brackets []. Can modify elements. Use for dynamic collections that need to change.', complexity: 'Concept', example: `# Create lists with square brackets []
+colors = ["red", "yellow", "green", "blue"]
+print(type(colors))  # <class 'list'>
+
+# Mixed types allowed (but typically use same type)
+mixed = ["one", 2, 3.0]  # Valid but not typical
+
+# From other sequences
+list((1, 2, 3))      # [1, 2, 3] from tuple
+list("Python")       # ['P', 'y', 't', 'h', 'o', 'n']
+
+# From string with split()
+groceries = "eggs, milk, cheese"
+grocery_list = groceries.split(", ")  # ['eggs', 'milk', 'cheese']
+
+# Empty list
+empty = []` },
+  { signature: 'List Mutability', description: 'Lists CAN be changed! Modify elements, add new ones, remove existing. This is the KEY difference from tuples.', complexity: 'Concept', example: `# Lists are MUTABLE - can change after creation!
+colors = ["red", "yellow", "green", "blue"]
+
+# Change single element
+colors[0] = "burgundy"
+print(colors)  # ['burgundy', 'yellow', 'green', 'blue']
+
+# Change multiple with slice assignment
+colors[1:3] = ["orange", "magenta"]
+print(colors)  # ['burgundy', 'orange', 'magenta', 'blue']
+
+# Slice assignment can change length!
+colors[1:3] = ["yellow"]  # Shrinks list
+print(colors)  # ['burgundy', 'yellow', 'blue']
+
+# In-place modification methods
+colors.append("green")   # Modifies list
+colors.insert(1, "pink") # Modifies list
+colors.pop()             # Modifies list` },
   // Why & When to Use Lists
   { signature: 'Why use List?', description: 'Lists are Python\'s go-to ordered collection. Mutable, dynamic sizing, mixed types allowed. Best for sequences where order matters and you need to modify elements.', complexity: 'Concept', example: `# Lists are MUTABLE ordered sequences
 # Use when you need:

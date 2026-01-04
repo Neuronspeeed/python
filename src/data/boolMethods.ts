@@ -1,6 +1,57 @@
 import type { Method } from '../types'
 
 export const boolMethods: Method[] = [
+  // Fundamentals
+  { signature: 'Boolean Basics', description: 'Bool type has only TWO values: True and False (capitalized!). Result of all comparisons and logical operations. Foundation of conditional logic.', complexity: 'Concept', example: `# Boolean type has only 2 values
+print(type(True))   # <class 'bool'>
+print(type(False))  # <class 'bool'>
+
+# MUST capitalize: True and False (not true/false!)
+# true   # NameError!
+# false  # NameError!
+
+# Comparisons return booleans
+result = 1 == 1     # True
+result = 3 > 5      # False
+result = "a" < "b"  # True (lexicographic order)
+
+# Use in conditions
+if result:
+    print("This runs if True")` },
+  { signature: 'Comparison Operators', description: 'Compare values: == (equal), != (not equal), < > <= >= (ordering). Returns True or False. Common mistake: = vs ==', complexity: 'O(1)', example: `# Equality
+print(1 == 1)       # True
+print(1 != 2)       # True
+print("a" == "a")   # True
+print("a" == "A")   # False (case-sensitive!)
+
+# Ordering (works with numbers and strings)
+print(3 > 5)        # False
+print(3 <= 3)       # True
+print("apple" < "banana")  # True (lexicographic)
+
+# COMMON MISTAKE: = vs ==
+x = 5        # Assignment (sets value)
+x == 5       # Comparison (returns True/False)
+# if x = 5:  # SyntaxError! Use == not =` },
+  { signature: 'Logical Operators (and, or, not)', description: 'Combine booleans: "and" (both True), "or" (at least one True), "not" (reverses). Operator precedence: not > and > or', complexity: 'O(1)', example: `# AND - both must be True
+print(True and True)    # True
+print(True and False)   # False
+print(1 < 2 and 3 < 4)  # True
+
+# OR - at least one True
+print(True or False)    # True
+print(False or False)   # False
+print(2 < 1 or 3 < 4)   # True
+
+# NOT - reverses
+print(not True)         # False
+print(not False)        # True
+print(not (1 == 2))     # True
+
+# Precedence: not > and > or
+# Use parentheses for clarity!
+result = True and not False  # True
+result = (True and False) == (True and False)  # True` },
   // Creation & Conversion
   { signature: 'bool(x)', description: 'Converts x to a Boolean. Returns False for falsy values, True otherwise.', complexity: 'O(1)', example: `print(bool(0))       # False
 print(bool(1))       # True

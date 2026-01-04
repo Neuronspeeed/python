@@ -1,9 +1,63 @@
 import type { Method } from '../types'
 
 export const floatMethods: Method[] = [
+  // Fundamentals
+  { signature: 'Float Basics', description: 'Floating-point numbers have decimals. Type is float. Can use E-notation for large numbers.', complexity: 'Concept', example: `# Float literals
+x = 1.0
+y = 1.25
+z = -2.75
+
+# E-notation for large/small numbers
+big = 1e6           # 1000000.0 (1 × 10⁶)
+small = 1e-4        # 0.0001 (1 × 10⁻⁴)
+print(2e17)         # 2e+17 (Python displays large floats in E-notation)
+
+# Underscores for readability
+readable = 1_000_000.0
+
+# Check type
+print(type(1.0))    # <class 'float'>
+
+# Special values
+print(2e400)        # inf (overflow)
+print(-2e400)       # -inf
+print(float('nan')) # nan (not a number)` },
+  { signature: 'Floating-Point Precision', description: 'Floats are approximations in binary. Can cause unexpected results with decimals.', complexity: 'Concept', example: `# Precision issues
+print(0.1 + 0.2)              # 0.30000000000000004 (not 0.3!)
+print(0.1 + 0.2 == 0.3)       # False
+
+# Why? Binary approximation
+# 0.1 in binary is infinite: 0.00011001100110011...
+# Stored as approximation: 0.1000000000000000055511...
+
+# Python displays shortest decimal
+print(0.1)                    # 0.1 (not full approximation)
+
+# For exact decimals, use Decimal
+from decimal import Decimal
+print(Decimal('0.1') + Decimal('0.2'))  # 0.3
+
+# Use round() for comparisons
+print(round(0.1 + 0.2, 10) == round(0.3, 10))  # True` },
+  { signature: 'round(number[, ndigits])', description: 'Rounds to nearest integer or to ndigits decimal places. Uses "round ties to even" (banker\'s rounding).', complexity: 'O(1)', example: `# Round to nearest integer
+print(round(2.3))        # 2
+print(round(2.7))        # 3
+
+# Round to decimal places
+print(round(3.14159, 2)) # 3.14
+print(round(2.71828, 3)) # 2.718
+
+# Ties round to even (IEEE 754 standard)
+print(round(2.5))        # 2 (rounds down to even)
+print(round(3.5))        # 4 (rounds up to even)
+print(round(4.5))        # 4 (rounds down to even)
+
+# Can have precision issues
+print(round(2.675, 2))   # 2.67 (expected 2.68 due to float precision)` },
   // Creation & Conversion
   { signature: 'float(x=0.0)', description: 'Creates a floating point number from a number or string.', complexity: 'O(n)', example: `print(float(3))        # 3.0
 print(float("3.14"))   # 3.14
+print(float("1.25"))   # 1.25 (from string)
 print(float("inf"))    # inf
 print(float("-inf"))   # -inf
 print(float("nan"))    # nan` },

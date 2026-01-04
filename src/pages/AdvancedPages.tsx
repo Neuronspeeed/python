@@ -4,6 +4,7 @@ import { modulesMethods } from '../data/modules'
 import { exceptionsMethods } from '../data/exceptions'
 import { loggingMethods } from '../data/logging'
 import { concurrencyMethods } from '../data/concurrency'
+import { fileioMethods } from '../data/fileio'
 
 const documentationIntro = `Documentation in Python ranges from simple comments to rich external tools. While technically optional, good documentation is essential for maintainable code.
 
@@ -145,6 +146,36 @@ export function ConcurrencyPage() {
 CPU-bound (computation)? Multiprocessing
 Many concurrent I/O ops? async/await`}
       methods={concurrencyMethods}
+    />
+  )
+}
+
+const fileioIntro = `File I/O allows Python to read and write data to disk. Every file is a sequence of bytes that must be decoded/encoded properly.
+
+Opening Files: Use open(path, mode, encoding) or Path.open(). Always close files or use with statement for auto-cleanup. File modes: "r" (read), "w" (write/overwrite), "a" (append). Add "b" for binary mode.
+
+Reading: file.read() loads entire file as string. file.readlines() returns list of lines. Iterate file object directly for memory efficiency. Lines include \\n newline character.
+
+Writing: file.write(text) writes string to file. file.writelines(lines) writes list of strings. Write mode OVERWRITES existing content! Use append mode to add to end.
+
+Encoding: UTF-8 is universal standard. ASCII limited to English characters. Windows defaults to UTF-16 for .txt files. MUST use same encoding to decode as was used to encode!
+
+Line Endings: Unix/Mac use \\n, Windows uses \\r\\n. Python handles conversion automatically in text mode.
+
+pathlib: Cross-platform path handling. Path() creates path objects. Path.home() and Path.cwd() get standard directories. Use / operator to join paths. Methods: .exists(), .is_file(), .is_dir(), .touch(), .mkdir().
+
+With Statement: Pythonic way to open files. Guarantees file closure even if exception raised. Context manager protocol handles cleanup automatically.`
+
+export function FileIOPage() {
+  return (
+    <TypePage
+      type="File I/O" badge="file" color="var(--accent-fileio)"
+      description="Reading and writing files. Cross-platform path handling with pathlib."
+      intro={fileioIntro}
+      tip={`Always use with statement for files!
+UTF-8 is the safe default encoding
+Write mode overwrites! Use 'a' to append`}
+      methods={fileioMethods}
     />
   )
 }

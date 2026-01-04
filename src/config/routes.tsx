@@ -55,6 +55,7 @@ const ModulesPage = lazyLoad(pages.advanced, 'ModulesPage')
 const ExceptionsPage = lazyLoad(pages.advanced, 'ExceptionsPage')
 const LoggingPage = lazyLoad(pages.advanced, 'LoggingPage')
 const ConcurrencyPage = lazyLoad(pages.advanced, 'ConcurrencyPage')
+const FileIOPage = lazyLoad(pages.advanced, 'FileIOPage')
 
 // Algorithms
 const BigOPage = lazyLoad(pages.bigO, 'BigOPage')
@@ -140,6 +141,7 @@ export const routeConfigs: RouteConfig[] = [
   { path: ROUTES.EXCEPTIONS, component: ExceptionsPage },
   { path: ROUTES.LOGGING, component: LoggingPage },
   { path: ROUTES.CONCURRENCY, component: ConcurrencyPage },
+  { path: ROUTES.FILEIO, component: FileIOPage },
   // Algorithms
   { path: ROUTES.BIG_O, component: BigOPage },
   { path: ROUTES.SORTING, component: SortingPage },
