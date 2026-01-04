@@ -324,9 +324,124 @@
   margin: 0;
 }
 
+/* Mobile Menu Toggle */
+.learn-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.625rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.learn-menu-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.learn-menu-toggle:active {
+  transform: scale(0.95);
+}
+
+.learn-sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+  .learn-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .learn-sidebar-backdrop {
+    display: block;
+  }
+
+  .learn-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: none;
+  }
+
+  .learn-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .learn-main {
+    max-width: 100%;
+    padding: 1.5rem 1.25rem;
+  }
+}
+
 @media (max-width: 900px) {
   .coming-soon-overlay {
     left: 0;
     width: 100vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .learn-main {
+    padding: 1rem;
+  }
+
+  .learn-sidebar-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .learn-nav-header {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .learn-nav-item {
+    padding: 0.5rem 1rem 0.5rem 1.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .learn-main {
+    padding: 0.875rem;
+  }
+
+  .learn-sidebar {
+    width: 280px;
+  }
+
+  .learn-sidebar-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .learn-sidebar-title {
+    font-size: 1.125rem;
+  }
+
+  .learn-sidebar-subtitle {
+    font-size: 0.75rem;
   }
 }

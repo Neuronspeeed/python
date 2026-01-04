@@ -28,9 +28,10 @@ const categoryIdToSlug: Record<string, LearnCategorySlug> = {
 interface LearnSidebarProps {
   activeCategory?: LearnCategorySlug
   activeAlgorithm?: string
+  isOpen?: boolean
 }
 
-export function LearnSidebar({ activeCategory, activeAlgorithm }: LearnSidebarProps) {
+export function LearnSidebar({ activeCategory, activeAlgorithm, isOpen }: LearnSidebarProps) {
   const location = useLocation()
 
   // Expand the active category by default
@@ -63,7 +64,7 @@ export function LearnSidebar({ activeCategory, activeAlgorithm }: LearnSidebarPr
   )
 
   return (
-    <aside className="learn-sidebar">
+    <aside className={`learn-sidebar ${isOpen ? 'open' : ''}`}>
       <div className="learn-sidebar-header">
         <Link to="/learn" className="learn-sidebar-brand">
           <div className="learn-sidebar-logo">

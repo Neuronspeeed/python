@@ -285,3 +285,45 @@
     display: flex;
   }
 }
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .page-description {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem 0.875rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .section {
+    margin-bottom: 2rem;
+  }
+}

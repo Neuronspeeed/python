@@ -102,3 +102,41 @@
   margin-bottom: 1rem;
   line-height: 1.6;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .method-card {
+    padding: 1.25rem;
+  }
+
+  .method-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .method-signature {
+    font-size: 0.875rem;
+  }
+
+  .method-description {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .method-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .method-signature {
+    font-size: 0.8125rem;
+    word-break: break-word;
+  }
+
+  .method-complexity {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
