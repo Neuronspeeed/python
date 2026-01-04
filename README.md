@@ -6,7 +6,9 @@ A Python reference with syntax-highlighted code examples. Quick reference for Py
 
 ## Demo
 
-https://github.com/Neuronspeeed/python/releases/download/v1.0.0/demo.mov
+<video src="https://github.com/Neuronspeeed/python/releases/download/v1.0.0/demo.mov" controls width="100%"></video>
+
+[Download demo video](https://github.com/Neuronspeeed/python/releases/download/v1.0.0/demo.mov)
 
 ## Features
 
