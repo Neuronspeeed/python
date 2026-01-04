@@ -13,9 +13,10 @@ export function SortingPage() {
     <TypePage
       type="Sorting Algorithms" badge="sort" color="var(--accent-sorting)"
       description="Master sorting algorithms. Know when to use each. Python's Timsort is usually best."
-      tip={`Custom sort key? key=lambda x: (x[0], -x[1])
-In-place vs new? sort() mutates, sorted() returns new
-Stuck on problem? Try sorting first`}
+      tip={`Custom sort key? key=lambda x: (x[0], -x[1]) for tuples, use - for descending
+In-place vs new? list.sort() mutates O(1) space, sorted() returns new O(n) space
+Stuck on problem? Try sorting first - unlocks greedy, two pointers, binary search
+Stable sort matters? Python's sort is stable (preserves original order for equal elements)`}
       methods={sortingMethods}
     />
   )
@@ -27,8 +28,9 @@ export function BinarySearchPage() {
       type="Binary Search" badge="log" color="var(--accent-binary-search)"
       description="O(log n) search in sorted data. Master the three variants: exact, left-most, right-most."
       tip={`Sorted data? Binary search
-"Min/max that satisfies X?" Binary search on answer
-Find boundary? left < right, not left <= right`}
+"Minimum speed/capacity where condition works"? Binary search on answer
+Find boundary? while left < right, not left <= right
+Python has it! bisect_left for ≥ target, bisect_right for > target`}
       methods={binarySearchMethods}
       tabs={<DSCategoryTabs basePath="/binary-search" problemCount={getProblemCount('binarySearch')} />}
     />
@@ -71,9 +73,10 @@ export function BacktrackingPage() {
     <TypePage
       type="Backtracking" badge="bt" color="var(--accent-backtracking)"
       description="Explore all solutions by building incrementally. Essential for permutations, combinations, constraint satisfaction."
-      tip={`"Find ALL combinations"? Backtracking
-Pattern? choose → explore → unchoose
-Store result? append path[:] not path`}
+      tip={`"Find ALL combinations/permutations"? Backtracking (not DP!)
+Pattern? choose → explore (recurse) → unchoose (backtrack)
+Store result? append path[:] not path (copy required!)
+Prune early? Check constraints BEFORE recursing, not after (huge speedup)`}
       methods={backtrackingMethods}
       tabs={<DSCategoryTabs basePath="/backtracking" problemCount={getProblemCount('backtracking')} />}
     />
@@ -85,9 +88,10 @@ export function DynamicProgrammingPage() {
     <TypePage
       type="Dynamic Programming" badge="dp" color="var(--accent-dp)"
       description="Solve complex problems by breaking into overlapping subproblems. Memoization vs tabulation."
-      tip={`"Count ways" or "min cost"? DP
-Framework? state → recurrence → base case
-Quick memo? @lru_cache decorator`}
+      tip={`"Count ways" or "min/max cost"? Almost always DP
+Framework? (1) state (2) recurrence (3) base case (4) order
+Quick memo? @lru_cache decorator (top-down), or build dp[] table (bottom-up)
+1D vs 2D? Single sequence → 1D, two sequences or intervals → 2D`}
       methods={dpMethods}
       tabs={<DSCategoryTabs basePath="/dynamic-programming" problemCount={getProblemCount('dynamicProgramming')} />}
     />
@@ -99,9 +103,10 @@ export function GraphPage() {
     <TypePage
       type="Graph Algorithms" badge="bfs" color="var(--accent-graph)"
       description="Graph traversal, shortest paths, and spanning trees. Master DFS, BFS, Dijkstra, and topological sort."
-      tip={`Shortest path (unweighted)? BFS
-Explore all paths? DFS
-Dependencies/ordering? Topological sort`}
+      tip={`Shortest path unweighted? BFS - Weighted non-negative? Dijkstra - Negative edges? Bellman-Ford
+Explore all paths? DFS - Level-by-level? BFS - Cycle detection? DFS with colors
+Dependencies/ordering? Topological sort (Kahn's for cycle detect, DFS for simplicity)
+Connected components? DFS or Union-Find`}
       methods={graphMethods}
       tabs={<DSCategoryTabs basePath="/graph" problemCount={getProblemCount('graphs')} />}
     />
