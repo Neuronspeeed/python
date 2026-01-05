@@ -1881,56 +1881,652 @@ Reconstruct solution? Store parent pointers to track choices, not just final opt
   )
 }
 
-const graphIntro = `Graphs represent relationships between objects. A graph is a set of vertices (nodes) connected by edges. Graphs can be directed (one-way edges) or undirected (two-way edges), weighted (edges have costs) or unweighted. The key insight: many real-world problems (social networks, maps, dependencies) are naturally modeled as graphs.
+const graphIntro = `Graphs represent relationships between objects—a graph is a set of vertices (nodes) connected by edges. Graphs can be directed (one-way edges) or undirected (two-way edges), weighted (edges have costs) or unweighted. The key insight: many seemingly different problems (social networks, web crawling, task scheduling, route finding, dependency resolution) are all graph traversal in disguise.
 
-GRAPH REPRESENTATION: Adjacency list - dictionary mapping vertex to list of neighbors. Space O(V + E), efficient for sparse graphs. Most common in interviews. Adjacency matrix - 2D array where matrix[i][j] = 1 if edge exists. Space O(V²), fast edge lookup O(1), use for dense graphs. Python: use \`defaultdict(list)\` for adjacency list, \`[[0]*n for _ in range(n)]\` for matrix.
+WHY GRAPHS MATTER: Graph algorithms unlock solutions to problems that appear unrelated on the surface. A maze is a graph (cells = nodes, passages = edges). Course prerequisites are a directed acyclic graph (DAG). Finding the shortest route on a map is weighted shortest path. Detecting deadlocks in concurrent systems is cycle detection. Master graph algorithms, and you've mastered a huge class of interview problems.
+
+GRAPH REPRESENTATION: ADJACENCY LIST VS ADJACENCY MATRIX
+
+**Adjacency List** (Most Common in Interviews)
+
+Dictionary or list of lists where each vertex maps to its neighbors:
 
 \`\`\`python
-# Adjacency list (most common)
+# Dictionary of lists (most flexible)
 graph = {
     0: [1, 2],
-    1: [2],
+    1: [2, 3],
     2: [3],
     3: []
 }
-# or defaultdict(list) for easier building
+
+# List of lists (when vertices are 0 to n-1)
+graph = [
+    [1, 2],    # neighbors of vertex 0
+    [2, 3],    # neighbors of vertex 1
+    [3],       # neighbors of vertex 2
+    []         # neighbors of vertex 3
+]
+
+# defaultdict for easier building (no KeyError)
 from collections import defaultdict
 graph = defaultdict(list)
-graph[0].append(1)
+for u, v in edges:
+    graph[u].append(v)  # directed
+    graph[v].append(u)  # add this for undirected
+
+# Weighted graph: store tuples (neighbor, weight)
+graph = defaultdict(list)
+graph[0].append((1, 4))  # edge 0→1 with weight 4
+graph[0].append((2, 1))  # edge 0→2 with weight 1
 \`\`\`
 
-BFS VS DFS: BFS (Breadth-First Search) explores level by level using a queue. Finds shortest path in unweighted graphs, explores neighbors before going deeper. Use for: shortest path (unweighted), level-order traversal, testing bipartiteness, finding connected components at minimum distance. DFS (Depth-First Search) explores as deep as possible using recursion or stack. Use for: finding all paths, detecting cycles, topological sort, strongly connected components, maze solving. Both are O(V + E) time.
+**When to use:**
+- Sparse graphs (few edges relative to vertices)
+- Space: O(V + E) — efficient when E << V²
+- Edge lookup: O(degree of vertex)
+- Iterate neighbors: O(degree)
+- **Best for: interviews (99% of problems), social networks, web graphs**
+
+**Adjacency Matrix**
+
+2D array where \`matrix[i][j]\` indicates edge from i to j:
 
 \`\`\`python
-# BFS template
+# n x n matrix for n vertices
+n = 4
+graph = [[0] * n for _ in range(n)]
+
+# Add edge from u to v
+graph[u][v] = 1  # unweighted
+graph[u][v] = weight  # weighted
+
+# Undirected: symmetric matrix
+graph[u][v] = graph[v][u] = 1
+
+# Check if edge exists: O(1)
+if graph[u][v]:
+    print(f"Edge {u} → {v} exists")
+\`\`\`
+
+**When to use:**
+- Dense graphs (many edges, E ≈ V²)
+- Space: O(V²) — wasteful for sparse graphs
+- Edge lookup: O(1) — very fast
+- Iterate neighbors: O(V) — must scan entire row
+- **Best for: dense graphs, Floyd-Warshall (all-pairs shortest path)**
+
+**Trade-off Decision:**
+- V = 1000, E = 2000 (sparse) → Adjacency list uses 2000 + 1000 = 3K space, matrix uses 1M space
+- V = 100, E = 5000 (dense) → Both similar, matrix has O(1) edge lookup
+- **Default choice: adjacency list** (unless problem specifically needs dense representation)
+
+BFS VS DFS: THE FUNDAMENTAL GRAPH TRAVERSAL CHOICE
+
+**BFS (Breadth-First Search)**: Level-by-level exploration
+
+Explore all neighbors at current distance before going deeper. Uses a **queue** (FIFO).
+
+\`\`\`python
 from collections import deque
+
 def bfs(graph, start):
     visited = set([start])
     queue = deque([start])
+    result = []
+
     while queue:
-        node = queue.popleft()
+        node = queue.popleft()  # FIFO: process oldest first
+        result.append(node)
+
         for neighbor in graph[node]:
             if neighbor not in visited:
-                visited.add(neighbor)
+                visited.add(neighbor)  # Mark BEFORE adding to queue!
                 queue.append(neighbor)
 
-# DFS template (recursive)
-def dfs(graph, node, visited=None):
-    if visited is None:
-        visited = set()
-    visited.add(node)
-    for neighbor in graph[node]:
-        if neighbor not in visited:
-            dfs(graph, neighbor, visited)
+    return result
+
+# Time: O(V + E) - visit each vertex once, check each edge once
+# Space: O(V) - queue can hold up to V vertices in worst case
 \`\`\`
 
-SHORTEST PATH ALGORITHMS: Unweighted graph → BFS finds shortest path in O(V + E). Weighted graph with non-negative edges → Dijkstra's algorithm uses priority queue, O((V + E) log V). Negative edge weights → Bellman-Ford, O(V * E), also detects negative cycles. All pairs shortest paths → Floyd-Warshall, O(V³), finds distances between all vertex pairs. Decision: unweighted = BFS, weighted non-negative = Dijkstra, negative edges = Bellman-Ford, all pairs with small V = Floyd-Warshall.
+**When to use BFS:**
+- ✅ **Shortest path in unweighted graph** (guaranteed minimum hops)
+- ✅ Level-order traversal (process by distance from start)
+- ✅ Testing bipartiteness (2-coloring)
+- ✅ Finding connected components at minimum distance
+- ✅ Web crawling (explore nearby pages first)
+- ✅ Shortest transformation sequence (word ladder)
 
-TOPOLOGICAL SORT: Ordering of directed acyclic graph (DAG) vertices so every edge goes from earlier to later in the ordering. Use for: course prerequisites, build systems, task scheduling. Two methods: Kahn's algorithm (BFS-based, easy to detect cycles), DFS-based (add to result in reverse post-order). Both O(V + E). If graph has cycle, topological sort is impossible.
+**DFS (Depth-First Search)**: Go deep before going wide
 
-CYCLE DETECTION: Undirected graph → DFS, mark vertices as visited, if you visit a visited neighbor (not parent), there's a cycle. Directed graph → DFS with 3 colors (white=unvisited, gray=in progress, black=done), edge to gray node means cycle. Or use topological sort - if it succeeds, no cycle.
+Explore as far as possible along each branch before backtracking. Uses **recursion** or **stack** (LIFO).
 
-CONNECTED COMPONENTS: Use DFS or BFS to find all vertices reachable from a starting vertex. Run DFS/BFS from each unvisited vertex to find all components. Alternative: Union-Find (disjoint set union) for dynamic connectivity queries.`
+\`\`\`python
+# Recursive DFS (cleaner)
+def dfs_recursive(graph, node, visited=None):
+    if visited is None:
+        visited = set()
+
+    visited.add(node)
+    result = [node]
+
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            result.extend(dfs_recursive(graph, neighbor, visited))
+
+    return result
+
+# Iterative DFS (better for deep graphs, avoids stack overflow)
+def dfs_iterative(graph, start):
+    visited = set()
+    stack = [start]
+    result = []
+
+    while stack:
+        node = stack.pop()  # LIFO: process most recent
+
+        if node not in visited:
+            visited.add(node)
+            result.append(node)
+
+            # Add neighbors in reverse for same order as recursive
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+
+    return result
+
+# Time: O(V + E)
+# Space: O(V) for recursion stack or explicit stack
+\`\`\`
+
+**When to use DFS:**
+- ✅ **Find ALL paths** between two vertices
+- ✅ **Detect cycles** (easier with DFS + coloring)
+- ✅ **Topological sort** (reverse post-order)
+- ✅ **Strongly connected components** (Kosaraju's, Tarjan's)
+- ✅ Maze solving (explore one path fully before trying another)
+- ✅ Backtracking problems (combinations, permutations on graphs)
+- ✅ Tree traversals (in-order, pre-order, post-order)
+
+**BFS vs DFS Comparison:**
+
+| Aspect | BFS | DFS |
+|--------|-----|-----|
+| Data Structure | Queue (deque) | Stack or Recursion |
+| Explores | Level by level | Branch by branch |
+| Shortest Path | YES (unweighted) | NO |
+| Space | O(V) - can be large | O(h) height, usually smaller |
+| Implementation | Iterative (queue) | Recursive (cleaner) or iterative |
+| Use Case | Distance, shortest path | All paths, cycles, topological |
+
+**Common Gotcha:**
+Mark vertices as visited WHEN ADDING to queue/stack, not when popping! Otherwise same vertex gets added multiple times.
+
+\`\`\`python
+# ❌ WRONG - vertex added to queue multiple times
+def bfs_wrong(graph, start):
+    queue = deque([start])
+    visited = set()
+
+    while queue:
+        node = queue.popleft()
+        visited.add(node)  # Too late! Already in queue multiple times
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                queue.append(neighbor)  # Can add same neighbor multiple times
+
+# ✅ CORRECT - mark when adding
+def bfs_correct(graph, start):
+    visited = set([start])
+    queue = deque([start])
+
+    while queue:
+        node = queue.popleft()
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)  # Mark immediately!
+                queue.append(neighbor)
+\`\`\`
+
+SHORTEST PATH ALGORITHMS: THE DECISION TREE
+
+**Decision Tree:**
+1. Unweighted graph? → **BFS** (O(V + E))
+2. Weighted graph with non-negative edges? → **Dijkstra** (O((V + E) log V))
+3. Negative edge weights? → **Bellman-Ford** (O(V * E))
+4. All pairs shortest paths? → **Floyd-Warshall** (O(V³))
+
+**Algorithm 1: BFS for Unweighted Shortest Path**
+
+\`\`\`python
+from collections import deque
+
+def shortest_path_bfs(graph, start, target):
+    if start == target:
+        return [start]
+
+    visited = {start}
+    queue = deque([(start, [start])])  # (node, path to node)
+
+    while queue:
+        node, path = queue.popleft()
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                new_path = path + [neighbor]
+
+                if neighbor == target:
+                    return new_path  # First path found = shortest
+
+                visited.add(neighbor)
+                queue.append((neighbor, new_path))
+
+    return None  # No path exists
+
+# Time: O(V + E)
+# Space: O(V) for visited + paths
+\`\`\`
+
+**Algorithm 2: Dijkstra for Weighted Non-Negative**
+
+\`\`\`python
+import heapq
+from collections import defaultdict
+
+def dijkstra(graph, start):
+    # graph[u] = [(v, weight), ...]
+    distances = {start: 0}
+    pq = [(0, start)]  # (distance, node)
+
+    while pq:
+        curr_dist, node = heapq.heappop(pq)
+
+        # Skip if we already found better path
+        if curr_dist > distances.get(node, float('inf')):
+            continue
+
+        for neighbor, weight in graph[node]:
+            distance = curr_dist + weight
+
+            # Relaxation: found shorter path?
+            if distance < distances.get(neighbor, float('inf')):
+                distances[neighbor] = distance
+                heapq.heappush(pq, (distance, neighbor))
+
+    return distances
+
+# Time: O((V + E) log V) with binary heap
+# Space: O(V) for distances and priority queue
+# Note: Fibonacci heap achieves O(E + V log V) but constant factor high
+\`\`\`
+
+**Algorithm 3: Bellman-Ford for Negative Edges**
+
+\`\`\`python
+def bellman_ford(edges, V, start):
+    # edges = [(u, v, weight), ...]
+    distances = [float('inf')] * V
+    distances[start] = 0
+
+    # Relax all edges V-1 times
+    for _ in range(V - 1):
+        for u, v, weight in edges:
+            if distances[u] + weight < distances[v]:
+                distances[v] = distances[u] + weight
+
+    # Check for negative cycles
+    for u, v, weight in edges:
+        if distances[u] + weight < distances[v]:
+            return None  # Negative cycle detected
+
+    return distances
+
+# Time: O(V * E) - slower than Dijkstra but handles negative weights
+# Space: O(V)
+# Can detect negative cycles (Dijkstra cannot)
+\`\`\`
+
+**Algorithm 4: Floyd-Warshall for All Pairs**
+
+\`\`\`python
+def floyd_warshall(graph, V):
+    # graph[i][j] = weight of edge i→j (or inf if no edge)
+    dist = [[float('inf')] * V for _ in range(V)]
+
+    # Distance from vertex to itself is 0
+    for i in range(V):
+        dist[i][i] = 0
+
+    # Initialize with direct edges
+    for u in range(V):
+        for v, weight in graph[u]:
+            dist[u][v] = weight
+
+    # Consider each vertex as intermediate
+    for k in range(V):
+        for i in range(V):
+            for j in range(V):
+                # Is path i→k→j shorter than i→j?
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+    return dist
+
+# Time: O(V³) - expensive but simple
+# Space: O(V²)
+# Use when V is small (< 500) and need all pairs
+\`\`\`
+
+TOPOLOGICAL SORT: ORDERING DEPENDENCIES
+
+Topological sort orders vertices in a Directed Acyclic Graph (DAG) such that for every edge u→v, u comes before v.
+
+**Use cases:**
+- Course prerequisites (take A before B)
+- Build systems (compile X before Y)
+- Task scheduling with dependencies
+- Detecting circular dependencies
+
+**Two algorithms:**
+
+**Method 1: Kahn's Algorithm (BFS-based, easy cycle detection)**
+
+\`\`\`python
+from collections import deque, defaultdict
+
+def topological_sort_kahn(graph, V):
+    # Calculate in-degrees
+    in_degree = [0] * V
+    for u in range(V):
+        for v in graph[u]:
+            in_degree[v] += 1
+
+    # Queue vertices with no incoming edges
+    queue = deque([i for i in range(V) if in_degree[i] == 0])
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+
+        # Remove this node, decrease in-degrees
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+
+    # If result has all vertices, no cycle. Otherwise cycle exists.
+    return result if len(result) == V else None
+
+# Time: O(V + E)
+# Space: O(V)
+# BONUS: Detects cycles (if len(result) < V, cycle exists!)
+\`\`\`
+
+**Method 2: DFS-based (simpler, reverse post-order)**
+
+\`\`\`python
+def topological_sort_dfs(graph, V):
+    visited = set()
+    result = []
+
+    def dfs(node):
+        visited.add(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                dfs(neighbor)
+        result.append(node)  # Add in POST-order
+
+    for i in range(V):
+        if i not in visited:
+            dfs(i)
+
+    return result[::-1]  # Reverse for topological order
+
+# Time: O(V + E)
+# Space: O(V)
+# Simpler but doesn't detect cycles as easily
+\`\`\`
+
+CYCLE DETECTION:
+
+**Undirected Graph:**
+
+\`\`\`python
+def has_cycle_undirected(graph, V):
+    visited = set()
+
+    def dfs(node, parent):
+        visited.add(node)
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                if dfs(neighbor, node):  # Recurse
+                    return True
+            elif neighbor != parent:  # Visited neighbor (not parent) = cycle
+                return True
+
+        return False
+
+    # Check all components
+    for i in range(V):
+        if i not in visited:
+            if dfs(i, -1):
+                return True
+
+    return False
+\`\`\`
+
+**Directed Graph (3-color method):**
+
+\`\`\`python
+def has_cycle_directed(graph, V):
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = [WHITE] * V
+
+    def dfs(node):
+        color[node] = GRAY  # Currently exploring
+
+        for neighbor in graph[node]:
+            if color[neighbor] == GRAY:  # Back edge = cycle!
+                return True
+            if color[neighbor] == WHITE:
+                if dfs(neighbor):
+                    return True
+
+        color[node] = BLACK  # Done exploring
+        return False
+
+    for i in range(V):
+        if color[i] == WHITE:
+            if dfs(i):
+                return True
+
+    return False
+
+# WHITE = unvisited, GRAY = in progress, BLACK = done
+# Edge to GRAY node = back edge = cycle
+\`\`\`
+
+BIPARTITE GRAPHS (2-COLORING):
+
+A graph is bipartite if vertices can be colored with two colors such that no edge connects same-colored vertices.
+
+**Use cases:**
+- Matching problems (students ↔ projects)
+- Scheduling (tasks ↔ time slots)
+- Detecting odd cycles (graph is bipartite ⟺ no odd cycles)
+
+\`\`\`python
+from collections import deque
+
+def is_bipartite(graph):
+    color = {}
+
+    def bfs(start):
+        queue = deque([start])
+        color[start] = 0
+
+        while queue:
+            node = queue.popleft()
+
+            for neighbor in graph[node]:
+                if neighbor not in color:
+                    color[neighbor] = 1 - color[node]  # Opposite color
+                    queue.append(neighbor)
+                elif color[neighbor] == color[node]:  # Same color!
+                    return False
+
+        return True
+
+    # Check all components
+    for node in graph:
+        if node not in color:
+            if not bfs(node):
+                return False
+
+    return True
+
+# Time: O(V + E)
+# Works with DFS too, BFS is cleaner
+\`\`\`
+
+CONNECTED COMPONENTS:
+
+\`\`\`python
+def count_components(graph, V):
+    visited = set()
+    count = 0
+
+    def dfs(node):
+        visited.add(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                dfs(neighbor)
+
+    for i in range(V):
+        if i not in visited:
+            dfs(i)  # Explore entire component
+            count += 1
+
+    return count
+
+# Time: O(V + E)
+# BFS works too, DFS is simpler
+\`\`\`
+
+**Union-Find (Disjoint Set Union)** is faster for dynamic connectivity:
+
+\`\`\`python
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # Path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False  # Already connected
+
+        # Union by rank
+        if self.rank[px] < self.rank[py]:
+            self.parent[px] = py
+        elif self.rank[px] > self.rank[py]:
+            self.parent[py] = px
+        else:
+            self.parent[py] = px
+            self.rank[px] += 1
+        return True
+
+# Time: O(α(n)) ≈ O(1) amortized per operation
+# Better than DFS for dynamic edge additions
+\`\`\`
+
+COMMON GRAPH PATTERNS:
+
+**Pattern 1: "Number of Islands" (Grid DFS/BFS)**
+
+\`\`\`python
+def num_islands(grid):
+    if not grid:
+        return 0
+
+    rows, cols = len(grid), len(grid[0])
+    visited = set()
+    count = 0
+
+    def dfs(r, c):
+        if (r < 0 or r >= rows or c < 0 or c >= cols or
+            (r, c) in visited or grid[r][c] == '0'):
+            return
+
+        visited.add((r, c))
+        # Explore 4 directions
+        dfs(r+1, c)
+        dfs(r-1, c)
+        dfs(r, c+1)
+        dfs(r, c-1)
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == '1' and (r, c) not in visited:
+                dfs(r, c)  # Explore entire island
+                count += 1
+
+    return count
+\`\`\`
+
+**Pattern 2: "Clone Graph" (Deep Copy)**
+
+\`\`\`python
+def clone_graph(node):
+    if not node:
+        return None
+
+    clones = {}
+
+    def dfs(node):
+        if node in clones:
+            return clones[node]
+
+        clone = Node(node.val)
+        clones[node] = clone  # Must create before recursing (avoid cycle!)
+
+        for neighbor in node.neighbors:
+            clone.neighbors.append(dfs(neighbor))
+
+        return clone
+
+    return dfs(node)
+\`\`\`
+
+BEST PRACTICES:
+
+1. **Choose right representation**: Adjacency list for sparse, matrix for dense
+
+2. **Mark visited when adding**: Prevents duplicates in queue/stack
+
+3. **Use deque for BFS**: \`collections.deque\` is O(1) for popleft(), list is O(n)
+
+4. **DFS: iterative for deep graphs**: Avoids stack overflow
+
+5. **Dijkstra: check distance when popping**: Skip outdated entries in priority queue
+
+6. **Negative weights? Use Bellman-Ford**: Dijkstra gives wrong answers with negative weights
+
+7. **Grid problems = graph problems**: Treat cells as vertices, adjacency as edges
+
+8. **Topological sort requires DAG**: If cycle exists, topological sort is impossible
+
+9. **Union-Find for dynamic connectivity**: Better than DFS when edges added incrementally`
 
 export function GraphPage() {
   return (
@@ -1938,10 +2534,13 @@ export function GraphPage() {
       type="Graph Algorithms" badge="bfs" color="var(--accent-graph)"
       description="Graph traversal, shortest paths, and spanning trees. Master DFS, BFS, Dijkstra, and topological sort."
       intro={graphIntro}
-      tip={`Shortest path unweighted? BFS - Weighted non-negative? Dijkstra - Negative edges? Bellman-Ford
-Explore all paths? DFS - Level-by-level? BFS - Cycle detection? DFS with colors
-Dependencies/ordering? Topological sort (Kahn's for cycle detect, DFS for simplicity)
-Connected components? DFS or Union-Find`}
+      tip={`Shortest path unweighted? BFS O(V+E) — weighted non-negative? Dijkstra O((V+E)log V) — negative? Bellman-Ford
+BFS vs DFS? BFS for shortest path/levels, DFS for all paths/cycles/topological sort
+Mark visited WHEN ADDING to queue! Not when popping — prevents duplicate additions
+Topological sort? Kahn's (BFS, detects cycles), DFS (reverse post-order, simpler)
+Cycle detection? Undirected: DFS with parent check — Directed: 3-color (GRAY node = cycle)
+Graph representation? Adjacency list for sparse (99% of interviews), matrix for dense/Floyd-Warshall
+Use deque for BFS! collections.deque is O(1) for popleft(), list is O(n)`}
       methods={graphMethods}
       tabs={<DSCategoryTabs basePath="/graph" problemCount={getProblemCount('graphs')} />}
     />
