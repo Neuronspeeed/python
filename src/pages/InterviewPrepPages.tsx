@@ -178,29 +178,499 @@ WHEN GENERATORS WIN: Large or infinite sequences, one-pass iteration, streaming 
 
 WHEN GENERATORS LOSE: Need len() (generators don't have length), need random access (no indexing), need to iterate multiple times (generators exhaust), small data that fits in memory (lists are simpler). Convert generator to list if needed: \`list(generator)\`, but this defeats the memory benefits.`
 
-const greedyIntro = `Greedy algorithms make locally optimal choices at each step hoping to find a global optimum. The key insight: if you can prove that a local optimum leads to a global optimum, greedy is simple and fast—but proving correctness is often harder than with DP.
+const greedyIntro = `Greedy algorithms make locally optimal choices at each step, hoping to find a global optimum. The key insight: if you can prove that local optimality leads to global optimality, greedy is dramatically simpler and faster than dynamic programming—but the challenge is proving correctness. When greedy works, it's elegant. When it fails, it fails catastrophically.
 
-WHEN GREEDY WORKS: A greedy algorithm works when the problem has two properties: (1) Greedy choice property - a locally optimal choice leads to a globally optimal solution, (2) Optimal substructure - an optimal solution contains optimal solutions to subproblems. Classic greedy problems: activity selection, Huffman coding, minimum spanning trees (Kruskal's, Prim's), Dijkstra's shortest path, fractional knapsack.
+WHY GREEDY IS POWERFUL (AND DANGEROUS): Greedy algorithms are seductive: they're intuitive, easy to code, and often O(n log n) instead of O(n²) or exponential. But they're also dangerous—most problems where greedy seems obvious actually require DP or backtracking. The real skill is knowing when greedy works and being able to prove it. In interviews, if you claim a greedy solution, you MUST explain why it's correct.
 
-WHEN GREEDY FAILS: Greedy doesn't always work! Classic failures: 0/1 knapsack (taking highest value/weight ratio locally doesn't give global optimum), coin change with arbitrary denominations (greedy picks largest coin, but may need more coins total), longest path in general graphs. If greedy seems to fail, try dynamic programming.
+**The greedy paradox:**
+- When it works: O(n log n) with 10 lines of code
+- When it fails: Wrong answer with no warning
+- The hard part: Proving which category your problem is in
 
-PROOF TECHNIQUES: Exchange argument - assume optimal solution differs from greedy, show you can exchange elements to match greedy without making it worse. Stays-ahead argument - show greedy maintains a better partial solution than any other algorithm. Cut-and-paste - show any optimal solution can be modified to match greedy's choices. Without proof, greedy is just a heuristic.
+THE TWO REQUIREMENTS FOR GREEDY:
 
-INTERVAL SCHEDULING PATTERN: The classic greedy problem. Given intervals with start/end times, select maximum number that don't overlap. Greedy strategy: sort by END time, pick earliest ending interval, skip all overlapping intervals, repeat. Why it works: picking earliest end leaves the most room for future intervals. Proof: exchange argument—any optimal solution can be modified to include earliest-ending interval first.
+**1. Greedy Choice Property**
+Making the locally optimal choice at each step leads to a globally optimal solution. You can make a choice that looks best right now without considering future consequences.
 
-\`\`\`python
-def max_intervals(intervals):
-    # Sort by end time
-    intervals.sort(key=lambda x: x[1])
-    count, end = 0, float('-inf')
-    for start, e in intervals:
-        if start >= end:  # No overlap
-            count += 1
-            end = e
-    return count
+Example (Activity Selection): Choosing the activity that ends earliest is always safe—it leaves maximum room for future activities. Proof: If optimal solution chose different activity, swapping it with earliest-ending doesn't make solution worse.
+
+Counter-example (0/1 Knapsack): Choosing item with highest value/weight ratio locally doesn't guarantee global optimum. You might need to skip high-ratio items to fit others.
+
+**2. Optimal Substructure**
+An optimal solution contains optimal solutions to subproblems. After making a greedy choice, the remaining problem is smaller and has the same structure.
+
+Example (Activity Selection): After choosing earliest-ending activity, the remaining problem is "select maximum activities from remaining time" - same structure, smaller input.
+
+**Both properties required:** Optimal substructure alone isn't enough (DP has it too). Greedy choice property is what makes greedy work.
+
+PROOF TECHNIQUES: HOW TO VERIFY GREEDY CORRECTNESS
+
+**Technique 1: Exchange Argument** (Most Common)
+
+Assume an optimal solution exists that differs from greedy. Show you can "exchange" elements to match greedy's choice without making it worse. If you can always do this, greedy must be optimal.
+
+\`\`\`
+Proof pattern:
+1. Assume optimal solution O differs from greedy solution G at some point
+2. Take first difference: O chose x, G chose y
+3. Show: exchanging x for y in O produces O' that is:
+   - Still valid (satisfies constraints)
+   - Still optimal (same or better objective value)
+4. Repeat exchange until O becomes G
+5. Therefore: G is optimal
 \`\`\`
 
-GREEDY VS DYNAMIC PROGRAMMING: Greedy is simpler and faster when it works—often O(n log n) due to sorting vs O(n²) for DP. Use greedy when you can prove correctness. Use DP when: greedy gives wrong answer, you need to count ways (not just find optimum), problem has overlapping subproblems with no greedy structure. Try greedy first if it seems natural, verify with examples, fallback to DP if greedy fails.`
+**Example: Activity Selection**
+- Greedy: Always pick activity ending earliest
+- Proof: If optimal picks activity ending at time t2, and greedy picks one ending at t1 < t2, swap them. Still have same number of activities, but more time left for future choices. Therefore greedy is at least as good.
+
+**Technique 2: Stays-Ahead Argument**
+
+Show that after each step, greedy maintains a solution at least as good as any other algorithm.
+
+\`\`\`
+Proof pattern:
+1. Define what "better partial solution" means
+2. Prove: after each greedy choice, greedy's partial solution ≥ any other algorithm's
+3. Therefore: at the end, greedy has the best solution
+\`\`\`
+
+**Example: Fractional Knapsack**
+- Greedy: Take items in order of value/weight ratio
+- Proof: At any point, greedy has packed highest total value for given weight. Any other choice would have lower value for same weight.
+
+**Technique 3: Cut-and-Paste Argument**
+
+Show that any optimal solution can be modified to match greedy's structure without losing optimality.
+
+**Without proof, greedy is just a heuristic** — it might work on test cases but fail on edge cases. In interviews, always explain WHY your greedy approach works.
+
+CLASSIC GREEDY PATTERNS:
+
+**Pattern 1: Activity/Interval Selection**
+
+Given intervals with start/end times, select maximum number without overlap.
+
+\`\`\`python
+def max_non_overlapping_intervals(intervals):
+    """
+    Greedy: Sort by END time, pick earliest ending, skip overlaps.
+    Why: Earliest end leaves most room for future intervals.
+    """
+    if not intervals:
+        return 0
+
+    # Sort by end time (KEY: not start time!)
+    intervals.sort(key=lambda x: x[1])
+
+    count = 1
+    current_end = intervals[0][1]
+
+    for start, end in intervals[1:]:
+        if start >= current_end:  # No overlap
+            count += 1
+            current_end = end
+
+    return count
+
+# Time: O(n log n) for sorting
+# Space: O(1) excluding sort
+
+# Why it works: Exchange argument
+# If optimal solution chose different interval first,
+# swapping it with earliest-ending leaves same or more room
+\`\`\`
+
+**Pattern 2: Fractional Knapsack**
+
+Can take fractions of items. Greedy works (unlike 0/1 knapsack).
+
+\`\`\`python
+def fractional_knapsack(items, capacity):
+    """
+    items = [(value, weight), ...]
+    Greedy: Take items by value/weight ratio (highest first).
+    """
+    # Sort by value/weight ratio (descending)
+    items.sort(key=lambda x: x[0]/x[1], reverse=True)
+
+    total_value = 0
+    remaining = capacity
+
+    for value, weight in items:
+        if weight <= remaining:
+            # Take entire item
+            total_value += value
+            remaining -= weight
+        else:
+            # Take fraction
+            fraction = remaining / weight
+            total_value += value * fraction
+            break  # Knapsack full
+
+    return total_value
+
+# Time: O(n log n)
+# Why it works: Stays-ahead argument
+# At each step, we've packed maximum value for weight used
+\`\`\`
+
+**Pattern 3: Huffman Coding (Minimum Cost Tree)**
+
+Build optimal prefix-free binary code.
+
+\`\`\`python
+import heapq
+
+def huffman_encoding(frequencies):
+    """
+    Greedy: Repeatedly merge two lowest-frequency nodes.
+    Why: Lowest frequency should be deepest in tree (longest code).
+    """
+    # Min heap of (frequency, node)
+    heap = [(freq, char) for char, freq in frequencies.items()]
+    heapq.heapify(heap)
+
+    while len(heap) > 1:
+        freq1, node1 = heapq.heappop(heap)
+        freq2, node2 = heapq.heappop(heap)
+
+        # Merge: create parent with combined frequency
+        merged = (freq1 + freq2, (node1, node2))
+        heapq.heappush(heap, merged)
+
+    return heap[0]  # Root of Huffman tree
+
+# Time: O(n log n)
+# Why it works: Stays-ahead - minimum frequency nodes should be deepest
+\`\`\`
+
+**Pattern 4: Minimum Spanning Tree (Kruskal's)**
+
+Connect all vertices with minimum total edge weight.
+
+\`\`\`python
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, x, y):
+        px, py = self.find(x), self.find(y)
+        if px == py:
+            return False
+
+        if self.rank[px] < self.rank[py]:
+            self.parent[px] = py
+        elif self.rank[px] > self.rank[py]:
+            self.parent[py] = px
+        else:
+            self.parent[py] = px
+            self.rank[px] += 1
+        return True
+
+def kruskal_mst(n, edges):
+    """
+    edges = [(weight, u, v), ...]
+    Greedy: Sort edges by weight, add if doesn't create cycle.
+    """
+    edges.sort()  # Sort by weight
+    uf = UnionFind(n)
+    mst_weight = 0
+    mst_edges = []
+
+    for weight, u, v in edges:
+        if uf.union(u, v):  # Doesn't create cycle
+            mst_weight += weight
+            mst_edges.append((u, v))
+
+            if len(mst_edges) == n - 1:  # MST complete
+                break
+
+    return mst_weight, mst_edges
+
+# Time: O(E log E) for sorting edges
+# Why it works: Cut property - lightest edge crossing a cut is in some MST
+\`\`\`
+
+**Pattern 5: Jump Game (Can Reach End)**
+
+\`\`\`python
+def can_jump(nums):
+    """
+    nums[i] = max jump length from index i.
+    Greedy: Track furthest reachable position.
+    """
+    max_reach = 0
+
+    for i in range(len(nums)):
+        if i > max_reach:  # Can't reach this position
+            return False
+
+        max_reach = max(max_reach, i + nums[i])
+
+        if max_reach >= len(nums) - 1:  # Can reach end
+            return True
+
+    return True
+
+# Time: O(n)
+# Why it works: If we can reach position i, we can try all jumps from i
+\`\`\`
+
+**Pattern 6: Gas Station (Circular Tour)**
+
+\`\`\`python
+def can_complete_circuit(gas, cost):
+    """
+    gas[i] = gas at station i, cost[i] = cost to reach next station.
+    Find starting station to complete circular tour.
+    """
+    if sum(gas) < sum(cost):  # Impossible
+        return -1
+
+    total_tank = 0
+    current_tank = 0
+    start = 0
+
+    for i in range(len(gas)):
+        total_tank += gas[i] - cost[i]
+        current_tank += gas[i] - cost[i]
+
+        # If can't reach next station, start after i
+        if current_tank < 0:
+            start = i + 1
+            current_tank = 0
+
+    return start if total_tank >= 0 else -1
+
+# Time: O(n)
+# Why it works: If sum(gas) >= sum(cost), solution exists.
+# If can't reach from A to B, can't start anywhere between A and B either.
+\`\`\`
+
+WHEN GREEDY FAILS: CLASSIC COUNTER-EXAMPLES
+
+**Failure 1: 0/1 Knapsack**
+
+Cannot take fractions. Greedy by value/weight ratio FAILS.
+
+\`\`\`python
+# Counter-example:
+capacity = 10
+items = [(60, 10), (100, 20), (120, 30)]  # (value, weight)
+# Greedy by ratio: 60/10=6, 100/20=5, 120/30=4
+# Greedy takes: item 1 (value 60) - WRONG!
+# Optimal: items 2+3 (value 220) - can't fit item 1 with others
+
+# Solution: Use DP
+def knapsack_01(items, capacity):
+    n = len(items)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        value, weight = items[i-1]
+        for w in range(capacity + 1):
+            if weight <= w:
+                dp[i][w] = max(dp[i-1][w], dp[i-1][w-weight] + value)
+            else:
+                dp[i][w] = dp[i-1][w]
+
+    return dp[n][capacity]
+# Time: O(n * capacity)
+\`\`\`
+
+**Failure 2: Coin Change (Arbitrary Denominations)**
+
+Greedy (largest coin first) FAILS for arbitrary denominations.
+
+\`\`\`python
+# Counter-example:
+coins = [1, 3, 4]
+amount = 6
+# Greedy: 4 + 1 + 1 = 3 coins - WRONG!
+# Optimal: 3 + 3 = 2 coins
+
+# Solution: Use DP
+def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+
+    return dp[amount] if dp[amount] != float('inf') else -1
+# Time: O(amount * len(coins))
+
+# NOTE: Greedy DOES work for canonical coin systems (US coins: 1,5,10,25)
+\`\`\`
+
+**Failure 3: Longest Path in General Graph**
+
+Greedy (pick longest edge available) FAILS.
+
+\`\`\`python
+# Counter-example: Graph with edges
+# A -> B (weight 10)
+# A -> C (weight 1)
+# C -> D (weight 9)
+# Greedy from A: picks A->B (10), stuck - WRONG!
+# Optimal: A->C->D (1+9=10)
+
+# Solution: DFS with backtracking or DP on DAG
+\`\`\`
+
+GREEDY VS DYNAMIC PROGRAMMING: THE DECISION TREE
+
+\`\`\`
+┌─ Problem involves optimization? (min/max) ──┐
+│                                              │
+├─ Can you prove greedy choice property? ─────┤
+│  │                                           │
+│  ├─ YES: Greedy (O(n log n))                │
+│  │   Examples: Interval scheduling,         │
+│  │            Fractional knapsack,           │
+│  │            Huffman coding                 │
+│  │                                           │
+│  └─ NO/UNSURE: Try DP (O(n²) or worse)      │
+│      Examples: 0/1 Knapsack,                 │
+│                Coin change,                   │
+│                Longest path                   │
+│                                              │
+└─ Need to count ways? → Always DP            │
+   (Greedy finds one solution, can't count)   │
+\`\`\`
+
+**When to try greedy first:**
+- Sorting seems natural for the problem
+- Local choice seems obviously safe
+- Problem involves intervals/scheduling
+- O(n log n) time is hinted at
+
+**When to skip greedy:**
+- Counter-example comes to mind easily
+- 0/1 choices (can't take fractions)
+- Need ALL solutions or count ways
+- Overlapping subproblems are obvious
+
+COMMON GREEDY MISTAKES:
+
+**Mistake 1: No proof of correctness**
+
+\`\`\`python
+# ❌ WRONG: "It seems greedy should work"
+def solve(items):
+    items.sort()  # Seems reasonable
+    return items[0]  # Take first one
+
+# ✅ CORRECT: Explain WHY
+def solve(items):
+    # Greedy: Pick minimum value
+    # Proof: By exchange argument, swapping any other value
+    # with minimum doesn't decrease total...
+    return min(items)
+\`\`\`
+
+**Mistake 2: Sorting by wrong criterion**
+
+\`\`\`python
+# ❌ WRONG: Interval scheduling sorted by START time
+def max_intervals_wrong(intervals):
+    intervals.sort(key=lambda x: x[0])  # Sort by start - WRONG!
+    # Fails: [(1,10), (2,3), (4,5)] chooses (1,10), misses (2,3) and (4,5)
+
+# ✅ CORRECT: Sort by END time
+def max_intervals_correct(intervals):
+    intervals.sort(key=lambda x: x[1])  # Sort by end - CORRECT!
+    # Picks (2,3) first, then (4,5), max = 2
+\`\`\`
+
+**Mistake 3: Greedy on wrong subproblem**
+
+\`\`\`python
+# Problem: Minimum jumps to reach end
+# ❌ WRONG: Greedy "always jump maximum distance"
+def min_jumps_wrong(nums):
+    jumps = 0
+    i = 0
+    while i < len(nums) - 1:
+        i += nums[i]  # Always max jump - WRONG!
+        jumps += 1
+    return jumps
+# Fails: [2,3,1,1,4] jumps to index 2, then can only jump 1 at a time
+
+# ✅ CORRECT: Greedy "jump to position that reaches furthest"
+def min_jumps_correct(nums):
+    if len(nums) <= 1:
+        return 0
+
+    jumps = 0
+    current_max = 0
+    next_max = 0
+
+    for i in range(len(nums) - 1):
+        next_max = max(next_max, i + nums[i])
+
+        if i == current_max:  # Reached limit of current jump
+            jumps += 1
+            current_max = next_max
+
+    return jumps
+# Time: O(n)
+\`\`\`
+
+INTERVIEW STRATEGY:
+
+**Step 1: Check if greedy might work**
+- Does sorting help?
+- Is there an obvious "best choice" at each step?
+- Does problem involve intervals/scheduling?
+
+**Step 2: Try small examples**
+\`\`\`python
+# Test greedy on 2-3 examples
+# If it works, proceed to proof
+# If it fails, switch to DP
+\`\`\`
+
+**Step 3: Prove correctness (if greedy works)**
+- Use exchange argument (most common)
+- Or stays-ahead argument
+- Explain verbally in interview
+
+**Step 4: Code with comments explaining greedy choice**
+\`\`\`python
+def greedy_solution(items):
+    # Greedy choice: sort by value/weight ratio
+    # Proof: By stays-ahead, this maximizes value per weight
+    items.sort(key=lambda x: x[0]/x[1], reverse=True)
+    ...
+\`\`\`
+
+BEST PRACTICES:
+
+1. **Always explain WHY greedy works**: Don't just say "greedy", explain the greedy choice property
+
+2. **Test counter-examples**: Before committing, try to break your greedy approach
+
+3. **Know the failures**: 0/1 Knapsack, arbitrary coin change, longest path
+
+4. **Sort carefully**: Wrong sort key ruins greedy (END time for intervals, not START)
+
+5. **Use proof templates**: Exchange argument is your friend
+
+6. **When in doubt, DP**: Greedy is great when correct, but DP is safer
+
+7. **Complexity check**: Greedy is usually O(n log n), DP is O(n²)—if your greedy is O(n²), something's wrong
+
+8. **Document the greedy choice**: Code comments should explain the strategy`
 
 export function GreedyPage() {
   return (
@@ -208,10 +678,13 @@ export function GreedyPage() {
       type="Greedy Algorithms" badge="grdy" color="var(--accent-greedy)"
       description="Make locally optimal choices hoping for global optimum. Works when greedy choice property + optimal substructure exist."
       intro={greedyIntro}
-      tip={`When greedy works? Greedy choice property + optimal substructure (harder to prove than DP!)
-"Maximum non-overlapping intervals"? Sort by END time, pick earliest end greedily
-Greedy fails? 0/1 Knapsack, Coin Change (arbitrary denominations) → use DP
-Why greedy over DP? O(n log n) sorting vs O(n²) DP table - when it works, it's fast!`}
+      tip={`Greedy choice property + optimal substructure? Greedy works! But MUST prove correctness (exchange argument)
+Interval scheduling? Sort by END time (not start!) — earliest end leaves max room for future
+Prove greedy? Exchange argument: if optimal differs, swap to match greedy without worsening → greedy optimal
+Greedy FAILS? 0/1 Knapsack (coins=[1,3,4], amt=6: greedy 4+1+1=3 coins, optimal 3+3=2) → use DP
+Greedy vs DP decision? Can prove local→global? Greedy O(n log n). Overlapping subproblems? DP O(n²)
+Jump game? Track max_reach = max(max_reach, i + nums[i]) — if i > max_reach, unreachable
+Common mistake? Sorting by wrong key (start vs end) or no proof — "seems greedy" fails on edge cases!`}
       methods={greedyMethods}
       tabs={<DSCategoryTabs basePath="/greedy" problemCount={getProblemCount('greedy')} />}
     />
