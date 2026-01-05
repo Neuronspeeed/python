@@ -780,38 +780,518 @@ Rate limiter (N requests per window)? Sliding window with deque - track timestam
 
 const mathIntro = `Mathematical algorithms form the foundation for many coding problems. These aren't abstract formulas—they're practical tools that appear in interviews and real systems. The key insight: knowing when to use each technique (GCD vs LCM, sieve vs trial division, modular arithmetic) matters more than memorizing proofs.
 
-GCD AND LCM: GCD (Greatest Common Divisor) finds the largest number that divides both inputs. Use for: simplifying fractions, checking if numbers are coprime, finding cycles/patterns. LCM (Least Common Multiple) finds the smallest number divisible by both inputs. Use for: synchronization problems, finding when repeating events align, common denominators. Python's \`math.gcd()\` is highly optimized—use it instead of implementing your own. LCM formula: \`a * b // gcd(a, b)\` (divide first to avoid overflow in other languages).
+WHY MATH IN INTERVIEWS: Math problems test pattern recognition and formula application, not theoretical proofs. When you see "count ways to arrange", think combinatorics. "Find cycle length", think GCD/LCM. "Result mod 10⁹+7", think modular arithmetic. "Is prime", think trial division or sieve. The trick is recognizing which tool to use—once you know, the implementation is straightforward.
 
-PRIME NUMBERS - TRIAL DIVISION VS SIEVE: To check if ONE number n is prime: trial division checks divisors up to √n, O(√n) time. Fast enough for n up to 10¹² in interviews. To find ALL primes up to N: Sieve of Eratosthenes marks multiples as composite, O(n log log n) time. For N=1,000,000: sieve takes ~0.1 seconds, checking each with trial division takes ~10 seconds. Use trial division for single checks, sieve for generating many primes or prime-related preprocessing.
+**The math interview paradox:**
+- Interview = pattern recognition (which formula applies?)
+- NOT = mathematical proofs or derivations
+- Strategy: Learn when to use each technique, not why it works
+- Common fear: "I'm bad at math" → Actually, you just need to recognize patterns
+
+GCD AND LCM: WHEN AND WHY
+
+**GCD (Greatest Common Divisor)**: Largest number that divides both inputs evenly.
+
+Use GCD when:
+- Simplifying fractions: \`gcd(numerator, denominator)\`
+- Checking if coprime (gcd = 1): for cryptography, hashing
+- Finding repeating cycles/patterns: cycle length divides both periods
+- Reducing problems to simplest form
+
+**LCM (Least Common Multiple)**: Smallest number divisible by both inputs.
+
+Use LCM when:
+- Synchronization: "When do events align again?"
+- Finding common denominators for fraction addition
+- Merging cycles: lights blinking at different rates
+- Tiling problems: when patterns repeat together
 
 \`\`\`python
-# Trial division - check if n is prime
-def is_prime(n):
-    if n < 2: return False
-    if n == 2: return True
-    if n % 2 == 0: return False
-    for i in range(3, int(n**0.5) + 1, 2):
-        if n % i == 0: return False
-    return True
+import math
 
-# Sieve - find all primes up to n
-def sieve(n):
-    is_prime = [True] * (n + 1)
-    is_prime[0] = is_prime[1] = False
-    for i in range(2, int(n**0.5) + 1):
-        if is_prime[i]:
-            for j in range(i*i, n + 1, i):
-                is_prime[j] = False
-    return [i for i in range(n+1) if is_prime[i]]
+# GCD - highly optimized, use it!
+def gcd_example(a, b):
+    return math.gcd(a, b)  # Euclidean algorithm O(log min(a,b))
+
+# LCM formula (no built-in until Python 3.9)
+def lcm(a, b):
+    return a * b // math.gcd(a, b)  # Divide first to avoid overflow
+
+# Multiple numbers
+from functools import reduce
+def gcd_multiple(nums):
+    return reduce(math.gcd, nums)
+
+def lcm_multiple(nums):
+    return reduce(lcm, nums)
+
+# Example: Simplify fraction
+def simplify_fraction(num, denom):
+    g = math.gcd(num, denom)
+    return num // g, denom // g
+
+# Example: Check if coprime
+def are_coprime(a, b):
+    return math.gcd(a, b) == 1
 \`\`\`
 
-MODULAR ARITHMETIC: When problems ask "return answer modulo 10⁹+7", they're preventing integer overflow and making answers comparable. Rules: (a+b) % m = ((a%m) + (b%m)) % m, same for multiplication. Division doesn't work directly—use modular inverse. Python's \`pow(base, exp, mod)\` efficiently computes (base^exp) % mod using binary exponentiation. Apply mod to intermediate results to keep numbers small.
+**Euclidean Algorithm** (how GCD works):
+\`\`\`python
+def gcd_manual(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+# Time: O(log min(a,b))
+# Why: Each step reduces problem by at least half
+\`\`\`
 
-MODULAR INVERSE: To divide by b under modulo m, multiply by b's modular inverse. When m is prime (like 10⁹+7), use Fermat's Little Theorem: \`pow(b, m-2, m)\` gives b's inverse. Example: (a/b) % m = (a * pow(b, m-2, m)) % m. Essential for combinatorics problems (nCr % mod requires dividing factorials).
+**Interview Pattern - Cycle Detection:**
+\`\`\`python
+# Two cyclic processes with periods a and b
+# When do they align again?
+def next_alignment(period_a, period_b):
+    return lcm(period_a, period_b)
 
-COMBINATORICS: Counting permutations, combinations, arrangements. Permutations: n! ways to arrange n items. Combinations: C(n,k) = n!/(k!(n-k)!) ways to choose k from n. When computing under modulo, can't divide directly—use modular inverse. Precompute factorials, then use inverse for division.
+# Example: Traffic lights
+# Light A: 30 seconds, Light B: 45 seconds
+# Both green again in lcm(30, 45) = 90 seconds
+\`\`\`
 
-WHEN MATH APPEARS IN INTERVIEWS: "Count ways to..." often involves combinatorics. "Find pattern/cycle" may need GCD/LCM. "Large numbers" signal modular arithmetic. "Factors/divisors" indicate prime factorization. Don't panic—these problems test application of formulas, not mathematical proofs.`
+PRIME NUMBERS: TRIAL DIVISION VS SIEVE OF ERATOSTHENES
+
+**When to use which:**
+- **ONE number**: Trial division O(√n) - check if prime
+- **MANY numbers**: Sieve O(n log log n) - find all primes up to N
+
+**Trial Division** (checking ONE number):
+
+\`\`\`python
+def is_prime(n):
+    """
+    Check if n is prime.
+    Time: O(√n)
+    Works for n up to 10¹² in interviews (fast enough!)
+    """
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:  # Even numbers
+        return False
+
+    # Only check odd divisors up to √n
+    for i in range(3, int(n**0.5) + 1, 2):
+        if n % i == 0:
+            return False
+
+    return True
+
+# Why √n? If n = a*b and a > √n, then b < √n
+# So we find all factors by checking up to √n
+\`\`\`
+
+**Sieve of Eratosthenes** (finding ALL primes up to N):
+
+\`\`\`python
+def sieve_of_eratosthenes(n):
+    """
+    Find all primes up to n.
+    Time: O(n log log n)
+    Space: O(n)
+    """
+    if n < 2:
+        return []
+
+    is_prime = [True] * (n + 1)
+    is_prime[0] = is_prime[1] = False
+
+    # Only need to check up to √n
+    for i in range(2, int(n**0.5) + 1):
+        if is_prime[i]:
+            # Mark all multiples of i as composite
+            # Start at i² (smaller multiples already marked)
+            for j in range(i * i, n + 1, i):
+                is_prime[j] = False
+
+    return [i for i in range(n + 1) if is_prime[i]]
+
+# Example: Find all primes up to 100
+primes = sieve_of_eratosthenes(100)
+# [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, ...]
+
+# Optimization: Start at i² because smaller multiples
+# (like 2i, 3i, ..., (i-1)i) already marked by smaller primes
+\`\`\`
+
+**Performance comparison:**
+- N = 1,000,000
+- Trial division (check each): ~10 seconds
+- Sieve (find all): ~0.1 seconds
+- **Use sieve when finding many primes or preprocessing!**
+
+**Prime Factorization:**
+
+\`\`\`python
+def prime_factors(n):
+    """
+    Find all prime factors of n.
+    Time: O(√n)
+    """
+    factors = []
+
+    # Check for 2s
+    while n % 2 == 0:
+        factors.append(2)
+        n //= 2
+
+    # Check odd factors from 3 to √n
+    i = 3
+    while i * i <= n:
+        while n % i == 0:
+            factors.append(i)
+            n //= i
+        i += 2
+
+    # If n > 1, it's a prime factor
+    if n > 1:
+        factors.append(n)
+
+    return factors
+
+# Example: prime_factors(84)
+# [2, 2, 3, 7] because 84 = 2² × 3 × 7
+\`\`\`
+
+MODULAR ARITHMETIC: THE 10⁹+7 PATTERN
+
+**Why "return answer mod 10⁹+7"?**
+- Prevents integer overflow in other languages (Python has infinite precision)
+- Makes answers comparable (massive numbers like 10¹⁰⁰⁰ → manageable)
+- 10⁹+7 is prime (useful for modular inverse)
+
+**Modular arithmetic rules:**
+
+\`\`\`python
+MOD = 10**9 + 7
+
+# Addition
+(a + b) % MOD = ((a % MOD) + (b % MOD)) % MOD
+
+# Subtraction
+(a - b) % MOD = ((a % MOD) - (b % MOD) + MOD) % MOD  # +MOD handles negatives
+
+# Multiplication
+(a * b) % MOD = ((a % MOD) * (b % MOD)) % MOD
+
+# Power (exponentiation)
+pow(base, exp, MOD)  # Built-in uses fast binary exponentiation
+
+# Division - DOESN'T WORK DIRECTLY! Use modular inverse
+\`\`\`
+
+**Apply mod to intermediate results** to prevent overflow:
+
+\`\`\`python
+# ❌ WRONG - computes huge number first
+def factorial_mod_wrong(n):
+    result = 1
+    for i in range(1, n + 1):
+        result *= i
+    return result % MOD  # Too late! Already overflowed in other languages
+
+# ✅ CORRECT - apply mod at each step
+def factorial_mod_correct(n):
+    result = 1
+    for i in range(1, n + 1):
+        result = (result * i) % MOD  # Keep result manageable
+    return result
+\`\`\`
+
+**Binary exponentiation** (fast power):
+
+\`\`\`python
+def pow_mod(base, exp, mod):
+    """
+    Compute (base^exp) % mod efficiently.
+    Time: O(log exp)
+    Python's built-in pow(base, exp, mod) uses this!
+    """
+    result = 1
+    base %= mod
+
+    while exp > 0:
+        if exp % 2 == 1:  # Odd exponent
+            result = (result * base) % mod
+        base = (base * base) % mod
+        exp //= 2
+
+    return result
+
+# Example: pow(2, 1000, MOD) - instant!
+# Naive: 2^1000 is ~10³⁰⁰ digit number - impossible!
+# Binary exp: Only 10 iterations (log₂ 1000 ≈ 10)
+\`\`\`
+
+MODULAR INVERSE: DIVISION UNDER MODULO
+
+**Problem**: (a / b) % MOD doesn't work directly.
+**Solution**: Multiply by modular inverse of b.
+
+When MOD is prime, use **Fermat's Little Theorem**:
+\`b^(MOD-1) ≡ 1 (mod MOD)\`
+So: \`b^(MOD-2) ≡ b⁻¹ (mod MOD)\`
+
+\`\`\`python
+MOD = 10**9 + 7
+
+def mod_inverse(a, mod=MOD):
+    """
+    Compute modular inverse of a under mod (mod must be prime).
+    Returns: a^(-1) mod MOD
+    """
+    return pow(a, mod - 2, mod)  # Fermat's little theorem
+
+# Division under modulo
+def divide_mod(a, b, mod=MOD):
+    """
+    Compute (a / b) % mod
+    """
+    return (a * mod_inverse(b, mod)) % mod
+
+# Example: (7 / 3) % MOD
+result = divide_mod(7, 3, MOD)
+
+# Common use: Combinatorics (dividing factorials)
+def nCr_mod(n, r, mod=MOD):
+    """
+    Compute C(n, r) % mod = n! / (r! * (n-r)!)
+    """
+    if r > n or r < 0:
+        return 0
+
+    numerator = factorial_mod(n)
+    denominator = (factorial_mod(r) * factorial_mod(n - r)) % mod
+
+    # Can't divide directly! Use modular inverse
+    return (numerator * mod_inverse(denominator, mod)) % mod
+\`\`\`
+
+COMBINATORICS: COUNTING ARRANGEMENTS
+
+**Permutations** (order matters):
+- Arrange n items: \`n!\` ways
+- Arrange r from n: \`P(n,r) = n! / (n-r)!\`
+
+**Combinations** (order doesn't matter):
+- Choose r from n: \`C(n,r) = n! / (r! * (n-r)!)\`
+
+\`\`\`python
+import math
+
+# Permutations
+def permutations(n, r):
+    return math.factorial(n) // math.factorial(n - r)
+
+# Combinations
+def combinations(n, r):
+    return math.factorial(n) // (math.factorial(r) * math.factorial(n - r))
+
+# With modular arithmetic
+def combinations_mod(n, r, mod=10**9 + 7):
+    if r > n or r < 0:
+        return 0
+
+    # Precompute factorials
+    fact = [1] * (n + 1)
+    for i in range(1, n + 1):
+        fact[i] = (fact[i-1] * i) % mod
+
+    # C(n, r) = n! / (r! * (n-r)!)
+    numerator = fact[n]
+    denominator = (fact[r] * fact[n - r]) % mod
+
+    return (numerator * pow(denominator, mod - 2, mod)) % mod
+\`\`\`
+
+**Pascal's Triangle** (dynamic programming approach):
+
+\`\`\`python
+def pascal_triangle(n):
+    """
+    Generate first n rows of Pascal's triangle.
+    C(n, r) = C(n-1, r-1) + C(n-1, r)
+    """
+    triangle = [[1]]
+
+    for i in range(1, n):
+        row = [1]
+        for j in range(1, i):
+            row.append(triangle[i-1][j-1] + triangle[i-1][j])
+        row.append(1)
+        triangle.append(row)
+
+    return triangle
+
+# Triangle[n][r] = C(n, r)
+\`\`\`
+
+ADDITIONAL MATH PATTERNS
+
+**Digit manipulation:**
+
+\`\`\`python
+# Extract digits
+def get_digits(n):
+    digits = []
+    while n > 0:
+        digits.append(n % 10)
+        n //= 10
+    return digits[::-1]  # Reverse for left-to-right order
+
+# Sum of digits
+def digit_sum(n):
+    total = 0
+    while n > 0:
+        total += n % 10
+        n //= 10
+    return total
+
+# Reverse number
+def reverse_number(n):
+    result = 0
+    while n > 0:
+        result = result * 10 + (n % 10)
+        n //= 10
+    return result
+\`\`\`
+
+**Fast exponentiation pattern:**
+
+\`\`\`python
+# a^n in O(log n) instead of O(n)
+def fast_power(a, n):
+    result = 1
+    while n > 0:
+        if n % 2 == 1:
+            result *= a
+        a *= a
+        n //= 2
+    return result
+
+# Example: 2^1000 takes 10 iterations, not 1000!
+\`\`\`
+
+**Perfect squares and sqrt:**
+
+\`\`\`python
+import math
+
+# Check if perfect square
+def is_perfect_square(n):
+    sqrt = int(math.sqrt(n))
+    return sqrt * sqrt == n
+
+# Find sqrt without using built-in (binary search)
+def sqrt_binary_search(n):
+    if n < 2:
+        return n
+
+    left, right = 1, n // 2
+
+    while left <= right:
+        mid = (left + right) // 2
+        square = mid * mid
+
+        if square == n:
+            return mid
+        elif square < n:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return right  # Floor of sqrt
+\`\`\`
+
+WHEN MATH APPEARS IN INTERVIEWS: PATTERN RECOGNITION
+
+**Signal → Technique:**
+- "Count ways to..." → Combinatorics (permutations/combinations)
+- "Find pattern/cycle" → GCD/LCM
+- "Return answer mod 10⁹+7" → Modular arithmetic
+- "Is prime" or "prime factors" → Trial division or sieve
+- "Large powers" → Binary exponentiation
+- "Digit manipulation" → Extract with % 10 and // 10
+- "Perfect square/cube" → Binary search on sqrt/cbrt
+
+**Don't panic!** Math problems in interviews test formula application, not proofs. Recognize the pattern, apply the technique, implement carefully with edge cases.
+
+COMMON GOTCHAS AND PITFALLS
+
+**1. Integer division in Python 3:**
+\`\`\`python
+# ❌ WRONG in Python 3
+result = a / b  # Returns float!
+
+# ✅ CORRECT
+result = a // b  # Integer division
+\`\`\`
+
+**2. Negative modulo:**
+\`\`\`python
+# Python handles negatives correctly
+-5 % 3  # = 1 (Python)
+# Other languages: -5 % 3 = -2
+
+# Safe formula (works everywhere)
+result = ((a % MOD) + MOD) % MOD
+\`\`\`
+
+**3. Factorial overflow:**
+\`\`\`python
+# ❌ WRONG - compute factorial then mod
+fact = 1
+for i in range(1, n+1):
+    fact *= i
+return fact % MOD  # Too late!
+
+# ✅ CORRECT - apply mod at each step
+fact = 1
+for i in range(1, n+1):
+    fact = (fact * i) % MOD
+return fact
+\`\`\`
+
+**4. Sieve optimization:**
+\`\`\`python
+# ✅ Start marking at i*i, not 2*i
+for i in range(2, int(n**0.5) + 1):
+    if is_prime[i]:
+        for j in range(i*i, n+1, i):  # Start at i*i!
+            is_prime[j] = False
+\`\`\`
+
+**5. Edge cases:**
+- GCD(0, n) = n, GCD(n, 0) = n
+- 0 and 1 are not prime
+- Combinatorics: C(n, 0) = C(n, n) = 1
+
+BEST PRACTICES FOR MATH INTERVIEWS
+
+1. **Recognize the pattern first**: Don't jump into code. Ask: "Is this GCD? Modular? Combinatorics?"
+
+2. **Use Python built-ins**: \`math.gcd()\`, \`pow(base, exp, mod)\` are highly optimized
+
+3. **Apply mod early and often**: Don't wait until the end
+
+4. **Handle edge cases**: 0, 1, negative numbers, empty inputs
+
+5. **Check for overflow** (even in Python for time limits)
+
+6. **Test with small examples**: Verify formula with n=0,1,2 before implementing
+
+7. **Know when to precompute**: Factorials, primes (sieve), Pascal's triangle
+
+8. **Binary search on the answer**: For problems involving sqrt, powers, or "find largest X such that..."`
 
 export function MathPage() {
   return (
@@ -819,10 +1299,13 @@ export function MathPage() {
       type="Math Algorithms" badge="∑" color="var(--accent-math)"
       description="GCD/LCM, primes, modular arithmetic, combinatorics. Foundation for many interview problems."
       intro={mathIntro}
-      tip={`Check ONE prime? Trial division O(√n) up to 10¹² - Find ALL primes up to N? Sieve O(n log log n)
-GCD/LCM? math.gcd(a,b) is FAST O(log n), LCM = a*b // gcd(a,b)
-"Return answer mod 10⁹+7"? Apply mod to intermediate results, use pow(base, exp, MOD)
-Modular inverse? pow(a, m-2, m) when m is prime (Fermat's little theorem)`}
+      tip={`Check ONE prime? Trial division O(√n) up to 10¹² — Find ALL primes ≤N? Sieve O(n log log n)
+GCD/LCM pattern? math.gcd(a,b) O(log n) — LCM = a*b // gcd(a,b) (avoid overflow!)
+"Return mod 10⁹+7"? Apply mod at EACH step (fact * i) % MOD — not at end! Prevents overflow
+Modular division? (a/b) % m = (a * pow(b, m-2, m)) % m when m prime (Fermat's little theorem)
+Permutations vs Combinations? P(n,r) = n!/(n-r)! order matters — C(n,r) = n!/(r!(n-r)!) order doesn't
+Combinatorics with mod? Precompute factorials, use modular inverse for division — can't divide directly!
+Fast power? pow(base, exp, MOD) uses binary exp O(log exp) — 2^1000 takes 10 iterations not 1000!`}
       methods={mathMethods}
     />
   )
