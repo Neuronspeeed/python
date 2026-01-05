@@ -97,7 +97,7 @@ export const intervalOptimizationMethods: Method[] = [
 # Arrow at 12: bursts [7,12] and [10,16]
 # Total: 2 arrows
 
-# KEY INSIGHT: Same as activity selection!
+# Same pattern as activity selection
 # Each arrow = one "activity" we're selecting` },
 
   // Minimum Platforms / Max Load

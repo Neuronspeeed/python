@@ -208,7 +208,7 @@ def range_min(arr, L, R):
 # - Prefix sum queries
 # - Point updates
 #
-# KEY INSIGHT: Use binary representation of index
+# Uses binary representation of index
 # bit[i] stores sum of specific range based on lowest set bit
 #
 # Index (1-indexed)  Binary   Stores sum of

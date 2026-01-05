@@ -27,8 +27,7 @@ def backtrack(state, choices):
             backtrack(state, new_choices)
             undo_choice(state, choice)  # Backtrack
 
-# KEY INSIGHT:
-# We explore the solution space as a tree
+# Explore the solution space as a tree
 # Prune branches that can't lead to valid solutions` },
   { signature: 'Backtracking vs DP vs Greedy', description: 'Backtracking explores all paths. DP stores subproblem results. Greedy makes locally optimal choices.', complexity: 'Concept', section: 'Why & When', example: `# WHEN TO USE EACH:
 

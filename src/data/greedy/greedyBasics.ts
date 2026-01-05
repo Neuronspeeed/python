@@ -24,9 +24,9 @@ export const greedyBasicsMethods: Method[] = [
 # - Longest path in general graphs
 # - Problems requiring backtracking
 
-# KEY INSIGHT: If you can prove that choosing the
-# "best" option now never prevents finding the
-# optimal solution later, use greedy!` },
+# Core principle: If choosing the "best" option now
+# never prevents finding the optimal solution later,
+# use greedy!` },
   { signature: 'Greedy vs DP', description: 'Greedy makes one choice and moves on. DP explores all choices. Greedy is faster but only works for specific problems.', complexity: 'Concept', section: 'Why & When', example: `# GREEDY vs DYNAMIC PROGRAMMING
 #
 # Greedy:
