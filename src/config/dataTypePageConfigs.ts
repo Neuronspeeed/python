@@ -13,96 +13,1437 @@ export const dataTypePageConfigs: Record<string, DataTypePageConfig> = {
     badge: 'str',
     color: 'var(--accent-str)',
     description: 'Immutable text sequences. Every operation returns a NEW string. Use join() for building, f-strings for formatting.',
-    intro: `Strings are ordered collections of characters used to store and represent text-based information. As the first representative of Python's sequence category, strings share operations with lists and tuples—indexing, slicing, concatenation. Strings are immutable: you cannot change them in place after creation, only create new ones.
+    intro: `Strings are immutable sequences of Unicode characters. The key insight: immutability means EVERY operation creates a NEW string—crucial for performance! Building strings in loops with += is O(n²)—use "".join() instead for O(n). Common interview patterns: two pointers for palindromes, sliding window for substrings, character frequency maps for anagrams.
 
-Literals & Escapes: Single \`'..'\` and double \`".."\` quotes are interchangeable—use one to embed the other without escapes. Escape sequences use backslash: \`\\n\` newline, \`\\t\` tab, \`\\\\\` literal backslash. Python 3.12+ warns on unrecognized escapes (future errors). Raw strings \`r".."\` suppress escape interpretation—ideal for Windows paths and regex (but can't end in odd number of backslashes). Triple quotes \`'''..'''\` or \`"""..."""\` span multiple lines for docstrings, HTML, JSON.
+KEY INSIGHT: STRING IMMUTABILITY AFFECTS PERFORMANCE. Every s += "x" creates a NEW string and copies all characters—O(n) per iteration, O(n²) total in a loop! Python optimizes some cases, but don't rely on it. Use list.append() + "".join() for O(n) string building. For interviews: two-pointer patterns (palindrome, reverse), sliding windows (longest substring), and hash maps (anagram, frequency) are the most common string techniques.
 
-Indexing & Slicing: Fetch character by offset \`S[i]\` (negative counts from end: \`S[-1]\` is last). Extract section with \`S[i:j]\` (j not included). Extended slicing \`S[i:j:k]\` adds step/stride—\`S[::2]\` every other char, \`S[::-1]\` reverses entire string. Slicing never raises IndexError; out-of-bounds silently truncates.
+\`\`\`python
+# SLOW: O(n²) string concatenation in loop
+s = ""
+for i in range(n):
+    s += str(i)  # Creates new string each time!
 
-Operations: Concatenate with \`+\`, repeat with \`*\` (\`"ab" * 3\` → \`"ababab"\`). Length with \`len()\`. Membership with \`in\` (\`"x" in s\`). Iteration with \`for c in s\`.
+# FAST: O(n) with list join
+parts = []
+for i in range(n):
+    parts.append(str(i))  # O(1) append
+s = "".join(parts)  # O(n) join once
 
-Conversions: \`int("42")\` and \`float("3.14")\` parse strings to numbers. \`str(42)\` converts number to string. \`ord('A')\` → 65 (Unicode code point). \`chr(65)\` → 'A'. \`repr()\` gives code-like string, \`str()\` gives user-friendly string.
+# PALINDROME: Two pointers
+def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left < right:
+        if s[left] != s[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+# Or simply: s == s[::-1]
+\`\`\`
 
-Methods: \`find(sub)\` returns offset of substring (-1 if not found), \`index(sub)\` same but raises ValueError. \`replace(old, new)\` does global substitution. \`split(sep)\` chops string into list, \`join(list)\` implodes list into string with delimiter. \`strip()\`/\`lstrip()\`/\`rstrip()\` remove whitespace. \`upper()\`/\`lower()\`/\`title()\`/\`capitalize()\` change case. \`startswith()\`/\`endswith()\` test prefixes/suffixes. \`isdigit()\`/\`isalpha()\`/\`isalnum()\`/\`isspace()\` test content.
+IMMUTABILITY: Strings cannot be changed in place—operations return new strings.
 
-Formatting: Three redundant tools for string formatting (multiple substitutions in one step). Expression \`%\`: C-style with type codes—\`"%s is %d" % (name, age)\`. Method \`.format()\`: curly braces with positional/keyword args—\`"{} is {}".format(name, age)\` or \`"{n} is {a}".format(n=name, a=age)\`. F-strings (3.6+): inline expression interpolation—\`f"{name} is {age}"\`. F-strings are fastest, most readable, and recommended. Format specs work in all three: \`{x:.2f}\` for 2 decimal places, \`{x:>10}\` right-align in 10 chars.
+\`\`\`python
+# CANNOT MODIFY:
+s = "hello"
+s[0] = "H"  # TypeError: 'str' object does not support item assignment
 
-UNICODE MODEL: Python 3 strictly separates text from binary. \`str\` stores Unicode text (decoded characters). \`bytes\` stores raw binary (8-bit values). \`bytearray\` is mutable bytes. Cannot mix them—convert explicitly with \`.encode()\` and \`.decode()\`. "Unicode sandwich": decode bytes on input, process as text, encode on output.
+# CREATE NEW STRINGS:
+s = "hello"
+s2 = s.upper()  # → "HELLO" (new string)
+s3 = s.replace("l", "L")  # → "heLLo" (new string)
+s4 = s + " world"  # → "hello world" (new string)
+# Original s unchanged!
 
-FILE I/O: Text mode (\`'r'\`, \`'w'\`) auto-decodes/encodes and translates newlines. Binary mode (\`'rb'\`, \`'wb'\`) reads/writes raw bytes unchanged—essential for images, audio, protocols. Specify encoding: \`open(f, encoding='utf-8')\`.
+# BUILD LISTS, JOIN TO STRING:
+chars = list("hello")  # → ['h', 'e', 'l', 'l', 'o']
+chars[0] = 'H'  # OK on list
+result = "".join(chars)  # → "Hello"
+\`\`\`
 
-UNICODE ESCAPES: Non-ASCII via escapes: \`\\xNN\` (hex byte), \`\\uNNNN\` (16-bit), \`\\U0000NNNN\` (32-bit). BOM (Byte Order Mark) identifies encoding—use \`'utf-8-sig'\` to handle. Normalization: same char can have multiple representations—use \`unicodedata.normalize('NFC', s)\` for consistent comparisons.`,
-    tip: `Building string in loop? "".join(list) - NEVER s += (O(n²) vs O(n))
-Anagram check? sorted(s1) == sorted(s2) - or Counter(s1) == Counter(s2) for early exit
-Palindrome? s == s[::-1] - reverse and compare in one line
-Substring search? "sub" in s is O(n), s.find() returns index, s.count() counts occurrences`,
+LITERALS AND SYNTAX: Multiple quoting styles for different use cases.
+
+\`\`\`python
+# SINGLE vs DOUBLE: Interchangeable
+s1 = 'hello'
+s2 = "hello"  # Same
+
+# EMBED QUOTES:
+s = "It's easy"  # Single quote inside double
+s = 'Say "hi"'  # Double quote inside single
+s = 'It\\'s hard'  # Escape with backslash
+
+# TRIPLE QUOTES: Multi-line strings
+s = """
+Line 1
+Line 2
+Line 3
+"""
+
+# RAW STRINGS: No escape interpretation
+path = r"C:\\Users\\name"  # Windows path
+regex = r"\\d+\\.\\d+"  # Regex pattern
+
+# F-STRINGS (3.6+): Expression interpolation
+name = "Alice"
+age = 30
+s = f"{name} is {age}"  # → "Alice is 30"
+s = f"{name.upper()} is {age * 2}"  # Expressions work!
+\`\`\`
+
+INDEXING AND SLICING: Access characters and substrings.
+
+\`\`\`python
+s = "Python"
+
+# INDEXING:
+s[0]   # → 'P' (first)
+s[-1]  # → 'n' (last)
+s[2]   # → 't'
+
+# SLICING [start:stop:step]:
+s[1:4]    # → 'yth' (chars 1, 2, 3)
+s[:3]     # → 'Pyt' (first 3)
+s[3:]     # → 'hon' (from 3 to end)
+s[::2]    # → 'Pto' (every 2nd char)
+s[::-1]   # → 'nohtyP' (reverse!)
+
+# INTERVIEW TRICK: Reverse string
+reversed_s = s[::-1]
+\`\`\`
+
+STRING METHODS: Essential operations for manipulation.
+
+\`\`\`python
+s = "  Hello World  "
+
+# CASE:
+s.upper()  # → "  HELLO WORLD  "
+s.lower()  # → "  hello world  "
+s.title()  # → "  Hello World  "
+s.capitalize()  # → "  hello world  " (only first)
+
+# WHITESPACE:
+s.strip()  # → "Hello World" (both ends)
+s.lstrip()  # → "Hello World  " (left)
+s.rstrip()  # → "  Hello World" (right)
+
+# SEARCH:
+s = "hello world"
+s.find("world")  # → 6 (index, -1 if not found)
+s.index("world")  # → 6 (raises ValueError if not found)
+s.count("l")  # → 3 (occurrences)
+"world" in s  # → True (membership)
+
+# REPLACE:
+s.replace("world", "python")  # → "hello python"
+s.replace("l", "L", 1)  # → "heLlo world" (max 1 replacement)
+
+# SPLIT/JOIN:
+s = "a,b,c"
+parts = s.split(",")  # → ['a', 'b', 'c']
+"-".join(parts)  # → "a-b-c"
+
+# PREFIX/SUFFIX:
+s = "hello.txt"
+s.startswith("hello")  # → True
+s.endswith(".txt")  # → True
+
+# CONTENT TESTS:
+"123".isdigit()  # → True
+"abc".isalpha()  # → True
+"abc123".isalnum()  # → True
+"   ".isspace()  # → True
+\`\`\`
+
+F-STRING FORMATTING: Modern, fastest, most readable.
+
+\`\`\`python
+name, age = "Alice", 30
+
+# BASIC:
+f"{name} is {age}"  # → "Alice is 30"
+
+# EXPRESSIONS:
+f"{name.upper()} is {age * 2}"  # → "ALICE is 60"
+
+# FORMAT SPECS:
+x = 3.14159
+f"{x:.2f}"  # → "3.14" (2 decimals)
+f"{x:10.2f}"  # → "      3.14" (width 10, right-aligned)
+f"{x:<10.2f}"  # → "3.14      " (left-aligned)
+f"{x:^10.2f}"  # → "   3.14   " (center-aligned)
+
+# DEBUG (3.8+):
+x, y = 10, 20
+f"{x=}, {y=}"  # → "x=10, y=20"
+
+# THOUSANDS SEPARATOR:
+n = 1234567
+f"{n:,}"  # → "1,234,567"
+\`\`\`
+
+INTERVIEW PATTERNS: Common string algorithm techniques.
+
+\`\`\`python
+# PATTERN 1: Two pointers for palindrome
+def is_palindrome(s):
+    s = s.lower()
+    left, right = 0, len(s) - 1
+    while left < right:
+        if s[left] != s[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+
+# PATTERN 2: Sliding window for longest substring
+def longest_substring_without_repeating(s):
+    seen = {}
+    start = max_len = 0
+    for end, char in enumerate(s):
+        if char in seen and seen[char] >= start:
+            start = seen[char] + 1
+        seen[char] = end
+        max_len = max(max_len, end - start + 1)
+    return max_len
+
+# PATTERN 3: Character frequency for anagrams
+from collections import Counter
+def are_anagrams(s1, s2):
+    return Counter(s1) == Counter(s2)
+# Or: sorted(s1) == sorted(s2)
+
+# PATTERN 4: Build string from list (O(n) not O(n²))
+def build_string(items):
+    parts = []
+    for item in items:
+        parts.append(str(item))
+    return "".join(parts)
+
+# PATTERN 5: Reverse words
+def reverse_words(s):
+    return " ".join(s.split()[::-1])
+# "hello world" → "world hello"
+\`\`\`
+
+PERFORMANCE TIPS:
+
+\`\`\`python
+# BAD: O(n²) concatenation in loop
+s = ""
+for i in range(1000):
+    s += str(i)  # Creates new string each iteration!
+
+# GOOD: O(n) with list + join
+parts = [str(i) for i in range(1000)]
+s = "".join(parts)
+
+# MEMBERSHIP: O(n) linear search
+"substring" in long_string  # Scans entire string
+
+# STARTSWITH/ENDSWITH: O(k) where k is prefix length
+s.startswith("prefix")  # Only checks first 6 chars
+\`\`\`
+
+UNICODE AND BYTES:
+
+\`\`\`python
+# STR: Unicode text
+s = "hello 🌎"
+type(s)  # → <class 'str'>
+
+# ENCODE to bytes:
+b = s.encode('utf-8')  # → b'hello \\xf0\\x9f\\x8c\\x8e'
+type(b)  # → <class 'bytes'>
+
+# DECODE bytes to str:
+s2 = b.decode('utf-8')  # → "hello 🌎"
+
+# UNICODE CODE POINTS:
+ord('A')  # → 65
+chr(65)  # → 'A'
+ord('🌎')  # → 127758
+chr(127758)  # → '🌎'
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: Immutability
+s = "hello"
+s[0] = "H"  # TypeError!
+
+# GOTCHA 2: String concatenation in loops
+s = ""
+for i in range(n):
+    s += str(i)  # O(n²)!
+
+# GOTCHA 3: Split behavior
+"a,b,c".split(",")  # → ['a', 'b', 'c']
+"a,b,c".split(",", 1)  # → ['a', 'b,c'] (max 1 split)
+"  a  b  ".split()  # → ['a', 'b'] (any whitespace)
+
+# GOTCHA 4: Strip removes characters, not substrings
+"hello".strip("lo")  # → "he" (NOT "hel"!)
+"hello".replace("lo", "")  # → "hel" (remove substring)
+
+# GOTCHA 5: Case-insensitive comparison
+s1.lower() == s2.lower()  # Correct way
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use f-strings for formatting (fastest, most readable)
+✅ Use "".join() for building strings (O(n) not O(n²))
+✅ Use s[::-1] to reverse strings
+✅ Use in for substring search, startswith/endswith for prefixes
+✅ Use sorted() or Counter() for anagram detection
+✅ Use two pointers for palindrome/reverse problems
+✅ Use sliding window for substring problems
+✅ Lower/strip input for case-insensitive/whitespace-safe comparisons
+❌ NEVER use += in loops for string building (O(n²)!)
+❌ NEVER try to modify string in place (immutable!)
+❌ NEVER use s.split() for parsing (fragile with whitespace)`,
+    tip: `Building string in loop? "".join(parts) not s += - O(n) vs O(n²), CRITICAL for large strings!
+Anagram check? sorted(s1) == sorted(s2) or Counter(s1) == Counter(s2) - Counter allows early exit
+Palindrome? s == s[::-1] in one line - or two pointers: left/right converging (O(n), interview favorite)
+Reverse words? " ".join(s.split()[::-1]) - split, reverse list, join (handles multiple spaces)
+Two pointers for substrings? Classic pattern: left/right expand/contract for windows, palindromes, valid strings`,
   },
   int: {
     type: 'Integer',
     badge: 'int',
     color: 'var(--accent-int)',
     description: 'Integers are whole numbers with arbitrary precision. Python handles big integers natively—no overflow!',
-    intro: `Integers represent whole numbers—positive, negative, or zero. Python 3 unifies integers into a single \`int\` type with unlimited precision: no overflow, no size limits. Numbers grow as large as memory allows.
+    intro: `Integers represent whole numbers—positive, negative, or zero—with UNLIMITED precision. Python's integer type has no maximum size: compute factorial(1000) or 2**10000 without overflow! The key insight: understand division types (/, //, %), modulo behavior with negatives, and bit manipulation for interview questions.
 
-Literals: Decimal \`42\`, binary \`0b1010\` (10), octal \`0o52\` (42), hex \`0x2A\` (42). Underscores improve readability: \`1_000_000\`. No trailing type markers needed.
+KEY INSIGHT: NO INTEGER OVERFLOW IN PYTHON. Unlike C/Java where integers wrap around at 2³¹-1, Python integers grow as large as memory allows. \`2**1000\` works perfectly. This eliminates overflow bugs BUT means you must consider memory/performance for huge computations. For bounded integers in competitive programming, you may need manual modulo arithmetic.
 
-Operations: Standard arithmetic \`+\`, \`-\`, \`*\`. Division \`/\` always returns float (\`5/2\` → \`2.5\`). Floor division \`//\` truncates toward negative infinity (\`5//2\` → \`2\`, \`-5//2\` → \`-3\`). Modulo \`%\` gives remainder. Power \`**\` (\`2**10\` → \`1024\`). \`divmod(a, b)\` returns both quotient and remainder.
+\`\`\`python
+# NO OVERFLOW: Python handles arbitrarily large integers
+factorial_100 = 1
+for i in range(1, 101):
+    factorial_100 *= i
+# → 93326215443944152681699238856266700490715968264381621468...
+# (158 digits! No overflow!)
 
-Bit Operations: \`&\` AND, \`|\` OR, \`^\` XOR, \`~\` complement, \`<<\` left shift, \`>>\` right shift. Useful for flags, masks, and low-level algorithms. \`bin()\`, \`oct()\`, \`hex()\` convert to string representations. \`int.bit_length()\` counts bits needed.
+# Compare to C/Java: int max is 2,147,483,647
+print(2**31 - 1)  # → 2147483647 (C/Java max)
+print(2**100)     # → 1267650600228229401496703205376 (Python: no problem!)
 
-Conversions: \`int("42")\` parses string. \`int("2A", 16)\` parses with base. \`int(3.9)\` truncates float toward zero. \`round(3.5)\` rounds to nearest even (banker's rounding).
+# Memory/performance consideration
+huge = 10**1000000  # Million digits - takes memory!
+# Operations on huge numbers are O(n) in digit count
+\`\`\`
 
-Bool Relationship: \`bool\` is a subclass of \`int\`—\`True\` equals \`1\`, \`False\` equals \`0\`. You can do arithmetic on booleans: \`sum([True, True, False])\` → \`2\`.`,
+LITERALS AND BASES: Python supports multiple number bases for convenience.
+
+\`\`\`python
+# DECIMAL (base 10): Standard
+num = 42
+num = 1_000_000  # Underscores for readability (3.6+)
+
+# BINARY (base 2): Prefix 0b
+binary = 0b1010  # → 10
+binary = 0b1111_0000  # → 240 (underscores work in any base)
+
+# OCTAL (base 8): Prefix 0o
+octal = 0o52  # → 42
+octal = 0o777  # → 511 (Unix permissions!)
+
+# HEXADECIMAL (base 16): Prefix 0x
+hex_num = 0x2A  # → 42
+hex_num = 0xFF  # → 255
+hex_num = 0xDEADBEEF  # → 3735928559
+
+# CONVERSIONS to string representations:
+bin(42)  # → '0b101010'
+oct(42)  # → '0o52'
+hex(42)  # → '0x2a'
+
+# Parse strings with base:
+int('101010', 2)   # → 42 (binary string)
+int('2A', 16)      # → 42 (hex string)
+int('0x2A', 16)    # → 42 (accepts 0x prefix)
+int('0x2A', 0)     # → 42 (base 0 auto-detects from prefix)
+\`\`\`
+
+DIVISION TYPES: Python has THREE division operators with different behaviors.
+
+\`\`\`python
+# TRUE DIVISION /: Always returns float
+5 / 2      # → 2.5 (NOT 2!)
+10 / 3     # → 3.3333...
+-7 / 2     # → -3.5
+
+# FLOOR DIVISION //: Rounds toward negative infinity
+5 // 2     # → 2 (floor of 2.5)
+10 // 3    # → 3 (floor of 3.333...)
+-7 // 2    # → -4 (floor of -3.5, NOT -3!)
+# CRITICAL: // rounds DOWN (toward -∞), not toward zero!
+
+# MODULO %: Remainder after floor division
+5 % 2      # → 1 (5 = 2*2 + 1)
+10 % 3     # → 1 (10 = 3*3 + 1)
+-7 % 2     # → 1 (NOT -1! See below)
+
+# INVARIANT: a == (a // b) * b + (a % b) ALWAYS holds
+a, b = -7, 2
+print(a == (a // b) * b + (a % b))  # True
+# -7 == (-4) * 2 + 1
+# -7 == -8 + 1 ✓
+
+# DIVMOD: Get quotient + remainder in one operation
+divmod(10, 3)   # → (3, 1) = (10 // 3, 10 % 3)
+divmod(-7, 2)   # → (-4, 1)
+# More efficient than separate // and % calls
+\`\`\`
+
+MODULO WITH NEGATIVES: Python's modulo behavior differs from C/Java—CRITICAL for interviews!
+
+\`\`\`python
+# PYTHON: Result has SAME SIGN as divisor (b)
+-7 % 2   # → 1 (positive, like divisor 2)
+7 % -2   # → -1 (negative, like divisor -2)
+-7 % -2  # → -1
+
+# C/JAVA: Result has same sign as dividend
+# -7 % 2 would be -1 in C/Java
+# Python's way ensures: 0 <= a % b < b (for positive b)
+
+# INTERVIEW PATTERN: Circular array indexing
+arr = [1, 2, 3, 4, 5]
+index = -2
+# WRONG in C/Java: arr[index % len(arr)] could be negative
+# RIGHT in Python:
+arr[index % len(arr)]  # → arr[3] = 4 (always valid index!)
+
+# Wrapping: -2 % 5 = 3, so we get arr[3]
+# Works for any negative index!
+\`\`\`
+
+BIT MANIPULATION: Essential for interview problems—O(1) operations on integers.
+
+\`\`\`python
+# BITWISE OPERATORS:
+a = 0b1010  # 10
+b = 0b1100  # 12
+
+# AND &: Both bits 1 → 1
+a & b    # → 0b1000 = 8
+
+# OR |: Either bit 1 → 1
+a | b    # → 0b1110 = 14
+
+# XOR ^: Different bits → 1
+a ^ b    # → 0b0110 = 6
+# CRITICAL: x ^ x = 0, x ^ 0 = x (find single number pattern!)
+
+# NOT ~: Flip all bits (returns -(n+1) due to two's complement)
+~a       # → -11 (NOT 0b1010 in two's complement)
+
+# LEFT SHIFT <<: Multiply by 2ⁿ
+5 << 1   # → 10 (5 * 2¹)
+5 << 2   # → 20 (5 * 2²)
+
+# RIGHT SHIFT >>: Divide by 2ⁿ (floor division)
+20 >> 1  # → 10 (20 // 2)
+20 >> 2  # → 5 (20 // 4)
+
+# COMMON PATTERNS:
+
+# Check if bit at position i is set:
+def is_bit_set(n, i):
+    return (n & (1 << i)) != 0
+
+is_bit_set(0b1010, 1)  # True (bit 1 is set)
+is_bit_set(0b1010, 0)  # False (bit 0 is clear)
+
+# Set bit at position i:
+def set_bit(n, i):
+    return n | (1 << i)
+
+set_bit(0b1000, 1)  # → 0b1010
+
+# Clear bit at position i:
+def clear_bit(n, i):
+    return n & ~(1 << i)
+
+clear_bit(0b1010, 1)  # → 0b1000
+
+# Toggle bit at position i:
+def toggle_bit(n, i):
+    return n ^ (1 << i)
+
+toggle_bit(0b1010, 0)  # → 0b1011
+
+# Check if power of 2:
+def is_power_of_2(n):
+    return n > 0 and (n & (n - 1)) == 0
+
+is_power_of_2(8)   # True (0b1000 & 0b0111 = 0)
+is_power_of_2(10)  # False (0b1010 & 0b1001 ≠ 0)
+
+# Count set bits (Hamming weight):
+def count_bits(n):
+    count = 0
+    while n:
+        count += 1
+        n &= n - 1  # Clear rightmost set bit
+    return count
+
+count_bits(0b1011)  # → 3
+
+# Built-in:
+bin(0b1011).count('1')  # → 3 (simpler!)
+(0b1011).bit_count()     # → 3 (Python 3.10+)
+\`\`\`
+
+DIGIT MANIPULATION: Common interview pattern for integer problems.
+
+\`\`\`python
+# EXTRACT DIGITS (right to left):
+n = 12345
+digits = []
+while n:
+    digits.append(n % 10)  # Last digit
+    n //= 10               # Remove last digit
+# → [5, 4, 3, 2, 1]
+
+# Reverse to get [1, 2, 3, 4, 5]:
+digits.reverse()
+
+# ALTERNATIVE: Convert to string
+digits = [int(d) for d in str(12345)]
+# → [1, 2, 3, 4, 5]
+
+# REVERSE INTEGER:
+def reverse_int(n):
+    sign = -1 if n < 0 else 1
+    n = abs(n)
+    reversed_n = 0
+    while n:
+        reversed_n = reversed_n * 10 + n % 10
+        n //= 10
+    return sign * reversed_n
+
+reverse_int(12345)   # → 54321
+reverse_int(-12345)  # → -54321
+
+# STRING APPROACH (simpler but slower):
+def reverse_int_str(n):
+    sign = -1 if n < 0 else 1
+    return sign * int(str(abs(n))[::-1])
+
+# PALINDROME CHECK:
+def is_palindrome(n):
+    if n < 0:
+        return False  # Negatives not palindromes
+    return n == reverse_int(n)
+
+is_palindrome(121)   # True
+is_palindrome(-121)  # False
+is_palindrome(123)   # False
+\`\`\`
+
+CONVERSIONS: Between int, str, and other types.
+
+\`\`\`python
+# STRING TO INT:
+int("42")           # → 42
+int("-100")         # → -100
+int("  42  ")       # → 42 (strips whitespace)
+int("2A", 16)       # → 42 (hex)
+int("101010", 2)    # → 42 (binary)
+# int("42.5")       # ValueError! Use float() first
+
+# INT TO STRING:
+str(42)             # → "42"
+str(-100)           # → "-100"
+f"{42}"             # → "42" (f-string)
+f"{42:05d}"         # → "00042" (zero-padded to 5 digits)
+
+# FLOAT TO INT:
+int(3.9)            # → 3 (truncates toward ZERO, not floor!)
+int(-3.9)           # → -3 (truncates toward zero)
+# Compare to floor division:
+3.9 // 1            # → 3.0 (floor)
+-3.9 // 1           # → -4.0 (floor toward -∞)
+
+# ROUNDING:
+round(3.5)          # → 4 (banker's rounding: round to even)
+round(4.5)          # → 4 (round to even!)
+round(3.7)          # → 4
+round(-3.5)         # → -4
+
+# MATH MODULE for floor/ceil:
+import math
+math.floor(3.9)     # → 3
+math.floor(-3.9)    # → -4 (toward -∞)
+math.ceil(3.1)      # → 4
+math.ceil(-3.1)     # → -3 (toward +∞)
+math.trunc(3.9)     # → 3 (toward zero, same as int())
+\`\`\`
+
+INFINITY FOR COMPARISONS: Use float('inf') for unbounded values.
+
+\`\`\`python
+# INFINITY: Larger than any finite number
+inf = float('inf')
+neg_inf = float('-inf')
+
+# Works with min/max:
+min(5, 10, inf)     # → 5
+max(5, 10, neg_inf) # → 10
+
+# INTERVIEW PATTERN: Initialize min/max
+min_val = float('inf')   # Start with largest possible
+for num in nums:
+    min_val = min(min_val, num)
+
+max_val = float('-inf')  # Start with smallest possible
+for num in nums:
+    max_val = max(max_val, num)
+
+# Alternative: use first element
+min_val = nums[0]
+max_val = nums[0]
+for num in nums[1:]:
+    min_val = min(min_val, num)
+    max_val = max(max_val, num)
+\`\`\`
+
+PERFORMANCE CHARACTERISTICS:
+
+\`\`\`python
+# SMALL INTEGERS: Cached (-5 to 256)
+a = 5
+b = 5
+a is b  # True (same object!)
+
+a = 1000
+b = 1000
+a is b  # False (different objects)
+
+# OPERATIONS: O(1) for small numbers, O(n) for huge numbers
+# Addition/subtraction: O(max(len(a), len(b)))
+# Multiplication: O(len(a) * len(b))
+# Division: O(len(a) * len(b))
+# Exponentiation: Very expensive for large exponents!
+
+# HUGE NUMBER EXAMPLE:
+import time
+start = time.time()
+huge = 10**100000  # 100K digits
+end = time.time()
+print(f"Time: {end - start:.4f}s")  # ~0.001s
+
+start = time.time()
+huge2 = huge * huge  # 200K digits
+end = time.time()
+print(f"Multiplication: {end - start:.4f}s")  # ~0.1s
+\`\`\`
+
+BOOL RELATIONSHIP: bool is subclass of int!
+
+\`\`\`python
+# TRUE is 1, FALSE is 0:
+True == 1   # True
+False == 0  # True
+
+# ARITHMETIC on booleans:
+True + True         # → 2
+True * 10           # → 10
+False * 10          # → 0
+
+# COUNT TRUE values:
+bools = [True, False, True, True, False]
+sum(bools)          # → 3 (counts True values!)
+
+# INTERVIEW PATTERN: Count conditions
+nums = [1, 2, 3, 4, 5, 6]
+count_even = sum(n % 2 == 0 for n in nums)  # → 3
+count_positive = sum(n > 0 for n in nums)   # → 6
+\`\`\`
+
+COMMON INTERVIEW PATTERNS:
+
+1. **XOR for Single Number**: Find element appearing once (others appear twice)
+\`\`\`python
+def single_number(nums):
+    result = 0
+    for n in nums:
+        result ^= n  # x ^ x = 0, x ^ 0 = x
+    return result
+# [4, 1, 2, 1, 2] → 4
+\`\`\`
+
+2. **Power of Two Check**: n > 0 and (n & (n-1)) == 0
+
+3. **Reverse Bits**: Use bit manipulation to reverse 32-bit integer
+
+4. **Missing Number**: XOR or sum formula
+
+5. **Digit Sum**: Extract digits with % 10 and // 10
+
+COMMON GOTCHAS:
+
+1. **Floor Division with Negatives**: -7 // 2 = -4 (NOT -3!)
+2. **Modulo Sign**: -7 % 2 = 1 in Python (NOT -1 like C/Java)
+3. **Integer Division**: 5 / 2 = 2.5 (use // for integer result)
+4. **Banker's Rounding**: round(2.5) = 2, round(3.5) = 4 (rounds to even)
+5. **Huge Number Performance**: Operations are O(n) in digit count
+6. **Bitwise NOT**: ~n = -(n+1) due to two's complement
+
+WHEN TO USE WHAT:
+- **int**: Exact whole numbers, no overflow needed
+- **float**: Fractional values, scientific computation (beware precision!)
+- **Decimal**: Exact decimal arithmetic (money, finance)
+- **Fraction**: Exact rational numbers (1/3 stays 1/3)
+
+BEST PRACTICES:
+✅ Use // for integer division (not int(a/b))
+✅ Use divmod(a, b) when you need both quotient and remainder
+✅ Use bit manipulation for flags, masks, interview problems
+✅ Remember Python modulo always returns non-negative (for positive divisor)
+✅ Use float('inf') for initialization in min/max problems
+✅ Count True values with sum(bools)
+❌ NEVER assume integer overflow (Python has none!)
+❌ NEVER use / when you mean // (different results!)
+❌ NEVER forget modulo behavior differs from C/Java`,
     tip: `Need infinity for comparisons? float('inf') and float('-inf') - works with min/max
 Reverse integer digits? int(str(abs(n))[::-1]) * (1 if n >= 0 else -1) - handle negatives!
 Quotient + remainder together? divmod(a, b) returns (a//b, a%b) - one operation
-Bit manipulation? Use &, |, ^, ~, <<, >> - O(1) operations, fast for flags/masks`,
+Bit manipulation? Use &, |, ^, ~, <<, >> - O(1) operations, fast for flags/masks
+Floor division with negatives? -7 // 2 = -4 (NOT -3!) - rounds toward -∞, not zero`,
   },
   float: {
     type: 'Float',
     badge: 'float',
     color: 'var(--accent-float)',
     description: 'Floats are double-precision (64-bit) floating point numbers. Use math.isclose() for comparisons!',
-    intro: `Floats represent real numbers with fractional parts using 64-bit double-precision IEEE 754 format. They have finite precision (~15-17 significant digits) and limited range (±1.8×10³⁰⁸).
+    intro: `Floats represent real numbers with decimal points using 64-bit double-precision IEEE 754 format. The key insight: floats have FINITE PRECISION (~15-17 significant digits) due to binary representation—many simple decimals like 0.1 cannot be represented exactly! Understanding precision limits, comparison methods, and when to use Decimal instead is critical for correct numerical code.
 
-Literals: Decimal point \`3.14\`, scientific notation \`1.5e10\` (1.5×10¹⁰), negative exponent \`2.5e-4\` (0.00025). Leading/trailing zeros optional: \`.5\` same as \`0.5\`.
+KEY INSIGHT: FLOATS USE BINARY, NOT DECIMAL. Just as 1/3 cannot be represented exactly in decimal (0.333...), many simple decimals like 0.1, 0.2, 0.3 cannot be represented exactly in binary. This causes surprises: 0.1 + 0.2 = 0.30000000000000004 (not exactly 0.3!). NEVER compare floats with ==. Use math.isclose() or epsilon-based comparison. For financial calculations where exact decimals matter, use decimal.Decimal instead of float.
 
-Precision Pitfalls: Binary representation causes surprises: \`0.1 + 0.2\` → \`0.30000000000000004\`. Never compare floats with \`==\`! Use \`abs(a - b) < epsilon\` or \`math.isclose(a, b)\`. For exact decimals (money), use \`decimal.Decimal\`.
+\`\`\`python
+# CRITICAL PRECISION ISSUE:
+0.1 + 0.2 == 0.3  # → False (!)
+0.1 + 0.2         # → 0.30000000000000004
 
-Special Values: \`float('inf')\` positive infinity, \`float('-inf')\` negative infinity, \`float('nan')\` not-a-number. \`math.isinf()\` and \`math.isnan()\` test these. NaN is not equal to anything, including itself.
+# CORRECT comparison with epsilon:
+import math
+math.isclose(0.1 + 0.2, 0.3)  # → True (uses relative tolerance)
 
-Operations: All arithmetic operators work. \`//\` floor division returns float (\`5.0 // 2\` → \`2.0\`). \`%\` modulo works on floats. \`**\` for powers including fractional exponents (\`4**0.5\` → \`2.0\`).
+# Or manual epsilon:
+abs((0.1 + 0.2) - 0.3) < 1e-9  # → True
 
-Math Module: \`math.floor()\` rounds down, \`math.ceil()\` rounds up, \`math.trunc()\` toward zero. \`math.sqrt()\`, \`math.log()\`, \`math.sin()\`, etc. for mathematical functions. \`round(x, n)\` rounds to n decimal places.
+# For EXACT decimals (money):
+from decimal import Decimal
+Decimal('0.1') + Decimal('0.2') == Decimal('0.3')  # → True
+\`\`\`
 
-Conversions: \`float("3.14")\` parses string. \`float(42)\` from int. \`int(3.9)\` truncates to \`3\`. Format with \`f"{x:.2f}"\` for 2 decimal places.`,
-    tip: `NEVER use == for floats! abs(a - b) < 1e-9 or math.isclose(a, b)
-Binary search on floats? while right - left > 1e-9 (not left < right!)
-Need exact decimals (money)? Use decimal.Decimal, not float
-Float precision? ~15-17 digits - 0.1 + 0.2 ≠ 0.3 due to binary representation`,
+IEEE 754 FORMAT: Python floats are 64-bit double precision with 3 components.
+
+\`\`\`python
+# 64-bit breakdown:
+# - 1 bit: sign (positive/negative)
+# - 11 bits: exponent (range: ~10⁻³⁰⁸ to 10³⁰⁸)
+# - 52 bits: mantissa (precision: ~15-17 decimal digits)
+
+# PRECISION: ~15-17 significant digits
+x = 1234567890123456.0  # 16 digits
+x + 1 == x              # → True! Lost precision (17th digit)
+
+# RANGE: Huge but finite
+max_float = 1.8e308     # Approximate maximum
+min_positive = 2.2e-308 # Approximate minimum positive
+
+# Beyond range:
+float('1e309')  # → inf (overflow)
+float('1e-400') # → 0.0 (underflow)
+\`\`\`
+
+FLOAT LITERALS: Multiple syntaxes for convenience.
+
+\`\`\`python
+# STANDARD DECIMAL:
+pi = 3.14159
+half = 0.5
+also_half = .5  # Leading zero optional
+
+# SCIENTIFIC NOTATION:
+speed_of_light = 3.0e8      # 3.0 × 10⁸ = 300,000,000
+avogadro = 6.022e23         # 6.022 × 10²³
+electron_mass = 9.109e-31   # 9.109 × 10⁻³¹
+
+# UNDERSCORES for readability (3.6+):
+billion = 1_000_000_000.0
+planck = 6.626_070_15e-34
+\`\`\`
+
+PRECISION PITFALLS: Binary representation causes non-intuitive results.
+
+\`\`\`python
+# EXACT IN BINARY: Powers of 2 and their fractions
+0.5        # Exact (1/2 = 2⁻¹)
+0.25       # Exact (1/4 = 2⁻²)
+0.125      # Exact (1/8 = 2⁻³)
+
+# INEXACT IN BINARY: Most decimals
+0.1        # NOT exact (repeating binary: 0.0001100110011...)
+0.2        # NOT exact
+0.3        # NOT exact
+
+# ACCUMULATING ERRORS:
+total = 0.0
+for _ in range(10):
+    total += 0.1
+total == 1.0  # → False!
+total         # → 0.9999999999999999
+
+# INTERVIEW PATTERN: Counting with floats is DANGEROUS
+count = 0.0
+while count != 1.0:  # INFINITE LOOP!
+    count += 0.1
+    print(count)
+
+# Correct:
+count = 0
+while count < 10:  # Use integers for counting!
+    value = count * 0.1
+    count += 1
+\`\`\`
+
+FLOAT COMPARISON: Three methods depending on use case.
+
+\`\`\`python
+import math
+
+# METHOD 1: math.isclose() (BEST for most cases)
+math.isclose(0.1 + 0.2, 0.3)  # → True
+# Default: rel_tol=1e-9, abs_tol=0.0
+# Passes if: abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+# METHOD 2: Absolute epsilon (small numbers)
+abs(a - b) < 1e-9
+# Good when values near zero
+
+# METHOD 3: Relative epsilon (large numbers)
+abs(a - b) / max(abs(a), abs(b)) < 1e-9
+# Good when values vary in magnitude
+
+# INTERVIEW GOTCHA: Choose epsilon based on scale
+large_a = 1e10
+large_b = 1e10 + 1
+abs(large_a - large_b) < 1e-9  # → False (difference is 1!)
+math.isclose(large_a, large_b, rel_tol=1e-9)  # → True (relative)
+
+# ROUNDING for display/storage (not comparison):
+round(0.1 + 0.2, 2)  # → 0.3 (rounds to 2 decimals)
+\`\`\`
+
+SPECIAL VALUES: Infinity and NaN for exceptional cases.
+
+\`\`\`python
+# INFINITY: Larger than any number
+inf = float('inf')
+neg_inf = float('-inf')
+
+# USES:
+max_value = float('-inf')  # Initial value for finding max
+for x in data:
+    max_value = max(max_value, x)
+
+# ARITHMETIC:
+inf + 100     # → inf
+inf * 2       # → inf
+inf - inf     # → nan (undefined)
+1 / inf       # → 0.0
+1 / 0.0       # ZeroDivisionError (not inf!)
+
+# COMPARISONS:
+inf > 1e308   # → True
+inf == inf    # → True
+-inf < inf    # → True
+
+# TEST:
+import math
+math.isinf(inf)      # → True
+math.isinf(100.0)    # → False
+
+# NaN: Not a Number (undefined results)
+nan = float('nan')
+
+# OPERATIONS produce NaN:
+inf - inf     # → nan
+0 / 0.0       # ZeroDivisionError (not nan!)
+inf / inf     # → nan
+float('nan')  # Explicit creation
+
+# CRITICAL: NaN ≠ anything (including itself!)
+nan == nan    # → False (!)
+nan != nan    # → True
+nan < 5       # → False
+nan > 5       # → False
+
+# MUST use math.isnan():
+math.isnan(nan)       # → True
+math.isnan(100.0)     # → False
+\`\`\`
+
+MATH OPERATIONS: Standard arithmetic with float-specific behaviors.
+
+\`\`\`python
+# DIVISION: Always returns float
+5 / 2      # → 2.5
+10 / 2     # → 5.0 (float, not int!)
+
+# FLOOR DIVISION: Returns float with .0
+5.0 // 2   # → 2.0 (not 2!)
+7.5 // 2   # → 3.0
+
+# MODULO: Works with floats
+7.5 % 2    # → 1.5
+-7.5 % 2   # → 0.5 (same sign rules as integers)
+
+# POWER: Including fractional exponents
+4 ** 0.5   # → 2.0 (square root)
+8 ** (1/3) # → 2.0 (cube root)
+2 ** -1    # → 0.5 (negative exponent)
+\`\`\`
+
+ROUNDING AND TRUNCATION: Multiple functions with different behaviors.
+
+\`\`\`python
+import math
+
+x = 3.7
+y = -3.7
+
+# ROUND: To nearest integer, half to even
+round(3.5)   # → 4 (rounds to even)
+round(4.5)   # → 4 (rounds to even, NOT always up!)
+round(3.7)   # → 4
+round(-3.7)  # → -4
+
+# ROUND to decimals:
+round(3.14159, 2)  # → 3.14
+round(1234.5, -1)  # → 1230.0 (negative = round tens)
+
+# FLOOR: Always rounds DOWN (toward -∞)
+math.floor(3.7)   # → 3
+math.floor(-3.7)  # → -4 (down, not toward zero!)
+
+# CEIL: Always rounds UP (toward +∞)
+math.ceil(3.2)    # → 4
+math.ceil(-3.7)   # → -3 (up, not toward zero!)
+
+# TRUNC: Always rounds TOWARD ZERO
+math.trunc(3.7)   # → 3
+math.trunc(-3.7)  # → -3 (toward zero!)
+
+# INT: Truncates like math.trunc
+int(3.7)   # → 3
+int(-3.7)  # → -3
+\`\`\`
+
+BINARY SEARCH ON FLOATS: Use epsilon-based termination, not left < right!
+
+\`\`\`python
+# INTERVIEW PATTERN: Binary search on continuous function
+def find_sqrt(n, epsilon=1e-9):
+    \"\"\"Find square root using binary search.\"\"\"
+    left, right = 0.0, max(1.0, n)
+
+    # CRITICAL: Use epsilon, not left < right
+    while right - left > epsilon:
+        mid = (left + right) / 2
+        if mid * mid < n:
+            left = mid
+        else:
+            right = mid
+
+    return (left + right) / 2
+
+# Why epsilon? Floats have finite precision:
+# left < right might never become False due to precision!
+
+# EXAMPLE: Maximum value meeting condition
+def max_speed_under_limit(max_time, distance):
+    \"\"\"Binary search on speed.\"\"\"
+    left, right = 0.0, 1000.0  # Max possible speed
+
+    while right - left > 1e-6:
+        mid = (left + right) / 2
+        time_taken = distance / mid
+        if time_taken <= max_time:
+            left = mid  # Can go faster
+        else:
+            right = mid  # Too fast
+
+    return left
+\`\`\`
+
+DECIMAL MODULE: For exact decimal arithmetic (financial calculations).
+
+\`\`\`python
+from decimal import Decimal, getcontext
+
+# CRITICAL: Pass strings, not floats!
+a = Decimal('0.1')    # CORRECT
+b = Decimal(0.1)      # WRONG: Already imprecise float!
+
+# EXACT arithmetic:
+Decimal('0.1') + Decimal('0.2') == Decimal('0.3')  # → True
+
+# PRECISION control:
+getcontext().prec = 6  # 6 significant digits
+Decimal('1') / Decimal('3')  # → Decimal('0.333333')
+
+# USE CASES:
+# - Financial calculations (money)
+# - Tax computations
+# - Measurements requiring exact decimals
+# - Any case where 0.1 + 0.2 MUST equal 0.3
+
+# TRADE-OFF: Slower than float, but exact
+
+# INTERVIEW: Know when to use each
+# float: Scientific computing, graphics, ML (speed > precision)
+# Decimal: Finance, accounting (exactness > speed)
+\`\`\`
+
+CONVERSIONS AND FORMATTING:
+
+\`\`\`python
+# STRING to FLOAT:
+float('3.14')        # → 3.14
+float('1e6')         # → 1000000.0
+float('inf')         # → inf
+float('nan')         # → nan
+float('  2.5  ')     # → 2.5 (strips whitespace)
+
+# INT to FLOAT:
+float(42)            # → 42.0
+
+# FLOAT to INT (truncates):
+int(3.9)             # → 3
+int(-3.9)            # → -3
+
+# FLOAT to STRING (formatting):
+x = 3.14159
+
+f"{x:.2f}"           # → '3.14' (2 decimals)
+f"{x:.4f}"           # → '3.1416' (4 decimals, rounds)
+f"{x:10.2f}"         # → '      3.14' (width 10, right-aligned)
+f"{x:e}"             # → '3.141590e+00' (scientific)
+f"{x:.2e}"           # → '3.14e+00'
+f"{x:g}"             # → '3.14159' (shortest representation)
+
+# PERCENTAGE:
+ratio = 0.856
+f"{ratio:.1%}"       # → '85.6%'
+
+# COMMA separator:
+big = 1234567.89
+f"{big:,.2f}"        # → '1,234,567.89'
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: == comparison
+if 0.1 + 0.2 == 0.3:  # WRONG: False!
+    pass
+
+# GOTCHA 2: Accumulating errors
+total = sum([0.1] * 10)  # NOT exactly 1.0!
+
+# GOTCHA 3: NaN comparisons
+nan = float('nan')
+if nan == nan:  # WRONG: Always False!
+    pass
+
+# GOTCHA 4: Counting with floats
+i = 0.0
+while i != 1.0:  # INFINITE LOOP!
+    i += 0.1
+
+# GOTCHA 5: Division returns float
+5 / 1  # → 5.0 (float, not int 5)
+
+# GOTCHA 6: Passing float to Decimal
+Decimal(0.1)  # WRONG: Already imprecise!
+Decimal('0.1')  # CORRECT: Exact
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use math.isclose() for float comparisons
+✅ Use Decimal for financial calculations with exact decimals
+✅ Use integers for counting, indexing, loop counters
+✅ Format for display: f"{x:.2f}" instead of manual rounding
+✅ Test for special values: math.isinf(), math.isnan()
+✅ Binary search on floats: use epsilon-based termination
+✅ Pass strings to Decimal: Decimal('0.1'), not Decimal(0.1)
+❌ NEVER use == to compare floats (use math.isclose)
+❌ NEVER count with floats (use integers, multiply for value)
+❌ NEVER assume 0.1 + 0.2 == 0.3 (binary precision!)
+❌ NEVER use float for money (use Decimal)`,
+    tip: `NEVER use == for floats! Use math.isclose(a, b, rel_tol=1e-9) - handles relative tolerance automatically
+Binary search on floats? while right - left > epsilon (NOT left < right!) - finite precision needs epsilon
+Money/finance calculations? Use Decimal('0.1') not float(0.1) - pass STRINGS to Decimal for exactness!
+Float precision? ~15-17 significant digits only - 0.1 + 0.2 ≠ 0.3 due to binary representation!
+NaN comparisons? NEVER use ==, always math.isnan(x) - nan != nan (even to itself!)`,
   },
   bool: {
     type: 'Boolean',
     badge: 'bool',
     color: 'var(--accent-bool)',
     description: 'Booleans represent True/False values. Bool is a subclass of int—True is 1, False is 0.',
-    intro: `Booleans represent truth values with exactly two constants: \`True\` and \`False\`. Technically, \`bool\` is a subclass of \`int\`—\`True\` equals \`1\`, \`False\` equals \`0\`. This enables arithmetic on booleans.
+    intro: `Booleans represent truth values with exactly two constants: True and False. The key insight: Python's truthiness system is broader than other languages—any object can be tested for truth! Understanding which values are falsy (False, None, 0, "", [], {}) versus truthy (everything else) is essential for idiomatic Python code.
 
-Truth Testing: Python has a broad notion of true/false. Any object can be tested for truth. Falsy values: \`False\`, \`None\`, zero (\`0\`, \`0.0\`), empty sequences (\`""\`, \`[]\`, \`()\`, \`{}\`, \`set()\`). Everything else is truthy—including \`"False"\` (non-empty string).
+KEY INSIGHT: PYTHON HAS UNIVERSAL TRUTHINESS. Every object has a truth value—not just booleans! In boolean contexts (if, while, and, or, not), Python calls obj.__bool__() or obj.__len__() to determine truthiness. This enables elegant patterns like "if data:" instead of "if len(data) > 0". CRITICAL: bool is a subclass of int, so True == 1 and False == 0, enabling arithmetic on booleans!
 
-Boolean Operators: \`and\`, \`or\`, \`not\`. Short-circuit evaluation: \`and\` returns first falsy or last value; \`or\` returns first truthy or last value. \`x and y\` → \`y\` if \`x\` is truthy, else \`x\`. \`x or y\` → \`x\` if \`x\` is truthy, else \`y\`. This enables patterns like \`value = x or default\`.
+\`\`\`python
+# Universal truthiness in action
+data = []
+if data:  # Cleaner than "if len(data) > 0"
+    process(data)
 
-Comparison Operators: \`==\`, \`!=\`, \`<\`, \`>\`, \`<=\`, \`>=\` return booleans. Can be chained: \`1 < x < 10\` is same as \`1 < x and x < 10\`. \`is\` tests identity (same object), \`==\` tests equality (same value).
+# Short-circuit for default values
+name = input("Name: ") or "Guest"  # Empty string → "Guest"
 
-Built-in Functions: \`bool(x)\` converts to boolean. \`all(iter)\` returns \`True\` if all elements are truthy. \`any(iter)\` returns \`True\` if any element is truthy. Both short-circuit.
+# Count True values using arithmetic
+conditions = [x > 0, x < 10, x % 2 == 0]
+count = sum(conditions)  # True=1, False=0, so sum counts!
+\`\`\`
 
-Arithmetic: Since \`True == 1\` and \`False == 0\`: \`sum([True, True, False])\` → \`2\` (counts True values). \`True + True\` → \`2\`. Useful for counting conditions.
+TRUTH TESTING DEEP DIVE: Python defines EXACTLY 9 built-in falsy values. Everything else is truthy!
 
-Ternary Expression: \`x if condition else y\`—evaluates and returns \`x\` if condition is truthy, else \`y\`. Single expression, not statement.`,
-    tip: `Count True values? sum(bool_list) - True is 1, False is 0 (bool subclasses int)
-Any element True? any(iterable) - short-circuits on first True
-All elements True? all(iterable) - short-circuits on first False
-Falsy values to remember? 0, 0.0, "", [], {}, (), set(), None, False - everything else is truthy!`,
+\`\`\`python
+# THE COMPLETE LIST OF FALSY VALUES:
+False        # Boolean false
+None         # Null/absence of value
+0            # Integer zero
+0.0          # Float zero
+0j           # Complex zero
+""           # Empty string
+[]           # Empty list
+()           # Empty tuple
+{}           # Empty dict (also set())
+
+# EVERYTHING ELSE IS TRUTHY:
+"False"      # Non-empty string (GOTCHA!)
+"0"          # Non-empty string
+[0]          # Non-empty list (even with falsy element!)
+{0}          # Non-empty set
+(0,)         # Non-empty tuple
+True         # Obviously truthy
+
+# CRITICAL INTERVIEW GOTCHA: 0 and "" are falsy but VALID DATA!
+user_input = input("Enter 0 to quit: ")  # Returns "0"
+if not user_input:  # WRONG! "0" is truthy (non-empty string)
+    quit()
+
+# Correct:
+if user_input == "0":  # Explicit comparison
+    quit()
+\`\`\`
+
+CUSTOM TRUTHINESS: Classes can define __bool__() or __len__() to control truthiness.
+
+\`\`\`python
+class Account:
+    def __init__(self, balance):
+        self.balance = balance
+
+    def __bool__(self):
+        return self.balance > 0  # Truthy if has money
+
+account = Account(100)
+if account:  # Calls account.__bool__()
+    print("Account has funds")
+
+# __len__() also determines truthiness:
+class Collection:
+    def __len__(self):
+        return len(self.items)
+    # If no __bool__, Python uses: bool(obj) = len(obj) != 0
+
+# PRIORITY: __bool__() takes precedence over __len__()
+\`\`\`
+
+BOOLEAN OPERATORS AND SHORT-CIRCUIT EVALUATION: and, or, not don't necessarily return booleans—they return actual objects!
+
+\`\`\`python
+# SHORT-CIRCUIT AND: Returns first falsy OR last value
+True and True         # → True (last value)
+True and False        # → False (first falsy)
+10 and 20             # → 20 (both truthy, return last)
+0 and 20              # → 0 (first falsy, doesn't evaluate 20!)
+[] and expensive()    # → [] (short-circuits, expensive() never called)
+
+# SHORT-CIRCUIT OR: Returns first truthy OR last value
+False or False        # → False (last value)
+False or True         # → True (first truthy)
+0 or 10               # → 10 (first truthy)
+10 or 20              # → 10 (first truthy, doesn't evaluate 20!)
+"" or expensive()     # Evaluates expensive() since "" is falsy
+
+# NOT: Returns actual boolean (True or False)
+not True              # → False
+not 10                # → False (10 is truthy)
+not 0                 # → True (0 is falsy)
+not []                # → True ([] is falsy)
+
+# INTERVIEW PATTERN: Default values
+def greet(name=None):
+    name = name or "Guest"  # If name is None/"", use "Guest"
+    print(f"Hello, {name}")
+
+# INTERVIEW PATTERN: Chaining checks
+result = cache.get(key) or database.fetch(key) or default_value
+# Tries cache first, then DB, then default
+\`\`\`
+
+SHORT-CIRCUIT PERFORMANCE: Put cheap/likely-false conditions first to avoid expensive operations!
+
+\`\`\`python
+# GOOD: Cheap check first
+if len(data) > 0 and expensive_validation(data):
+    process(data)
+
+# BAD: Expensive check first
+if expensive_validation(data) and len(data) > 0:
+    process(data)
+
+# INTERVIEW OPTIMIZATION: Short-circuit in inner loops
+for item in huge_list:
+    # Put likely-false condition first
+    if item.is_valid and item.expensive_check():
+        results.append(item)
+\`\`\`
+
+COMPARISON OPERATORS: Return booleans, support chaining, and have surprising behaviors.
+
+\`\`\`python
+# BASIC COMPARISONS: ==, !=, <, >, <=, >=
+5 == 5        # → True
+5 != 3        # → True
+5 > 3         # → True
+
+# CHAINED COMPARISONS: Much cleaner than and
+1 < x < 10            # Same as: 1 < x and x < 10
+x <= y <= z           # Same as: x <= y and y <= z
+a == b == c           # Same as: a == b and b == c
+# CRITICAL: Middle value evaluated ONCE (no duplicate calls!)
+
+# IDENTITY VS EQUALITY:
+# == tests VALUE equality (calls __eq__)
+# is tests IDENTITY (same object in memory)
+
+a = [1, 2, 3]
+b = [1, 2, 3]
+a == b        # → True (same values)
+a is b        # → False (different objects)
+
+# ALWAYS use "is" for None, True, False (singletons):
+if x is None:     # CORRECT
+if x == None:     # WRONG (slower, can be overridden)
+
+# STRING INTERNING (implementation detail):
+s1 = "hello"
+s2 = "hello"
+s1 is s2      # → True (CPython interns short strings)
+# DON'T rely on this! Use == for strings
+\`\`\`
+
+BOOLEAN ARITHMETIC: True == 1, False == 0 enables powerful counting patterns.
+
+\`\`\`python
+# COUNT TRUE VALUES:
+conditions = [x > 0, x < 100, x % 2 == 0, x % 5 == 0]
+num_true = sum(conditions)  # Counts how many are True
+
+# INTERVIEW PATTERN: Count occurrences
+arr = [1, 2, 3, 1, 2, 1]
+count_ones = sum(x == 1 for x in arr)  # → 3
+
+# BOOLEAN MATH:
+True + True            # → 2
+False + False          # → 0
+True * 10              # → 10
+False * 10             # → 0
+
+# INTERVIEW USE CASE: Weighted conditions
+score = (has_feature_a * 10 +
+         has_feature_b * 20 +
+         has_feature_c * 5)
+
+# INDEX WITH BOOLEAN (0 or 1):
+options = ["No", "Yes"]
+has_permission = True
+print(options[has_permission])  # → "Yes" (True=1)
+\`\`\`
+
+ALL() AND ANY(): Essential functions for testing collections—short-circuit like and/or.
+
+\`\`\`python
+# ALL: Returns True if ALL elements are truthy
+all([True, True, True])      # → True
+all([True, False, True])     # → False
+all([])                      # → True (empty is vacuously true!)
+
+# ANY: Returns True if ANY element is truthy
+any([False, False, True])    # → True
+any([False, False, False])   # → False
+any([])                      # → False (no element is True)
+
+# SHORT-CIRCUIT: Stops at first False (all) or first True (any)
+all([True, True, expensive()])  # Calls expensive()
+all([False, expensive()])       # Doesn't call expensive()!
+
+# INTERVIEW PATTERN: Validation
+def is_valid_triangle(a, b, c):
+    sides = [a, b, c]
+    return all(s > 0 for s in sides) and all([
+        a + b > c,
+        b + c > a,
+        c + a > b
+    ])
+
+# INTERVIEW PATTERN: Check if any element matches
+has_negative = any(x < 0 for x in numbers)
+all_positive = all(x > 0 for x in numbers)
+
+# GENERATOR EXPRESSION: Use with all/any for efficiency
+# GOOD: Generator (lazy, O(1) space)
+all(x > 0 for x in huge_list)
+
+# BAD: List comprehension (eager, O(n) space)
+all([x > 0 for x in huge_list])
+\`\`\`
+
+TERNARY EXPRESSION: Conditional expression—not a statement, returns a value.
+
+\`\`\`python
+# SYNTAX: value_if_true if condition else value_if_false
+age = 20
+status = "adult" if age >= 18 else "minor"
+
+# EVALUATES TO VALUE: Can use inline
+print("Pass" if score >= 60 else "Fail")
+
+# COMMON USE: Default values
+result = x if x is not None else default
+
+# COMMON USE: Min/max with custom logic
+smaller = a if a < b else b  # But just use min(a, b)!
+
+# NEVER NEST TERNARY: Unreadable!
+# BAD:
+result = "A" if x > 10 else "B" if x > 5 else "C"
+
+# GOOD: Use if/elif/else
+if x > 10:
+    result = "A"
+elif x > 5:
+    result = "B"
+else:
+    result = "C"
+
+# GOTCHA: Operator precedence
+# This: x = a if condition else b + c
+# Is: x = (a if condition else b) + c  # WRONG!
+# Use parens: x = a if condition else (b + c)
+\`\`\`
+
+COMMON GOTCHAS AND INTERVIEW TRAPS:
+
+\`\`\`python
+# GOTCHA 1: 0 and "" are falsy but VALID data
+user_age = 0  # Valid age!
+if not user_age:  # WRONG: 0 is falsy!
+    print("Age not provided")
+
+# Correct:
+if user_age is None:
+    print("Age not provided")
+
+# GOTCHA 2: "False" string is TRUTHY
+config = "False"  # String, not boolean!
+if config:  # WRONG: Truthy!
+    enable_feature()
+
+# Correct:
+if config == "True":
+    enable_feature()
+
+# GOTCHA 3: Non-empty list with falsy elements is truthy
+data = [0, 0, 0]  # All elements falsy
+if data:  # True! List is non-empty
+    print("Has data")
+
+# GOTCHA 4: Mutable default + or pattern
+def process(items=None):
+    items = items or []  # WRONG if items=[] passed!
+    # items=[] is falsy, so resets to new []!
+
+# Correct:
+def process(items=None):
+    if items is None:
+        items = []
+
+# GOTCHA 5: Comparison chains can be confusing
+x = 5
+1 < x < 3  # → False (expected)
+# But:
+1 < x > 3  # → True (1 < 5 and 5 > 3)
+# Reads as: "x is greater than 1 AND greater than 3"
+\`\`\`
+
+BOOL() CONVERSION: Explicitly convert any value to boolean.
+
+\`\`\`python
+# EXPLICIT CONVERSION:
+bool(10)       # → True
+bool(0)        # → False
+bool("")       # → False
+bool("hello")  # → True
+bool([])       # → False
+bool([0])      # → True
+
+# USUALLY IMPLICIT: Don't need bool()
+if mylist:  # Cleaner than: if bool(mylist):
+    process(mylist)
+
+# USE CASE: Ensure boolean for storage/API
+def set_flag(value):
+    # Convert any truthy/falsy to actual bool
+    return bool(value)
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use truthiness: \`if data:\` instead of \`if len(data) > 0:\`
+✅ Use \`is\` for None, True, False: \`if x is None:\`
+✅ Use \`==\` for all other comparisons: \`if x == 0:\`
+✅ Chain comparisons: \`1 < x < 10\` instead of \`1 < x and x < 10\`
+✅ Use all()/any() for testing collections: \`if all(x > 0 for x in nums):\`
+✅ Count with sum(): \`sum(x > 0 for x in nums)\` counts True values
+✅ Short-circuit for defaults: \`name = name or "Guest"\`
+❌ NEVER compare boolean to True: \`if flag == True:\` (use \`if flag:\`)
+❌ NEVER use \`not x == y\` (use \`x != y\`)
+❌ NEVER assume 0/"" means "not provided" (use \`is None\` check)
+❌ NEVER nest ternary expressions (use if/elif/else)`,
+    tip: `Count True values? sum(bool_list) or sum(x > 0 for x in data) - True=1, False=0 (bool subclasses int!)
+Short-circuit defaults? name = name or "Guest" - GOTCHA: fails if name="" is valid! Use "is None" instead
+All elements pass test? all(x > 0 for x in nums) - short-circuits on first False, returns True for empty!
+Any element pass test? any(x > 0 for x in nums) - short-circuits on first True, returns False for empty!
+Falsy values MEMORIZE? False, None, 0, 0.0, 0j, "", [], {}, () - EVERYTHING else is truthy (including "False"!)`,
   },
   list: {
     type: 'List',
@@ -132,23 +1473,349 @@ Sort in place? arr.sort() returns None - Get sorted copy? sorted(arr) returns ne
     badge: 'tuple',
     color: 'var(--accent-tuple)',
     description: 'Immutable sequences. Hashable, memory-efficient. Only 2 methods. Use for fixed data, dict keys, function returns.',
-    intro: `Tuples are simple groups of objects that work like lists, but with the critical distinction that they are immutable sequences. Once created, they cannot be changed in place.
+    intro: `Tuples are immutable sequences that work like lists but cannot be modified after creation. The key insight: immutability enables hashability—tuples can be dict keys and set elements (lists cannot!). Use tuples for fixed data (coordinates, return values), protection (prevent accidental modification), and performance (faster than lists).
 
-Core Properties: Ordered collections that can be heterogeneous (hold different types) and arbitrarily nested. Because they're immutable, tuples are hashable and can be used as dictionary keys or set elements—lists cannot.
+KEY INSIGHT: IMMUTABILITY ENABLES HASHABILITY. Because tuples cannot change, Python can compute a stable hash value, making them usable as dictionary keys and set elements. Lists are mutable, so their hash would change if modified—therefore lists aren't hashable. CRITICAL: Tuple immutability is SHALLOW—a tuple of lists like ([1, 2], [3, 4]) can't be changed (can't reassign elements), but the inner lists CAN be modified!
 
-Syntax and Literals: Tuples are typically written in parentheses \`(1, 2, 3)\`, though parentheses are often optional unless context makes commas ambiguous. A one-item tuple requires a trailing comma \`(0,)\` to distinguish it from a parenthesized expression—\`(0)\` is just the integer 0. Empty tuple is \`()\`.
+\`\`\`python
+# HASHABLE: Tuples can be dict keys
+cache = {}
+point = (10, 20)  # Tuple of immutable ints
+cache[point] = "value"  # Works!
 
-Operations: Support standard sequence operations—indexing \`T[i]\`, slicing \`T[i:j]\`, concatenation \`+\`, repetition \`*\`, length \`len()\`, membership \`in\`, iteration. However, tuples have only two type-specific methods: \`index(x)\` finds position of value, \`count(x)\` counts occurrences.
+# NOT HASHABLE: Lists can't be dict keys
+point_list = [10, 20]
+cache[point_list] = "value"  # TypeError: unhashable type: 'list'
 
-Integrity: Their primary purpose is providing an integrity constraint—ensuring a collection remains constant throughout a program. Use tuples for fixed collections that shouldn't change: coordinates, database records, function return values.
+# SHALLOW IMMUTABILITY GOTCHA:
+t = ([1, 2], [3, 4])  # Tuple containing lists
+t[0] = [5, 6]  # TypeError: can't modify tuple
+t[0].append(99)  # Works! Inner list is mutable
+# t is now ([1, 2, 99], [3, 4])
+\`\`\`
 
-Named Tuples: The \`collections.namedtuple\` extension allows components to be accessed by both position and mnemonic attribute name. \`Point = namedtuple('Point', ['x', 'y'])\` creates a class where \`p.x\` and \`p[0]\` both work. Acts as a lightweight class or hybrid between tuple and dictionary.
+SYNTAX AND LITERALS: Parentheses are often optional, but commas define tuples.
 
-Unpacking: Tuples support sequence unpacking: \`a, b, c = (1, 2, 3)\` assigns each element. Extended unpacking with \`*\`: \`first, *rest = (1, 2, 3, 4)\` gives \`first=1\`, \`rest=[2,3,4]\`. Swap values elegantly: \`a, b = b, a\`.`,
-    tip: `Need hashable dict key? Use tuple (x, y) for coordinates - lists aren't hashable!
+\`\`\`python
+# STANDARD: With parentheses
+t = (1, 2, 3)
+
+# COMMAS CREATE TUPLES: Parentheses optional
+t = 1, 2, 3  # Same as (1, 2, 3)
+a, b = 10, 20  # Tuple unpacking
+
+# EMPTY TUPLE: Needs parentheses
+empty = ()
+
+# SINGLE-ITEM TUPLE: MUST have trailing comma!
+single = (42,)  # Tuple with one element
+not_tuple = (42)  # Just an integer in parens!
+type(single)  # → <class 'tuple'>
+type(not_tuple)  # → <class 'int'>
+
+# INTERVIEW GOTCHA: Missing comma
+t = (1)  # NOT a tuple! Just 1
+t = (1,)  # Tuple with one element
+
+# NESTED TUPLES:
+nested = ((1, 2), (3, 4), (5, 6))
+
+# HETEROGENEOUS (mixed types):
+mixed = (1, "hello", 3.14, [1, 2], {"key": "val"})
+\`\`\`
+
+IMMUTABILITY DEEP DIVE: Tuples cannot be changed, but shallow vs deep matters.
+
+\`\`\`python
+# CANNOT MODIFY:
+t = (1, 2, 3)
+t[0] = 99  # TypeError: 'tuple' object does not support item assignment
+t.append(4)  # AttributeError: no append method
+del t[0]  # TypeError: doesn't support item deletion
+
+# CAN CREATE NEW TUPLES:
+t = (1, 2, 3)
+t = t + (4, 5)  # New tuple: (1, 2, 3, 4, 5)
+t = t * 2  # New tuple: (1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+# SHALLOW IMMUTABILITY: Tuple structure fixed, but mutable contents can change
+t = ([1, 2], [3, 4])
+t[0].append(99)  # Works! Modifying inner list
+# t is now ([1, 2, 99], [3, 4])
+
+# FULLY IMMUTABLE: Only possible with immutable contents
+t = (1, 2, 3)  # Ints are immutable
+t = ("a", "b")  # Strings are immutable
+t = ((1, 2), (3, 4))  # Tuples of tuples are immutable
+
+# WHEN TO USE TUPLE VS LIST:
+# Tuple: Fixed data, won't change, need hashability
+coords = (x, y)  # Position won't change
+rgb = (255, 0, 0)  # Color won't change
+
+# List: Dynamic data, will change, need mutability
+items = [1, 2, 3]
+items.append(4)  # Will grow
+items[0] = 99  # Will modify
+\`\`\`
+
+TUPLE OPERATIONS: Read-only sequence operations only.
+
+\`\`\`python
+t = (10, 20, 30, 40, 50)
+
+# INDEXING:
+t[0]   # → 10
+t[-1]  # → 50
+t[2]   # → 30
+
+# SLICING (creates new tuple):
+t[1:3]   # → (20, 30)
+t[:2]    # → (10, 20)
+t[2:]    # → (30, 40, 50)
+t[::2]   # → (10, 30, 50) (every 2nd)
+
+# CONCATENATION (creates new tuple):
+(1, 2) + (3, 4)  # → (1, 2, 3, 4)
+
+# REPETITION (creates new tuple):
+(1, 2) * 3  # → (1, 2, 1, 2, 1, 2)
+
+# LENGTH:
+len(t)  # → 5
+
+# MEMBERSHIP:
+20 in t  # → True
+99 in t  # → False
+
+# ITERATION:
+for item in t:
+    print(item)
+
+# MIN/MAX (if comparable):
+min(t)  # → 10
+max(t)  # → 50
+
+# ONLY 2 METHODS:
+t.index(30)  # → 2 (position of first 30)
+t.count(20)  # → 1 (number of 20s)
+\`\`\`
+
+HASHABILITY AND DICTIONARY KEYS: Critical for caching and lookup tables.
+
+\`\`\`python
+# TUPLE AS DICT KEY: Common interview pattern
+cache = {}
+cache[(1, 2)] = "result"  # Tuple key works!
+
+# USE CASE: 2D grid/matrix coordinates
+grid = {}
+grid[(0, 0)] = "start"
+grid[(10, 5)] = "treasure"
+
+# USE CASE: Memoization (caching function results)
+memo = {}
+def fibonacci(n):
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    result = fibonacci(n-1) + fibonacci(n-2)
+    memo[n] = result  # Cache with int key
+    return result
+
+# Multi-argument memoization with tuple key:
+memo = {}
+def distance(x1, y1, x2, y2):
+    key = (x1, y1, x2, y2)  # Tuple key for 4 args
+    if key in memo:
+        return memo[key]
+    result = ((x2-x1)**2 + (y2-y1)**2)**0.5
+    memo[key] = result
+    return result
+
+# GOTCHA: Mutable contents make tuple unhashable
+t1 = (1, 2, 3)  # Hashable (all immutable)
+hash(t1)  # Works!
+
+t2 = (1, [2, 3], 4)  # Contains list (mutable)
+hash(t2)  # TypeError: unhashable type: 'list'
+# Can't use as dict key!
+
+# FREEZE LIST → TUPLE for hashability:
+L = [1, 2, 3]
+key = tuple(L)  # Convert to tuple
+cache[key] = "value"  # Now works!
+\`\`\`
+
+NAMED TUPLES: Readable alternative to plain tuples.
+
+\`\`\`python
+from collections import namedtuple
+
+# CREATE named tuple class:
+Point = namedtuple('Point', ['x', 'y'])
+
+# INSTANTIATE:
+p = Point(10, 20)
+
+# ACCESS by name (readable):
+p.x  # → 10
+p.y  # → 20
+
+# ACCESS by index (still works):
+p[0]  # → 10
+p[1]  # → 20
+
+# UNPACKING works:
+x, y = p
+
+# IMMUTABLE like regular tuples:
+p.x = 30  # AttributeError: can't set attribute
+
+# USE CASE: Function returns
+def get_user():
+    User = namedtuple('User', ['name', 'age', 'email'])
+    return User('Alice', 30, 'alice@example.com')
+
+user = get_user()
+print(user.name)  # Much clearer than user[0]!
+
+# USE CASE: Database rows
+Row = namedtuple('Row', ['id', 'name', 'value'])
+rows = [
+    Row(1, 'Alice', 100),
+    Row(2, 'Bob', 200),
+]
+for row in rows:
+    print(f"{row.name}: {row.value}")  # Readable!
+
+# METHODS:
+p._asdict()  # → {'x': 10, 'y': 20} (OrderedDict)
+p._replace(x=30)  # → Point(x=30, y=20) (new instance)
+p._fields  # → ('x', 'y')
+\`\`\`
+
+UNPACKING PATTERNS: Extract values from tuples elegantly.
+
+\`\`\`python
+# BASIC UNPACKING:
+t = (1, 2, 3)
+a, b, c = t  # a=1, b=2, c=3
+
+# MUST match length:
+a, b = (1, 2, 3)  # ValueError: too many values to unpack
+
+# SWAP VALUES: No temp variable needed!
+a, b = 10, 20
+a, b = b, a  # a=20, b=10
+
+# IGNORE VALUES with _:
+x, _, z = (1, 2, 3)  # x=1, z=3, ignore middle
+
+# EXTENDED UNPACKING with * (3.0+):
+first, *rest = (1, 2, 3, 4)
+# first = 1
+# rest = [2, 3, 4] (NOTE: * creates LIST, not tuple!)
+
+middle, *mid, last = (1, 2, 3, 4, 5)
+# first = 1, mid = [2, 3, 4], last = 5
+
+# * can be anywhere:
+*head, last = (1, 2, 3)  # head=[1, 2], last=3
+first, *tail = (1, 2, 3)  # first=1, tail=[2, 3]
+
+# NESTED UNPACKING:
+(a, b), (c, d) = ((1, 2), (3, 4))
+# a=1, b=2, c=3, d=4
+
+# FUNCTION RETURNS: Implicit tuple creation
+def get_min_max(data):
+    return min(data), max(data)  # Returns tuple
+
+min_val, max_val = get_min_max([1, 5, 3])  # Unpack
+
+# INTERVIEW PATTERN: Iterate with enumerate
+for index, value in enumerate(['a', 'b', 'c']):
+    print(f"{index}: {value}")  # Unpacks tuple from enumerate
+
+# INTERVIEW PATTERN: Iterate dict items
+for key, value in {'a': 1, 'b': 2}.items():
+    print(f"{key} -> {value}")  # Unpacks tuple from items()
+\`\`\`
+
+PERFORMANCE: Tuples are faster and smaller than lists.
+
+\`\`\`python
+import sys
+
+# MEMORY: Tuples use less memory
+t = (1, 2, 3, 4, 5)
+L = [1, 2, 3, 4, 5]
+sys.getsizeof(t)  # → 64 bytes
+sys.getsizeof(L)  # → 88 bytes (36% larger!)
+
+# SPEED: Tuple creation faster
+# t = (1, 2, 3) is faster than L = [1, 2, 3]
+
+# CONSTANT OPTIMIZATION: Python pre-allocates tuples
+# Repeated (1, 2, 3) may reuse same object (implementation detail)
+
+# WHEN PERFORMANCE MATTERS: Use tuples for fixed data
+# - Function returns
+# - Constants
+# - Dict keys
+# - Loop iteration over fixed values
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: Single-item tuple needs comma
+t = (42)   # NOT a tuple! Just int 42
+t = (42,)  # Tuple with one element
+
+# GOTCHA 2: Shallow immutability
+t = ([1, 2], [3, 4])
+t[0].append(99)  # Works! Inner list modified
+# Now: ([1, 2, 99], [3, 4])
+
+# GOTCHA 3: Unhashable if contains mutables
+t = (1, [2, 3])
+hash(t)  # TypeError: unhashable type: 'list'
+
+# GOTCHA 4: + creates new tuple (not in-place)
+t = (1, 2)
+t = t + (3,)  # Creates NEW tuple, reassigns
+# Original (1, 2) is garbage collected
+
+# GOTCHA 5: * unpacking creates list
+first, *rest = (1, 2, 3)
+type(rest)  # → <class 'list'> (not tuple!)
+
+# GOTCHA 6: Tuple() constructor requires iterable
+tuple(5)  # TypeError: not iterable
+tuple([5])  # → (5,) Works!
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use tuples for fixed data that won't change (coordinates, RGB, returns)
+✅ Use tuples as dict keys when you need composite keys
+✅ Return multiple values as tuple: return x, y, z (implicit)
+✅ Unpack elegantly: a, b, c = func() instead of result[0], result[1], ...
+✅ Swap with unpacking: a, b = b, a (no temp variable)
+✅ Use namedtuple for readability when tuples have many fields
+✅ Remember trailing comma for single-item: (x,) not (x)
+❌ NEVER use tuple if you need to modify elements (use list)
+❌ NEVER forget comma in single-item tuple
+❌ NEVER assume deep immutability (inner mutables can change!)
+❌ NEVER try to hash tuple containing mutables (unhashable)`,
+    tip: `Need hashable dict key? Use tuple (x, y) for coordinates - lists aren't hashable! GOTCHA: tuple([1, 2]) is hashable, tuple([1, [2]]) is NOT
 Swap values elegantly? a, b = b, a - no temp variable needed (tuple unpacking)
-Return multiple values? return a, b, c - automatically creates tuple
-Single-item tuple? (x,) with trailing comma - (x) is just a parenthesized expression!`,
+Return multiple values? return a, b, c - automatically creates tuple, unpack with x, y, z = func()
+Single-item tuple? (x,) with trailing comma - (x) is just parenthesized expression, NOT tuple!
+Immutability is SHALLOW? t = ([1, 2], [3]) - can't reassign t[0], but CAN modify t[0].append(99)!`,
   },
   dict: {
     type: 'Dictionary',
@@ -180,22 +1847,339 @@ Avoid KeyError? dict.get(key, default) or use defaultdict - d[key] raises if mis
     badge: 'set',
     color: 'var(--accent-set)',
     description: 'Unordered collection with O(1) membership testing. Automatic deduplication. Elements must be hashable.',
-    intro: `Sets are unordered collections of unique, hashable objects. Implemented as hash tables, they provide O(1) membership testing—the killer feature. Sets automatically remove duplicates: \`{1, 2, 2, 3}\` → \`{1, 2, 3}\`.
+    intro: `Sets are unordered collections of unique, hashable elements with O(1) membership testing. The key insight: use sets for "have we seen this?" checks—dramatically faster than lists! Implemented as hash tables, sets provide O(1) add, remove, and membership testing. Automatic deduplication makes sets perfect for uniqueness problems.
 
-Core Properties: Unordered (no indexing or slicing), mutable (can add/remove), elements must be hashable (immutable: strings, numbers, tuples). Like the mathematical concept—unique elements, set operations. Think of a bag of marbles where duplicates are impossible.
+KEY INSIGHT: O(1) MEMBERSHIP TESTING IS THE KILLER FEATURE. Checking "if x in my_list" is O(n)—slow for large lists! But "if x in my_set" is O(1)—constant time regardless of size! This is the most common interview optimization: converting list to set. CRITICAL: Set elements must be hashable (immutable)—you can add ints, strings, tuples, but NOT lists or dicts!
 
-Literals & Construction: Curly braces \`{1, 2, 3}\` (not \`{}\`—that's an empty dict!). Empty set: \`set()\`. From iterable: \`set([1, 2, 2, 3])\` or \`set("hello")\` → \`{'h', 'e', 'l', 'o'}\`. Comprehensions: \`{x**2 for x in range(5)}\`.
+\`\`\`python
+# SLOW: O(n) membership test with list
+seen = []
+if x in seen:  # Linear scan through entire list!
+    pass
 
-Set Operations: Union \`a | b\` or \`a.union(b)\`. Intersection \`a & b\` or \`a.intersection(b)\`. Difference \`a - b\` (in a but not b). Symmetric difference \`a ^ b\` (in either but not both). Subset \`a <= b\`, proper subset \`a < b\`, superset \`a >= b\`.
+# FAST: O(1) membership test with set
+seen = set()
+if x in seen:  # Hash table lookup—instant!
+    pass
 
-Methods: \`add(x)\` adds single element. \`update(iter)\` adds multiple. \`remove(x)\` removes (raises KeyError if missing). \`discard(x)\` removes (no error if missing). \`pop()\` removes and returns arbitrary element. \`clear()\` empties set.
+# AUTOMATIC DEDUPLICATION:
+items = [1, 2, 2, 3, 3, 3, 4]
+unique = set(items)  # → {1, 2, 3, 4}
 
-Frozen Sets: \`frozenset\` is immutable version—hashable, can be dict key or set element. Created with \`frozenset([1, 2, 3])\`. Supports all operations except modification.
+# INTERVIEW PATTERN: Seen set for tracking
+seen = set()
+for item in data:
+    if item in seen:
+        return True  # Found duplicate!
+    seen.add(item)
+return False
+\`\`\`
 
-Common Patterns: Deduplication \`list(set(arr))\` (loses order—use \`dict.fromkeys(arr)\` to preserve). Membership testing \`x in seen\`. Finding common/unique elements between collections.`,
-    tip: `"Have we seen X?" Use set for O(1) lookup - seen = set(); if x in seen: ...
-Remove duplicates? list(set(arr)) but LOSES order - Preserve order? list(dict.fromkeys(arr))
-Common elements? a & b (intersection) - Unique to a? a - b (difference) - All elements? a | b (union)
-Empty set gotcha? set() NOT {} - {} creates empty dict!`,
+CORE PROPERTIES: Sets are unordered collections with unique elements.
+
+\`\`\`python
+# UNORDERED: No indexing or slicing
+s = {3, 1, 2}
+s[0]  # TypeError: 'set' object is not subscriptable
+s[1:3]  # TypeError: 'set' object is not subscriptable
+
+# UNIQUE: Duplicates automatically removed
+s = {1, 2, 2, 3, 3, 3}  # → {1, 2, 3}
+
+# MUTABLE: Can add/remove elements
+s = {1, 2, 3}
+s.add(4)  # → {1, 2, 3, 4}
+s.remove(2)  # → {1, 3, 4}
+
+# ELEMENTS MUST BE HASHABLE (immutable):
+s = {1, 2, 3}  # Ints: OK
+s = {"a", "b"}  # Strings: OK
+s = {(1, 2), (3, 4)}  # Tuples: OK
+
+s = {[1, 2]}  # TypeError: unhashable type: 'list'
+s = {{1: 2}}  # TypeError: unhashable type: 'dict'
+
+# SIZE:
+len(s)  # Number of elements
+\`\`\`
+
+SYNTAX AND CONSTRUCTION: Multiple ways to create sets.
+
+\`\`\`python
+# LITERAL SYNTAX: Curly braces (non-empty)
+s = {1, 2, 3}
+s = {"apple", "banana", "cherry"}
+
+# CRITICAL GOTCHA: {} is EMPTY DICT, not empty set!
+empty_dict = {}  # Dict!
+empty_set = set()  # Set!
+type({})  # → <class 'dict'>
+type(set())  # → <class 'set'>
+
+# FROM ITERABLE: set() constructor
+s = set([1, 2, 2, 3])  # From list → {1, 2, 3}
+s = set("hello")  # From string → {'h', 'e', 'l', 'o'}
+s = set((1, 2, 3))  # From tuple → {1, 2, 3}
+s = set(range(5))  # From range → {0, 1, 2, 3, 4}
+
+# SET COMPREHENSION:
+s = {x**2 for x in range(5)}  # → {0, 1, 4, 9, 16}
+s = {x for x in range(10) if x % 2 == 0}  # → {0, 2, 4, 6, 8}
+
+# DEDUPLICATION: Automatic with set()
+items = [1, 1, 2, 2, 3, 3]
+unique = list(set(items))  # → [1, 2, 3] (order lost!)
+\`\`\`
+
+SET OPERATIONS: Mathematical set algebra with operators and methods.
+
+\`\`\`python
+a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+
+# UNION | : All elements from both sets (OR)
+a | b  # → {1, 2, 3, 4, 5, 6}
+a.union(b)  # Same as |
+
+# INTERSECTION & : Elements in BOTH sets (AND)
+a & b  # → {3, 4}
+a.intersection(b)  # Same as &
+
+# DIFFERENCE - : In first set but NOT second
+a - b  # → {1, 2} (in a, not in b)
+b - a  # → {5, 6} (in b, not in a)
+a.difference(b)  # Same as -
+
+# SYMMETRIC DIFFERENCE ^ : In either but NOT both (XOR)
+a ^ b  # → {1, 2, 5, 6} (in a or b, but not both)
+a.symmetric_difference(b)  # Same as ^
+
+# SUBSET <= : Is first set contained in second?
+{1, 2} <= {1, 2, 3}  # → True (all of {1,2} in {1,2,3})
+{1, 5} <= {1, 2, 3}  # → False (5 not in {1,2,3})
+a.issubset(b)  # Same as <=
+
+# PROPER SUBSET < : Subset but not equal
+{1, 2} < {1, 2, 3}  # → True (subset and not equal)
+{1, 2} < {1, 2}  # → False (equal sets, not proper)
+
+# SUPERSET >= : Does first set contain second?
+{1, 2, 3} >= {1, 2}  # → True
+{1, 2, 3} >= {1, 5}  # → False
+a.issuperset(b)  # Same as >=
+
+# PROPER SUPERSET >:
+{1, 2, 3} > {1, 2}  # → True
+{1, 2} > {1, 2}  # → False
+
+# DISJOINT: No elements in common
+a.isdisjoint({7, 8})  # → True (no overlap)
+a.isdisjoint(b)  # → False ({3, 4} in common)
+
+# INTERVIEW PATTERN: Find common elements
+common = list(a & b)  # Convert to list if needed
+
+# INTERVIEW PATTERN: Find unique to each
+only_a = a - b
+only_b = b - a
+\`\`\`
+
+METHODS: Modifying sets in place.
+
+\`\`\`python
+s = {1, 2, 3}
+
+# ADD: Single element
+s.add(4)  # → {1, 2, 3, 4}
+s.add(2)  # No effect (already exists)
+
+# UPDATE: Multiple elements (like |=)
+s.update([5, 6])  # → {1, 2, 3, 4, 5, 6}
+s.update({7, 8}, [9, 10])  # Multiple iterables OK
+s |= {11, 12}  # Same as update
+
+# REMOVE: Delete element (raises KeyError if missing)
+s.remove(5)  # → removes 5
+s.remove(99)  # KeyError: 99
+
+# DISCARD: Delete element (NO error if missing)
+s.discard(6)  # → removes 6
+s.discard(99)  # No error, does nothing
+
+# POP: Remove and return ARBITRARY element
+s = {1, 2, 3}
+x = s.pop()  # → removes and returns some element (e.g., 1)
+# WARNING: Order undefined, use only when don't care which!
+
+# CLEAR: Remove all elements
+s.clear()  # → set()
+
+# IN-PLACE SET OPERATIONS:
+a = {1, 2, 3}
+a &= {2, 3, 4}  # In-place intersection → {2, 3}
+a |= {5, 6}  # In-place union → {2, 3, 5, 6}
+a -= {2}  # In-place difference → {3, 5, 6}
+a ^= {5, 7}  # In-place symmetric diff → {3, 6, 7}
+
+# COPY: Shallow copy
+b = a.copy()  # New set with same elements
+\`\`\`
+
+FROZENSET: Immutable, hashable set.
+
+\`\`\`python
+# CREATE frozenset:
+fs = frozenset([1, 2, 3])
+
+# IMMUTABLE: Can't add/remove
+fs.add(4)  # AttributeError: 'frozenset' has no add
+fs.remove(1)  # AttributeError
+
+# HASHABLE: Can be dict key or set element!
+cache = {}
+key = frozenset([1, 2, 3])
+cache[key] = "value"  # Works!
+
+# SET OF SETS: Use frozenset
+s = {frozenset([1, 2]), frozenset([3, 4])}  # Works!
+s = {{1, 2}, {3, 4}}  # TypeError: unhashable type: 'set'
+
+# OPERATIONS: All read-only operations work
+fs1 = frozenset([1, 2, 3])
+fs2 = frozenset([2, 3, 4])
+fs1 | fs2  # → frozenset({1, 2, 3, 4})
+fs1 & fs2  # → frozenset({2, 3})
+
+# USE CASES:
+# - Dict keys (when need set-like key)
+# - Set elements (sets of sets)
+# - Immutable constant sets
+\`\`\`
+
+COMMON INTERVIEW PATTERNS:
+
+\`\`\`python
+# PATTERN 1: Seen set for duplicates
+def has_duplicates(arr):
+    seen = set()
+    for x in arr:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False
+
+# PATTERN 2: Deduplication (loses order)
+unique = list(set(arr))
+
+# PATTERN 3: Preserve order deduplication
+unique = list(dict.fromkeys(arr))  # Dict maintains insertion order (3.7+)
+
+# PATTERN 4: Count unique elements
+num_unique = len(set(arr))
+
+# PATTERN 5: Find missing number (XOR trick with sets)
+def find_missing(arr, n):
+    return sum(range(1, n+1)) - sum(arr)  # Math approach
+    # Or: return (set(range(1, n+1)) - set(arr)).pop()  # Set approach
+
+# PATTERN 6: Intersection of multiple arrays
+def common_elements(arrays):
+    result = set(arrays[0])
+    for arr in arrays[1:]:
+        result &= set(arr)
+    return list(result)
+
+# PATTERN 7: Two sum with set
+def two_sum(arr, target):
+    seen = set()
+    for x in arr:
+        if target - x in seen:
+            return True
+        seen.add(x)
+    return False
+
+# PATTERN 8: Anagram detection
+def are_anagrams(s1, s2):
+    return set(s1) == set(s2) and len(s1) == len(s2)
+    # Better: sorted(s1) == sorted(s2)
+\`\`\`
+
+PERFORMANCE: O(1) average case for core operations.
+
+\`\`\`python
+# MEMBERSHIP: O(1) average
+x in my_set  # Fast hash table lookup!
+
+# ADD: O(1) average
+my_set.add(x)
+
+# REMOVE: O(1) average
+my_set.remove(x)
+
+# SET OPERATIONS: O(len(s1) + len(s2))
+s1 | s2  # Union
+s1 & s2  # Intersection
+s1 - s2  # Difference
+
+# ITERATION: O(n)
+for x in my_set:
+    pass
+
+# LIST vs SET membership (critical optimization!):
+# List: O(n) for "if x in list"
+# Set: O(1) for "if x in set"
+
+# INTERVIEW RULE: If doing membership tests, convert to set first!
+# Convert once O(n), then test many times O(1) each
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: {} is dict, not set!
+empty = {}  # Dict!
+empty = set()  # Set!
+
+# GOTCHA 2: Deduplication loses order
+arr = [3, 1, 2, 1, 3]
+list(set(arr))  # → [1, 2, 3] (sorted? No! Undefined order)
+# Preserve order: list(dict.fromkeys(arr)) → [3, 1, 2]
+
+# GOTCHA 3: Elements must be hashable
+s = {[1, 2]}  # TypeError: unhashable type: 'list'
+# Solution: Convert to tuple
+s = {(1, 2)}  # Works!
+
+# GOTCHA 4: Sets are unordered
+s = {3, 1, 2}
+# Can't rely on iteration order (though CPython 3.7+ maintains insertion order as implementation detail)
+
+# GOTCHA 5: pop() is arbitrary
+s = {1, 2, 3}
+s.pop()  # Returns some element, not necessarily 1 or 3!
+
+# GOTCHA 6: Set comprehension syntax
+{x**2 for x in range(5)}  # Set comprehension → {0, 1, 4, 9, 16}
+[x**2 for x in range(5)]  # List comprehension → [0, 1, 4, 9, 16]
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use sets for O(1) membership testing (faster than lists!)
+✅ Use sets to remove duplicates automatically
+✅ Use set operations (& | - ^) for finding common/unique elements
+✅ Use seen = set() pattern for duplicate detection
+✅ Convert list to set ONCE if doing many membership checks
+✅ Use frozenset for dict keys or set elements
+✅ Use dict.fromkeys() to deduplicate while preserving order
+❌ NEVER use {} for empty set (that's a dict!)
+❌ NEVER put unhashable elements (lists, dicts) in sets
+❌ NEVER assume set iteration order (unordered!)
+❌ NEVER use set.pop() if you care which element removed`,
+    tip: `"Have we seen X?" pattern? seen = set(); if x in seen: ... - O(1) membership test, MUCH faster than list!
+Remove duplicates? list(set(arr)) but LOSES order - Preserve order? list(dict.fromkeys(arr)) (3.7+)
+Common elements? a & b (intersection) - Unique to a? a - b (difference) - All? a | b (union) - XOR? a ^ b
+Empty set? MUST use set() NOT {} - {} creates empty DICT!
+Elements must be HASHABLE? Can add ints/strings/tuples, CANNOT add lists/dicts/sets - use frozenset for hashable set`,
   },
 }
