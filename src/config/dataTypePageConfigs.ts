@@ -32,9 +32,10 @@ UNICODE MODEL: Python 3 strictly separates text from binary. \`str\` stores Unic
 FILE I/O: Text mode (\`'r'\`, \`'w'\`) auto-decodes/encodes and translates newlines. Binary mode (\`'rb'\`, \`'wb'\`) reads/writes raw bytes unchanged—essential for images, audio, protocols. Specify encoding: \`open(f, encoding='utf-8')\`.
 
 UNICODE ESCAPES: Non-ASCII via escapes: \`\\xNN\` (hex byte), \`\\uNNNN\` (16-bit), \`\\U0000NNNN\` (32-bit). BOM (Byte Order Mark) identifies encoding—use \`'utf-8-sig'\` to handle. Normalization: same char can have multiple representations—use \`unicodedata.normalize('NFC', s)\` for consistent comparisons.`,
-    tip: `Building string in loop? "".join(list) — never s +=
-Check anagram? sorted(a) == sorted(b)
-Palindrome? s == s[::-1]`,
+    tip: `Building string in loop? "".join(list) - NEVER s += (O(n²) vs O(n))
+Anagram check? sorted(s1) == sorted(s2) - or Counter(s1) == Counter(s2) for early exit
+Palindrome? s == s[::-1] - reverse and compare in one line
+Substring search? "sub" in s is O(n), s.find() returns index, s.count() counts occurrences`,
   },
   int: {
     type: 'Integer',
@@ -52,9 +53,10 @@ Bit Operations: \`&\` AND, \`|\` OR, \`^\` XOR, \`~\` complement, \`<<\` left sh
 Conversions: \`int("42")\` parses string. \`int("2A", 16)\` parses with base. \`int(3.9)\` truncates float toward zero. \`round(3.5)\` rounds to nearest even (banker's rounding).
 
 Bool Relationship: \`bool\` is a subclass of \`int\`—\`True\` equals \`1\`, \`False\` equals \`0\`. You can do arithmetic on booleans: \`sum([True, True, False])\` → \`2\`.`,
-    tip: `Need infinity? float('inf')
-Reverse digits? int(str(n)[::-1])
-Quotient + remainder? divmod(a, b)`,
+    tip: `Need infinity for comparisons? float('inf') and float('-inf') - works with min/max
+Reverse integer digits? int(str(abs(n))[::-1]) * (1 if n >= 0 else -1) - handle negatives!
+Quotient + remainder together? divmod(a, b) returns (a//b, a%b) - one operation
+Bit manipulation? Use &, |, ^, ~, <<, >> - O(1) operations, fast for flags/masks`,
   },
   float: {
     type: 'Float',
@@ -74,8 +76,10 @@ Operations: All arithmetic operators work. \`//\` floor division returns float (
 Math Module: \`math.floor()\` rounds down, \`math.ceil()\` rounds up, \`math.trunc()\` toward zero. \`math.sqrt()\`, \`math.log()\`, \`math.sin()\`, etc. for mathematical functions. \`round(x, n)\` rounds to n decimal places.
 
 Conversions: \`float("3.14")\` parses string. \`float(42)\` from int. \`int(3.9)\` truncates to \`3\`. Format with \`f"{x:.2f}"\` for 2 decimal places.`,
-    tip: `Compare floats? abs(a - b) < 1e-9
-Binary search floats? while right - left > 1e-9`,
+    tip: `NEVER use == for floats! abs(a - b) < 1e-9 or math.isclose(a, b)
+Binary search on floats? while right - left > 1e-9 (not left < right!)
+Need exact decimals (money)? Use decimal.Decimal, not float
+Float precision? ~15-17 digits - 0.1 + 0.2 ≠ 0.3 due to binary representation`,
   },
   bool: {
     type: 'Boolean',
@@ -95,9 +99,10 @@ Built-in Functions: \`bool(x)\` converts to boolean. \`all(iter)\` returns \`Tru
 Arithmetic: Since \`True == 1\` and \`False == 0\`: \`sum([True, True, False])\` → \`2\` (counts True values). \`True + True\` → \`2\`. Useful for counting conditions.
 
 Ternary Expression: \`x if condition else y\`—evaluates and returns \`x\` if condition is truthy, else \`y\`. Single expression, not statement.`,
-    tip: `Count True values? sum(bool_list)
-Any/all true? any(list) or all(list)
-Falsy values? 0, "", [], {}, None`,
+    tip: `Count True values? sum(bool_list) - True is 1, False is 0 (bool subclasses int)
+Any element True? any(iterable) - short-circuits on first True
+All elements True? all(iterable) - short-circuits on first False
+Falsy values to remember? 0, 0.0, "", [], {}, (), set(), None, False - everything else is truthy!`,
   },
   list: {
     type: 'List',
@@ -117,9 +122,10 @@ Methods: \`append(x)\` adds one item to end. \`extend(iter)\` adds multiple item
 Sorting: \`L.sort()\` orders in place (returns None). Accepts \`reverse=True\` and \`key=func\` (e.g., \`key=str.lower\`, \`key=len\`). \`sorted(L)\` is non-in-place alternative that returns new list. Both are stable sorts (equal elements keep original order).
 
 Comprehensions: \`[expr for x in iter]\` builds lists concisely and often faster than manual loops. Add conditions: \`[x for x in L if x > 0]\`. Nested: \`[x for row in matrix for x in row]\`. The \`*\` unpacking syntax in literals: \`[*L1, *L2]\` concatenates.`,
-    tip: `Last element? arr[-1]
-Copy list? arr[:] or arr.copy()
-Insert at front often? Use deque instead`,
+    tip: `Last element? arr[-1] - Second to last? arr[-2] - Negative indexing from end
+Copy list shallow? arr[:] or arr.copy() - Deep copy? import copy; copy.deepcopy(arr)
+Insert/pop at front O(n)? Use collections.deque for O(1) appendleft/popleft
+Sort in place? arr.sort() returns None - Get sorted copy? sorted(arr) returns new list`,
   },
   tuple: {
     type: 'Tuple',
@@ -139,9 +145,10 @@ Integrity: Their primary purpose is providing an integrity constraint—ensuring
 Named Tuples: The \`collections.namedtuple\` extension allows components to be accessed by both position and mnemonic attribute name. \`Point = namedtuple('Point', ['x', 'y'])\` creates a class where \`p.x\` and \`p[0]\` both work. Acts as a lightweight class or hybrid between tuple and dictionary.
 
 Unpacking: Tuples support sequence unpacking: \`a, b, c = (1, 2, 3)\` assigns each element. Extended unpacking with \`*\`: \`first, *rest = (1, 2, 3, 4)\` gives \`first=1\`, \`rest=[2,3,4]\`. Swap values elegantly: \`a, b = b, a\`.`,
-    tip: `Need hashable key? (x, y) for grid visited
-Swap values? a, b = b, a
-Return multiple? return a, b`,
+    tip: `Need hashable dict key? Use tuple (x, y) for coordinates - lists aren't hashable!
+Swap values elegantly? a, b = b, a - no temp variable needed (tuple unpacking)
+Return multiple values? return a, b, c - automatically creates tuple
+Single-item tuple? (x,) with trailing comma - (x) is just a parenthesized expression!`,
   },
   dict: {
     type: 'Dictionary',
@@ -163,9 +170,10 @@ Views: \`keys()\`, \`values()\`, \`items()\` return view objects—iterables tha
 Merge Operators: Python 3.9+ adds \`d1 | d2\` (creates new merged dict) and \`d1 |= d2\` (updates d1 in place). Right-hand dict wins on key conflicts.
 
 Usage Patterns: Labeled records (field names as keys), sparse data (most positions empty), memoization caches, counting with \`Counter\`, grouping with \`defaultdict(list)\`.`,
-    tip: `Two Sum pattern? seen[target - num]
-Count frequency? Counter(arr)
-Group items? defaultdict(list)`,
+    tip: `Two Sum pattern? seen = {}; check if (target - num) in seen - O(1) lookup beats O(n²) nested loops
+Count frequency? Counter(arr).most_common(k) - or manual: freq = {}; freq[x] = freq.get(x, 0) + 1
+Group by key? defaultdict(list) auto-creates empty list - or dict.setdefault(key, []).append(val)
+Avoid KeyError? dict.get(key, default) or use defaultdict - d[key] raises if missing`,
   },
   set: {
     type: 'Set',
@@ -185,8 +193,9 @@ Methods: \`add(x)\` adds single element. \`update(iter)\` adds multiple. \`remov
 Frozen Sets: \`frozenset\` is immutable version—hashable, can be dict key or set element. Created with \`frozenset([1, 2, 3])\`. Supports all operations except modification.
 
 Common Patterns: Deduplication \`list(set(arr))\` (loses order—use \`dict.fromkeys(arr)\` to preserve). Membership testing \`x in seen\`. Finding common/unique elements between collections.`,
-    tip: `"Have we seen X?" set for O(1) lookup
-Remove duplicates? list(set(arr))
-Common elements? a & b`,
+    tip: `"Have we seen X?" Use set for O(1) lookup - seen = set(); if x in seen: ...
+Remove duplicates? list(set(arr)) but LOSES order - Preserve order? list(dict.fromkeys(arr))
+Common elements? a & b (intersection) - Unique to a? a - b (difference) - All elements? a | b (union)
+Empty set gotcha? set() NOT {} - {} creates empty dict!`,
   },
 }
