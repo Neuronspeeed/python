@@ -959,56 +959,437 @@ Sort first? O(n log n) + O(n) = O(n log n) often beats O(n²) — enables two po
   )
 }
 
-const backtrackingIntro = `Backtracking systematically explores all possible solutions by building candidates incrementally and abandoning (backtracking from) candidates as soon as it's determined they cannot lead to a valid solution. The key insight: instead of generating all possibilities upfront, build them one choice at a time, pruning invalid branches early.
+const backtrackingIntro = `Backtracking systematically explores all possible solutions by building candidates incrementally and abandoning (backtracking from) candidates as soon as it's determined they cannot lead to a valid solution. The key insight: instead of generating all possibilities upfront (O(2ⁿ) or O(n!) space), we build them one choice at a time, pruning invalid branches early to avoid exploring exponential dead ends.
 
-CHOOSE-EXPLORE-UNCHOOSE PATTERN: The universal backtracking template. Choose: make a choice and add it to current path. Explore: recursively solve the subproblem. Unchoose: remove the choice (backtrack) to try other options. This pattern generates all possibilities while maintaining state correctly.
+WHY BACKTRACKING WORKS: The power comes from two principles: (1) Incremental construction—build solutions piece by piece, validating each step, (2) Early pruning—detect invalid paths immediately and skip entire subtrees. Without pruning, backtracking degenerates to brute force enumeration. WITH pruning, it can solve seemingly intractable problems (9×9 Sudoku has 9⁸¹ possible boards, but pruning makes it solvable in milliseconds).
+
+THE UNIVERSAL BACKTRACKING TEMPLATE:
+
+**The Choose-Explore-Unchoose Pattern**
+
+Every backtracking problem follows this three-step recursive pattern:
 
 \`\`\`python
-def backtrack(path, choices):
+def backtrack(path, choices, result):
+    # BASE CASE: Check if current path is a complete solution
     if is_complete(path):
-        result.append(path[:])  # Store copy!
+        result.append(path[:])  # CRITICAL: Store COPY, not reference!
         return
 
-    for choice in choices:
-        if is_valid(choice, path):  # Prune early
-            path.append(choice)      # Choose
-            backtrack(path, remaining)  # Explore
-            path.pop()               # Unchoose
-\`\`\`
+    # RECURSIVE CASE: Try each valid choice
+    for choice in get_choices(choices):
+        # PRUNE: Skip if choice violates constraints
+        if not is_valid(choice, path):
+            continue
 
-WHEN TO USE BACKTRACKING: "Find all combinations/permutations/subsets" → backtracking. "Solve this constraint satisfaction puzzle" (Sudoku, N-Queens) → backtracking. Key signal: need ALL solutions, not just optimal one. Backtracking vs DP: backtracking enumerates solutions, DP counts/optimizes without enumerating. If problem asks "how many ways" (count only), consider DP. If it asks "list all ways", use backtracking.
-
-PRUNING IS CRITICAL: Backtracking is exponential time—O(b^d) where b is branching factor, d is depth. Without pruning, it's too slow. Prune BEFORE recursing, not after. Check constraints at each step: if current path violates rules, don't explore children. Example: N-Queens placing queen in attacked position → don't recurse, skip to next column. Good pruning can reduce runtime from hours to milliseconds.
-
-\`\`\`python
-# BAD - explores then checks
-def backtrack(path):
-    if len(path) == n:
-        if is_valid(path):  # Too late!
-            result.append(path[:])
-        return
-    for choice in choices:
+        # CHOOSE: Add choice to current path
         path.append(choice)
-        backtrack(path)
+
+        # EXPLORE: Recurse with updated state
+        backtrack(path, get_remaining(choice, choices), result)
+
+        # UNCHOOSE: Remove choice to try next option (backtrack!)
         path.pop()
 
-# GOOD - checks before exploring
-def backtrack(path):
+# Time: O(b^d) where b = branching factor, d = depth
+# Space: O(d) for recursion stack (not counting result storage)
+\`\`\`
+
+**Critical Details:**
+- \`path[:]\` creates a copy—NEVER append \`path\` directly (common gotcha!)
+- Prune BEFORE recursing, not after—check \`is_valid()\` before \`path.append()\`
+- \`path.pop()\` is the "unchoose" step—removes last choice to backtrack
+- Result is built outside function and passed by reference
+
+WHEN TO USE BACKTRACKING:
+
+**Strong signals for backtracking:**
+- "Find ALL combinations/permutations/subsets"
+- "List ALL valid solutions"
+- "Solve constraint satisfaction puzzle" (Sudoku, N-Queens, word search)
+- "Generate all possibilities matching constraints"
+- Problem has NO optimal solution criteria (just validity)
+
+**BACKTRACKING VS DYNAMIC PROGRAMMING:**
+
+This is a critical distinction that trips up many candidates:
+
+| Aspect | Backtracking | Dynamic Programming |
+|--------|--------------|---------------------|
+| Goal | Enumerate ALL solutions | Find ONE optimal solution |
+| Question Type | "List all ways" | "How many ways" or "Best way" |
+| Subproblems | Independent paths | Overlapping subproblems |
+| Approach | Generate explicitly | Count/optimize implicitly |
+| Time Complexity | O(b^d) exponential | O(n) to O(n³) polynomial |
+
+Examples:
+- "Generate all permutations of [1,2,3]" → **Backtracking** (need actual lists)
+- "How many permutations of length k?" → **DP or Math** (just count)
+- "Find all Sudoku solutions" → **Backtracking** (need actual boards)
+- "Count ways to climb stairs" → **DP** (just count, don't list)
+
+If the problem says "find ALL" or "list ALL", it's backtracking. If it says "count" or "how many" or "maximum/minimum", consider DP first.
+
+PRUNING: THE KEY TO PERFORMANCE
+
+Backtracking without pruning is brute force with extra steps. Pruning is what makes it practical.
+
+**Prune BEFORE recursing, not after:**
+
+\`\`\`python
+# ❌ BAD - Explores then checks (too late!)
+def backtrack_bad(path):
     if len(path) == n:
-        result.append(path[:])  # Know it's valid
+        if is_valid_solution(path):  # Wasted all that recursion!
+            result.append(path[:])
         return
+
     for choice in choices:
-        if is_valid_choice(choice, path):  # Prune early
+        path.append(choice)  # No validation!
+        backtrack_bad(path)
+        path.pop()
+
+# ✅ GOOD - Checks before exploring (prune early!)
+def backtrack_good(path):
+    if len(path) == n:
+        result.append(path[:])  # Already know it's valid
+        return
+
+    for choice in choices:
+        if is_valid_choice(choice, path):  # Prune before recursion
             path.append(choice)
-            backtrack(path)
+            backtrack_good(path)
             path.pop()
 \`\`\`
 
-STATE MANAGEMENT GOTCHA: When storing results, always copy the path: \`result.append(path[:])\` or \`result.append(list(path))\`. If you append \`path\` directly, you're appending a reference—when path changes later, the stored result changes too! All stored results end up pointing to the same list. Use \`path[:]\` to create a shallow copy.
+**Example: N-Queens pruning**
 
-COMMON PATTERNS: Permutations - choose from remaining elements, reduce choices each level. Combinations - choose from elements at current index onward (avoid duplicates by not going backward). Subsets - at each element, choose to include or exclude (2^n total). Constraint satisfaction - validate constraints at each step, backtrack if violated.
+Placing queens on a chessboard: bad approach explores 8⁸ positions, good approach prunes attacked squares immediately.
 
-COMPLEXITY ANALYSIS: Permutations: O(n!). Subsets: O(2^n). Combinations: O(C(n,k) * k) where k is combination size. Sudoku: O(9^(empty cells)) worst case. For n > 20, backtracking gets slow even with pruning. Consider dynamic programming, greedy, or heuristics for larger inputs.`
+\`\`\`python
+def solve_n_queens(n):
+    def is_safe(row, col, queens):
+        # Check if placing queen at (row, col) attacks existing queens
+        for r, c in queens:
+            if c == col:  # Same column
+                return False
+            if abs(r - row) == abs(c - col):  # Same diagonal
+                return False
+        return True  # Same row impossible (one queen per row)
+
+    def backtrack(row, queens, result):
+        if row == n:  # Placed all queens
+            result.append(queens[:])
+            return
+
+        for col in range(n):
+            if is_safe(row, col, queens):  # PRUNE: skip attacked positions
+                queens.append((row, col))  # Choose
+                backtrack(row + 1, queens, result)  # Explore
+                queens.pop()  # Unchoose
+
+    result = []
+    backtrack(0, [], result)
+    return result
+
+# Without pruning: 8^8 = 16,777,216 positions
+# With pruning: ~2,057 positions for 8-Queens (10,000x faster!)
+\`\`\`
+
+COMMON BACKTRACKING PATTERNS:
+
+**Pattern 1: Permutations** (Order matters, use each element once)
+
+\`\`\`python
+def permute(nums):
+    result = []
+
+    def backtrack(path, remaining):
+        if not remaining:  # Used all numbers
+            result.append(path[:])
+            return
+
+        for i in range(len(remaining)):
+            # Choose: pick remaining[i]
+            backtrack(path + [remaining[i]],
+                     remaining[:i] + remaining[i+1:])  # Exclude chosen
+
+    backtrack([], nums)
+    return result
+
+# permute([1,2,3]) → [[1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], [3,2,1]]
+# Time: O(n! * n) - n! permutations, O(n) to copy each
+# Space: O(n) recursion depth
+\`\`\`
+
+**Pattern 2: Combinations** (Order doesn't matter, avoid duplicates)
+
+\`\`\`python
+def combine(n, k):
+    result = []
+
+    def backtrack(start, path):
+        if len(path) == k:  # Combination complete
+            result.append(path[:])
+            return
+
+        for i in range(start, n + 1):  # Start from 'start' to avoid duplicates
+            path.append(i)  # Choose
+            backtrack(i + 1, path)  # IMPORTANT: i+1, not start (go forward only)
+            path.pop()  # Unchoose
+
+    backtrack(1, [])
+    return result
+
+# combine(4, 2) → [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
+# Key insight: start parameter prevents [2,1] when [1,2] already exists
+# Time: O(C(n,k) * k) = O(n! / ((n-k)! * k!) * k)
+\`\`\`
+
+**Pattern 3: Subsets** (Include or exclude each element)
+
+\`\`\`python
+def subsets(nums):
+    result = []
+
+    def backtrack(start, path):
+        result.append(path[:])  # Every path is a valid subset!
+
+        for i in range(start, len(nums)):
+            path.append(nums[i])  # Include nums[i]
+            backtrack(i + 1, path)  # Recurse with remaining
+            path.pop()  # Backtrack to exclude nums[i]
+
+    backtrack(0, [])
+    return result
+
+# subsets([1,2,3]) → [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
+# Time: O(2^n * n) - 2^n subsets, O(n) to copy each
+# Space: O(n) recursion depth
+
+# Alternative: bit manipulation (non-backtracking)
+def subsets_bits(nums):
+    result = []
+    n = len(nums)
+    for i in range(2**n):  # 2^n possible subsets
+        subset = [nums[j] for j in range(n) if (i >> j) & 1]
+        result.append(subset)
+    return result
+\`\`\`
+
+**Pattern 4: Constraint Satisfaction** (Sudoku, Word Search, N-Queens)
+
+\`\`\`python
+def exist(board, word):
+    """Word Search: Find if word exists in grid (can move up/down/left/right)"""
+    rows, cols = len(board), len(board[0])
+
+    def backtrack(r, c, index):
+        # BASE CASE: Found entire word
+        if index == len(word):
+            return True
+
+        # PRUNE: Out of bounds or wrong letter
+        if r < 0 or r >= rows or c < 0 or c >= cols:
+            return False
+        if board[r][c] != word[index]:
+            return False
+
+        # CHOOSE: Mark as visited (modify board in-place)
+        temp = board[r][c]
+        board[r][c] = '#'  # Mark visited
+
+        # EXPLORE: Try all 4 directions
+        found = (backtrack(r+1, c, index+1) or
+                backtrack(r-1, c, index+1) or
+                backtrack(r, c+1, index+1) or
+                backtrack(r, c-1, index+1))
+
+        # UNCHOOSE: Restore board state
+        board[r][c] = temp
+
+        return found
+
+    # Try starting from each cell
+    for r in range(rows):
+        for c in range(cols):
+            if backtrack(r, c, 0):
+                return True
+    return False
+
+# Time: O(m*n * 4^L) where L = len(word), m*n cells, 4 directions
+# Space: O(L) recursion depth
+\`\`\`
+
+STATE MANAGEMENT: CRITICAL GOTCHAS
+
+**Gotcha 1: Appending reference instead of copy**
+
+\`\`\`python
+# ❌ WRONG - All results point to same list!
+def permute_wrong(nums):
+    result = []
+    path = []
+
+    def backtrack(remaining):
+        if not remaining:
+            result.append(path)  # ❌ Appends REFERENCE to path!
+            return
+
+        for i in range(len(remaining)):
+            path.append(remaining[i])
+            backtrack(remaining[:i] + remaining[i+1:])
+            path.pop()
+
+    backtrack(nums)
+    return result
+# Result: [[], [], [], [], [], []] - all empty! (path ended empty)
+
+# ✅ CORRECT - Store copy
+def permute_correct(nums):
+    result = []
+    path = []
+
+    def backtrack(remaining):
+        if not remaining:
+            result.append(path[:])  # ✅ Stores COPY with [:]
+            # OR: result.append(list(path))
+            # OR: result.append(path.copy())
+            return
+
+        for i in range(len(remaining)):
+            path.append(remaining[i])
+            backtrack(remaining[:i] + remaining[i+1:])
+            path.pop()
+
+    backtrack(nums)
+    return result
+\`\`\`
+
+**Gotcha 2: Modifying shared state without restoring**
+
+\`\`\`python
+# ❌ WRONG - Doesn't restore visited set
+def backtrack_wrong(path, visited):
+    if is_complete(path):
+        result.append(path[:])
+        return
+
+    for choice in choices:
+        if choice not in visited:
+            visited.add(choice)  # ❌ Never removed!
+            path.append(choice)
+            backtrack_wrong(path, visited)
+            path.pop()  # Removes from path but NOT from visited!
+
+# ✅ CORRECT - Restore ALL modified state
+def backtrack_correct(path, visited):
+    if is_complete(path):
+        result.append(path[:])
+        return
+
+    for choice in choices:
+        if choice not in visited:
+            visited.add(choice)  # Choose
+            path.append(choice)
+            backtrack_correct(path, visited)
+            path.pop()  # Unchoose path
+            visited.remove(choice)  # ✅ Unchoose visited!
+\`\`\`
+
+**Gotcha 3: Using immutable updates inefficiently**
+
+\`\`\`python
+# ⚠️ WORKS but inefficient - creates new lists every call
+def backtrack_slow(path, remaining):
+    if not remaining:
+        result.append(path)  # Can append directly (path is new each time)
+        return
+
+    for i in range(len(remaining)):
+        # These create NEW lists (O(n) each time)
+        backtrack_slow(path + [remaining[i]],
+                      remaining[:i] + remaining[i+1:])
+# Time: O(n! * n^2) - O(n) list creation per recursive call
+
+# ✅ FAST - Modify in place, restore after
+def backtrack_fast(path, remaining):
+    if not remaining:
+        result.append(path[:])  # Must copy now (path is shared)
+        return
+
+    for i in range(len(remaining)):
+        path.append(remaining[i])  # O(1)
+        elem = remaining.pop(i)    # O(n) but only once per call
+        backtrack_fast(path, remaining)
+        remaining.insert(i, elem)  # Restore
+        path.pop()
+# Time: O(n! * n) - Much faster!
+
+# Both are correct. Use immutable for clarity, mutable for performance.
+\`\`\`
+
+WHEN NOT TO USE BACKTRACKING:
+
+**1. Just counting solutions (use DP or math)**
+- "How many permutations?" → n! (math)
+- "Count ways to climb stairs" → DP (Fibonacci)
+- Backtracking would generate all solutions just to count them (wasteful)
+
+**2. Need optimal solution, not all solutions (use DP/greedy)**
+- "Shortest path" → BFS or Dijkstra
+- "Maximum sum subarray" → Kadane's algorithm
+- "Minimum coins" → DP
+- Backtracking would find all paths then pick best (inefficient)
+
+**3. Problem has polynomial solution**
+- Sorting → O(n log n) with built-in sort
+- Two Sum → O(n) with hash map
+- Don't use exponential backtracking for polynomial problems
+
+**4. Input size too large (n > 20)**
+- Backtracking is exponential: 2²⁰ = 1M, 2²⁵ = 33M, 2³⁰ = 1B
+- For large inputs, need greedy, DP, or approximation algorithms
+
+COMPLEXITY ANALYSIS:
+
+Backtracking complexity depends on the search tree structure:
+
+| Problem Type | Complexity | Explanation |
+|--------------|------------|-------------|
+| Permutations | O(n! * n) | n! solutions, O(n) to copy each |
+| Subsets | O(2ⁿ * n) | 2ⁿ solutions, O(n) to copy each |
+| Combinations C(n,k) | O(C(n,k) * k) | C(n,k) solutions, O(k) to copy |
+| N-Queens | O(n!) | n choices first row, n-1 second, etc. |
+| Sudoku | O(9^(empty cells)) | Up to 9 choices per cell |
+
+**Pruning impact:**
+- Without pruning: Explore EVERY branch (worst case)
+- With pruning: Skip invalid branches (can be 1000x faster)
+- Good pruning can turn "impossible" into "solvable"
+
+BEST PRACTICES:
+
+1. **Always copy when storing results**: \`result.append(path[:])\` not \`result.append(path)\`
+
+2. **Prune early**: Check constraints BEFORE recursing, not after
+
+3. **Restore ALL modified state**: If you modify visited sets, boards, etc., undo it!
+
+4. **Choose efficient state representation**:
+   - Use sets for O(1) membership checks
+   - Use lists for O(1) append/pop
+   - Avoid creating new lists unless necessary
+
+5. **Optimize pruning**: Add constraints that catch invalid states early
+   - N-Queens: check column/diagonal before recursing
+   - Sudoku: eliminate impossible numbers first
+
+6. **Consider iterative solutions**: For subsets, bit manipulation is cleaner
+
+7. **Test with small inputs**: Backtracking bugs are easiest to debug with n ≤ 3
+
+8. **Know when to stop**: If recursion is too deep or taking too long, backtracking might not be the right approach`
 
 export function BacktrackingPage() {
   return (
@@ -1016,10 +1397,13 @@ export function BacktrackingPage() {
       type="Backtracking" badge="bt" color="var(--accent-backtracking)"
       description="Explore all solutions by building incrementally. Essential for permutations, combinations, constraint satisfaction."
       intro={backtrackingIntro}
-      tip={`"Find ALL combinations/permutations"? Backtracking (not DP!)
-Pattern? choose → explore (recurse) → unchoose (backtrack)
-Store result? append path[:] not path (copy required!)
-Prune early? Check constraints BEFORE recursing, not after (huge speedup)`}
+      tip={`"Find ALL" or "List ALL"? Backtracking — DP is for counting/optimizing, not enumerating
+Pattern? choose → explore → unchoose — modify state, recurse, restore (3-step template)
+Store result? result.append(path[:]) — NEVER append path directly (copies reference!)
+Prune early? Check is_valid() BEFORE recursing — 1000x faster than checking after
+Restore ALL state? path.pop() AND visited.remove() — forgot to restore = subtle bugs
+Permutations vs Combinations? Perm: order matters, all remaining. Combo: start index, avoid duplicates
+n > 20? Too large for backtracking (2²⁰=1M, 2²⁵=33M) — use DP/greedy/approximation`}
       methods={backtrackingMethods}
       tabs={<DSCategoryTabs basePath="/backtracking" problemCount={getProblemCount('backtracking')} />}
     />
