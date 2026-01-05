@@ -127,12 +127,22 @@ RATE LIMITER - SYSTEM DESIGN: Limit requests to N per time window. Three approac
 
 COMMON DESIGN PATTERNS: Min/Max Stack (track extreme with tuples), Queue using Two Stacks (amortized O(1)), Insert/Delete/GetRandom (HashMap + Array), Browser History (two stacks for back/forward), Circular Queue (array with wraparound), MedianFinder (two heaps). Each combines basic structures to achieve required complexities.`
 
-const generatorsIntro = `Generators enable lazy evaluation—producing values one at a time instead of building entire sequences in memory. The key insight: process infinite sequences, handle huge files, and build data pipelines with constant memory. The yield keyword transforms functions into generators.
+const generatorsIntro = `Generators enable lazy evaluation—producing values one at a time instead of building entire sequences in memory. The key insight: process infinite sequences, handle huge files, and build data pipelines with constant memory. The yield keyword transforms functions into generators, unlocking memory-efficient iteration patterns impossible with lists.
 
-MEMORY EFFICIENCY: Lists store all elements in memory simultaneously. Generators yield one element at a time, maintaining state between yields. For large datasets, this difference is dramatic. Reading a 100GB log file: list approach loads entire file into memory (crashes), generator approach processes one line at a time with O(1) memory (works perfectly). For infinite sequences, generators are the only option.
+WHY GENERATORS MATTER IN INTERVIEWS: Generators solve the memory problem elegantly. When interviewers ask "how would you handle a 100GB file?" or "process an infinite stream?", generators are the answer. They're Python's secret weapon for scalable data processing—constant O(1) memory regardless of input size. Master generators and you can handle any data scale problem.
+
+**The generator advantage:**
+- Lists: O(n) memory, load everything upfront
+- Generators: O(1) memory, produce values on-demand
+- Use case: 1 billion integers = 8GB list vs 128 bytes generator
+- Interview gold: "I'll use a generator to keep memory constant"
+
+MEMORY EFFICIENCY: THE FUNDAMENTAL DIFFERENCE
+
+Lists store all elements in memory simultaneously. Generators yield one element at a time, maintaining state between yields. For large datasets, this difference is dramatic.
 
 \`\`\`python
-# List - loads everything into memory
+# List approach - loads everything
 def range_list(n):
     result = []
     for i in range(n):
@@ -140,8 +150,9 @@ def range_list(n):
     return result
 
 huge_list = range_list(1_000_000_000)  # 8GB+ memory!
+# Entire list built before you can use it
 
-# Generator - yields one at a time
+# Generator approach - yields one at a time
 def range_gen(n):
     for i in range(n):
         yield i  # Pause here, return value
@@ -151,32 +162,417 @@ for num in huge_gen:
     process(num)  # Only one number in memory at a time
 \`\`\`
 
-YIELD KEYWORD: When a function contains yield, calling it returns a generator object (doesn't execute the function). Each call to next() executes until the next yield, returns the yielded value, and pauses. State (local variables, execution position) is preserved. On the next next() call, execution resumes right after the yield. This enables writing iterators as simple functions instead of classes with __iter__ and __next__.
+**Real-world example: Reading huge log files**
+\`\`\`python
+# ❌ BAD - loads entire 100GB file into memory
+def read_log_list(filename):
+    with open(filename) as f:
+        return f.readlines()  # Memory: 100GB!
 
-GENERATOR EXPRESSIONS: Like list comprehensions but with parentheses instead of brackets. \`(x**2 for x in range(10))\` creates a generator that yields squares lazily. List comprehension \`[x**2 for x in range(10)]\` computes and stores all squares immediately. Use generator expressions when: iterating once, working with large data, building pipelines. Use list comprehensions when: need multiple iterations, need len(), need random access.
+lines = read_log_list('huge.log')  # CRASH!
+for line in lines:
+    process(line)
+
+# ✅ GOOD - processes one line at a time
+def read_log_generator(filename):
+    with open(filename) as f:
+        for line in f:  # Files are generators!
+            yield line.strip()
+
+for line in read_log_generator('huge.log'):
+    process(line)  # Memory: O(1) per line
+\`\`\`
+
+YIELD KEYWORD: HOW GENERATORS WORK
+
+When a function contains \`yield\`, calling it returns a generator object (doesn't execute the function). Each call to \`next()\` executes until the next \`yield\`, returns the yielded value, and pauses. State (local variables, execution position) is preserved between yields.
+
+\`\`\`python
+def countdown(n):
+    print(f"Starting from {n}")
+    while n > 0:
+        yield n  # Pause and return n
+        n -= 1
+    print("Done!")
+
+gen = countdown(3)  # Returns generator, prints nothing yet
+print(type(gen))    # <class 'generator'>
+
+print(next(gen))    # "Starting from 3", returns 3
+print(next(gen))    # Returns 2 (resumes after yield)
+print(next(gen))    # Returns 1
+print(next(gen))    # "Done!", raises StopIteration
+
+# Generators work with for loops
+for num in countdown(3):
+    print(num)  # 3, 2, 1 (for handles StopIteration)
+\`\`\`
+
+**Generator state preservation:**
+\`\`\`python
+def fibonacci():
+    a, b = 0, 1
+    while True:  # Infinite generator!
+        yield a
+        a, b = b, a + b
+
+fib = fibonacci()
+print(next(fib))  # 0
+print(next(fib))  # 1
+print(next(fib))  # 1
+print(next(fib))  # 2
+print(next(fib))  # 3
+# State (a, b) preserved between calls!
+\`\`\`
+
+GENERATOR EXPRESSIONS: LAZY COMPREHENSIONS
+
+Like list comprehensions but with parentheses instead of brackets. Lazy evaluation—values computed on-demand.
 
 \`\`\`python
 # List comprehension - immediate evaluation
 squares_list = [x**2 for x in range(1_000_000)]  # ~8MB memory
-print(squares_list[500000])  # Random access OK
+print(len(squares_list))    # 1000000
+print(squares_list[500000]) # Random access OK
+for sq in squares_list:     # Can iterate multiple times
+    pass
 
 # Generator expression - lazy evaluation
 squares_gen = (x**2 for x in range(1_000_000))  # ~128 bytes
-# Can iterate once
-for sq in squares_gen:
-    if sq > 1000: break
+# print(len(squares_gen))   # TypeError: no len()!
+# print(squares_gen[500000])# TypeError: no indexing!
 
-# Can't do: squares_gen[500000] - TypeError!
-# Can't do: len(squares_gen) - TypeError!
+for sq in squares_gen:      # Iterate once
+    if sq > 1000:
+        break
+
+# Generator exhausted - can't iterate again!
+for sq in squares_gen:      # Nothing printed
+    print(sq)
 \`\`\`
 
-GENERATOR PIPELINES: Chain generators to process data in stages without intermediate storage. Each generator feeds the next, maintaining constant memory. Pattern: data source → filter → transform → consume. Example: read huge file → filter for errors → parse lines → count by type. The entire pipeline uses O(1) memory regardless of file size.
+**When to use which:**
+- Generator \`()\`: One-time iteration, large data, memory-constrained
+- List \`[]\`: Multiple iterations, need \`len()\`, need indexing
 
-YIELD FROM: Delegate to another generator. Instead of \`for item in other_gen: yield item\`, write \`yield from other_gen\`. Useful for flattening nested generators, recursive tree traversals, and composing generators. Cleaner and slightly faster than manual looping.
+**Converting generator to list:**
+\`\`\`python
+gen = (x**2 for x in range(10))
+lst = list(gen)  # Materialize all values
+# Now have: len(), indexing, multiple iterations
+# But: defeats memory benefits!
+\`\`\`
 
-WHEN GENERATORS WIN: Large or infinite sequences, one-pass iteration, streaming data, memory constraints, lazy evaluation needed. Files are generators by default—iterating over \`open(file)\` yields lines without loading entire file. Use generators for data processing pipelines, streaming APIs, and any time you think "I don't need it all at once."
+GENERATOR PIPELINES: COMPOSABLE DATA PROCESSING
 
-WHEN GENERATORS LOSE: Need len() (generators don't have length), need random access (no indexing), need to iterate multiple times (generators exhaust), small data that fits in memory (lists are simpler). Convert generator to list if needed: \`list(generator)\`, but this defeats the memory benefits.`
+Chain generators to process data in stages without intermediate storage. Each generator feeds the next, maintaining constant memory.
+
+\`\`\`python
+# Process huge log file in pipeline
+def read_lines(filename):
+    """Generator: read file line by line"""
+    with open(filename) as f:
+        for line in f:
+            yield line.strip()
+
+def filter_errors(lines):
+    """Generator: filter for error lines"""
+    for line in lines:
+        if 'ERROR' in line:
+            yield line
+
+def parse_timestamps(lines):
+    """Generator: extract timestamps"""
+    for line in lines:
+        # Assume format: [timestamp] ERROR message
+        timestamp = line.split(']')[0][1:]
+        yield timestamp
+
+def count_by_hour(timestamps):
+    """Terminal: consume and aggregate"""
+    from collections import Counter
+    hours = (ts.split(':')[0] for ts in timestamps)
+    return Counter(hours)
+
+# Pipeline: compose generators
+lines = read_lines('huge.log')
+errors = filter_errors(lines)
+timestamps = parse_timestamps(errors)
+hourly_counts = count_by_hour(timestamps)
+
+# Entire pipeline uses O(1) memory!
+# Processes 100GB file with constant memory
+\`\`\`
+
+**Pipeline pattern:**
+1. **Source**: Generator that produces data
+2. **Transform**: Generator that modifies data
+3. **Filter**: Generator that selects data
+4. **Sink**: Terminal operation that consumes
+
+YIELD FROM: DELEGATING TO SUBGENERATORS
+
+\`yield from\` delegates to another generator. Instead of manual looping, delegate directly.
+
+\`\`\`python
+# ❌ Manual looping
+def flatten_manual(nested):
+    for sublist in nested:
+        for item in sublist:
+            yield item
+
+# ✅ yield from - cleaner and faster
+def flatten(nested):
+    for sublist in nested:
+        yield from sublist
+
+nested = [[1, 2], [3, 4], [5]]
+list(flatten(nested))  # [1, 2, 3, 4, 5]
+\`\`\`
+
+**Recursive tree traversal:**
+\`\`\`python
+class Node:
+    def __init__(self, value, children=None):
+        self.value = value
+        self.children = children or []
+
+def traverse(node):
+    yield node.value
+    for child in node.children:
+        yield from traverse(child)  # Recursive delegation
+
+tree = Node(1, [Node(2, [Node(4), Node(5)]), Node(3)])
+list(traverse(tree))  # [1, 2, 4, 5, 3]
+\`\`\`
+
+**Why \`yield from\` vs manual loop:**
+- Cleaner syntax
+- Faster (avoids Python function call overhead)
+- Properly handles exceptions and return values
+
+ADVANCED: SEND AND TWO-WAY COMMUNICATION
+
+Generators can receive values via \`.send()\`, enabling coroutines and two-way communication.
+
+\`\`\`python
+def running_average():
+    total = 0
+    count = 0
+    average = None
+    while True:
+        value = yield average  # Receive value via send()
+        total += value
+        count += 1
+        average = total / count
+
+avg = running_average()
+next(avg)  # Prime the generator
+print(avg.send(10))  # 10.0
+print(avg.send(20))  # 15.0
+print(avg.send(30))  # 20.0
+\`\`\`
+
+**Use cases for send():**
+- Streaming aggregations
+- Coroutine-based pipelines
+- Event-driven systems
+
+WHEN GENERATORS WIN VS LOSE
+
+**Use generators when:**
+- Large or infinite sequences
+- One-pass iteration sufficient
+- Streaming data
+- Memory constraints
+- Building data pipelines
+- Processing files line-by-line
+
+**Example problems:**
+- "Process a 100GB log file"
+- "Generate infinite Fibonacci sequence"
+- "Find first 1 million primes without storing all"
+- "Stream processing: read → filter → transform → aggregate"
+
+**Avoid generators when:**
+- Need \`len()\` (generators don't have length)
+- Need random access (no indexing: \`gen[i]\`)
+- Need to iterate multiple times (generators exhaust)
+- Small data that fits in memory (lists are simpler)
+- Need to check if value exists (requires full iteration)
+
+**Converting when needed:**
+\`\`\`python
+gen = (x for x in range(10))
+
+# Need len?
+lst = list(gen)
+print(len(lst))
+
+# Need to iterate twice?
+import itertools
+gen1, gen2 = itertools.tee(gen, 2)
+# Now can iterate gen1 and gen2 independently
+\`\`\`
+
+COMMON PATTERNS AND IDIOMS
+
+**Pattern 1: Infinite sequences**
+\`\`\`python
+def count(start=0):
+    while True:
+        yield start
+        start += 1
+
+# Use with itertools.islice
+from itertools import islice
+first_10 = list(islice(count(), 10))  # [0, 1, ..., 9]
+\`\`\`
+
+**Pattern 2: File processing with context**
+\`\`\`python
+def process_file(filename):
+    with open(filename) as f:
+        for line in f:  # File itself is a generator
+            if line.strip():  # Skip empty lines
+                yield line.strip().upper()
+
+for line in process_file('data.txt'):
+    print(line)
+# File automatically closed when generator exhausted
+\`\`\`
+
+**Pattern 3: Batching**
+\`\`\`python
+def batch(iterable, n):
+    """Yield batches of n items"""
+    from itertools import islice
+    iterator = iter(iterable)
+    while True:
+        batch = list(islice(iterator, n))
+        if not batch:
+            break
+        yield batch
+
+for batch in batch(range(10), 3):
+    print(batch)  # [0,1,2], [3,4,5], [6,7,8], [9]
+\`\`\`
+
+**Pattern 4: Generator state machine**
+\`\`\`python
+def stateful_processor():
+    state = 'START'
+    while True:
+        value = yield state
+        if value == 'reset':
+            state = 'START'
+        elif value == 'next':
+            state = 'PROCESSING' if state == 'START' else 'DONE'
+\`\`\`
+
+COMMON GOTCHAS
+
+**1. Generator exhaustion:**
+\`\`\`python
+gen = (x for x in range(3))
+list(gen)  # [0, 1, 2]
+list(gen)  # [] - generator exhausted!
+
+# Solution: recreate or use itertools.tee
+\`\`\`
+
+**2. Early binding in generator expressions:**
+\`\`\`python
+# ❌ WRONG - captures final value
+funcs = [(lambda: i) for i in range(3)]
+[f() for f in funcs]  # [2, 2, 2] - all return 2!
+
+# ✅ CORRECT with generator
+funcs = list((lambda i=i: i) for i in range(3))
+[f() for f in funcs]  # [0, 1, 2]
+\`\`\`
+
+**3. Forgetting to consume:**
+\`\`\`python
+# ❌ Generator created but never consumed
+(print(x) for x in range(10))  # Nothing printed!
+
+# ✅ Consume the generator
+list(print(x) for x in range(10))  # Prints 0-9
+\`\`\`
+
+**4. Can't check containment efficiently:**
+\`\`\`python
+gen = (x for x in range(1000000))
+# ❌ BAD - iterates entire generator
+if 500 in gen:  # O(n), exhausts generator
+    pass
+
+# ✅ GOOD - use set or list if need membership testing
+\`\`\`
+
+BEST PRACTICES FOR INTERVIEWS
+
+1. **Recognize generator opportunities:**
+   - "Process large file" → generator
+   - "Infinite sequence" → generator
+   - "Memory constraint" → generator
+   - "Stream processing" → generator pipeline
+
+2. **Communicate memory benefits:**
+   - "This generator uses O(1) memory instead of O(n)"
+   - "We can handle any file size with constant memory"
+   - "Generator pipeline avoids intermediate storage"
+
+3. **Know the tradeoffs:**
+   - One-time iteration
+   - No len(), no indexing
+   - Must consume to execute
+
+4. **Combine with itertools:**
+   - \`islice()\` for limiting
+   - \`chain()\` for concatenating
+   - \`tee()\` for duplicating
+   - \`groupby()\` for grouping
+
+5. **Use generator expressions:**
+   - Prefer \`sum(x**2 for x in data)\` over \`sum([x**2 for x in data])\`
+   - Memory efficient, just as readable
+
+INTERVIEW EXAMPLES
+
+**Example 1: First N primes without storing all**
+\`\`\`python
+def is_prime(n):
+    if n < 2: return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0: return False
+    return True
+
+def primes():
+    n = 2
+    while True:
+        if is_prime(n):
+            yield n
+        n += 1
+
+# Get first 1000 primes without storing all primes
+from itertools import islice
+first_1000 = list(islice(primes(), 1000))
+\`\`\`
+
+**Example 2: Process logs with filtering**
+\`\`\`python
+def error_logs(filename):
+    with open(filename) as f:
+        for line in f:
+            if 'ERROR' in line:
+                yield line.strip()
+
+errors = list(error_logs('app.log'))
+\`\`\`
+
+Generators are Python's answer to scalable iteration. They turn memory nightmares into elegant constant-space solutions. When you see "large data" or "infinite sequence" in an interview, think generators.`
 
 const greedyIntro = `Greedy algorithms make locally optimal choices at each step, hoping to find a global optimum. The key insight: if you can prove that local optimality leads to global optimality, greedy is dramatically simpler and faster than dynamic programming—but the challenge is proving correctness. When greedy works, it's elegant. When it fails, it fails catastrophically.
 
@@ -1750,9 +2146,11 @@ export function GeneratorsPage() {
       intro={generatorsIntro}
       tip={`Process huge file or infinite sequence? Generator with yield - O(1) memory vs O(n) for list
 Generator expression vs list comprehension? (x**2 for x in arr) lazy vs [x**2 for x in arr] eager
-Advance generator manually? next(gen) - returns next value, raises StopIteration when exhausted
+Build data pipeline? Chain generators (read → filter → transform → aggregate) - O(1) memory for entire pipeline
 Flatten or chain generators? yield from other_gen - cleaner than "for item in other_gen: yield item"
-Gotcha: can't iterate twice! Generators exhaust after one pass - convert to list if multiple iterations needed`}
+Need len() or indexing? Use list not generator - generators don't support len() or gen[i]
+Two-way communication? gen.send(value) for coroutines - generator receives values via yield expression
+Gotcha: Generators EXHAUST after one pass! Convert to list or use itertools.tee(gen, 2) for multiple iterations`}
       methods={generatorMethods}
     />
   )
