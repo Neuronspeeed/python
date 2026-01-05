@@ -1450,23 +1450,361 @@ Falsy values MEMORIZE? False, None, 0, 0.0, 0j, "", [], {}, () - EVERYTHING else
     badge: 'list',
     color: 'var(--accent-list)',
     description: "Python's go-to ordered collection. Mutable, dynamic sizing. O(1) append/pop end, O(n) insert/remove elsewhere.",
-    intro: `Lists are ordered collections of arbitrary objects accessed by positional offset. As mutable sequences, they support all sequence operations (indexing, slicing, concatenation) plus in-place modification. Lists can grow or shrink on demand, be changed in place, and nest arbitrarily deep.
+    intro: `Lists are Python's go-to mutable, ordered, dynamic arrays. The key insight: O(1) append/pop at END, but O(n) insert/delete at MIDDLE (elements shift). Understand performance trade-offs: lists excel at stack operations (append/pop end), but use collections.deque for queue operations (insert/delete front). Common interview patterns: two pointers, sliding window, in-place modifications.
 
-Core Properties: Lists are arrays of object references—very fast to index O(1). They're heterogeneous: a single list can contain numbers, strings, other lists, any mix of types. Like a row of lockers at a gym: everything has a number (offset) and you need that number to access it.
+KEY INSIGHT: LISTS ARE DYNAMIC ARRAYS WITH O(1) END OPERATIONS. Appending to end is O(1) amortized (occasional resize), but inserting at index i requires shifting i elements—O(n). For frequent front operations, use deque with O(1) appendleft/popleft. CRITICAL GOTCHA: Mutable default arguments like def f(arr=[]) share ONE list across calls—use arr=None instead!
 
-Basic Operations: Concatenate with \`+\` (creates new list), repeat with \`*\`. Indexing \`L[i]\` returns object at offset, slicing \`L[i:j]\` returns new list. Negative indices count from end: \`L[-1]\` is last item. \`len(L)\`, \`in\` membership, iteration all work as expected.
+\`\`\`python
+# FAST: O(1) append/pop at end
+arr = []
+arr.append(1)  # O(1)
+arr.pop()  # O(1)
 
-Modifying In Place: Assign to index \`L[i] = X\` or slice \`L[i:j] = [X, Y]\`. Slice assignment can replace, expand, or shrink—it deletes the section and inserts new items. \`del L[i]\` removes by index, \`del L[i:j]\` removes slice.
+# SLOW: O(n) insert/delete at front (shift all elements!)
+arr.insert(0, 1)  # O(n) - shifts everything right
+arr.pop(0)  # O(n) - shifts everything left
 
-Methods: \`append(x)\` adds one item to end. \`extend(iter)\` adds multiple items from any iterable. \`insert(i, x)\` adds at specific offset. \`pop()\` removes and returns last item, \`pop(i)\` removes at index. \`remove(x)\` removes first occurrence by value. \`clear()\` empties list. \`reverse()\` reverses in place. \`copy()\` returns shallow copy.
+# BETTER for front operations: Use deque
+from collections import deque
+q = deque()
+q.appendleft(1)  # O(1)!
+q.popleft()  # O(1)!
 
-Sorting: \`L.sort()\` orders in place (returns None). Accepts \`reverse=True\` and \`key=func\` (e.g., \`key=str.lower\`, \`key=len\`). \`sorted(L)\` is non-in-place alternative that returns new list. Both are stable sorts (equal elements keep original order).
+# MUTABLE DEFAULT ARGUMENT BUG:
+def bad(arr=[]):  # WRONG! Shares one list
+    arr.append(1)
+    return arr
 
-Comprehensions: \`[expr for x in iter]\` builds lists concisely and often faster than manual loops. Add conditions: \`[x for x in L if x > 0]\`. Nested: \`[x for row in matrix for x in row]\`. The \`*\` unpacking syntax in literals: \`[*L1, *L2]\` concatenates.`,
-    tip: `Last element? arr[-1] - Second to last? arr[-2] - Negative indexing from end
-Copy list shallow? arr[:] or arr.copy() - Deep copy? import copy; copy.deepcopy(arr)
-Insert/pop at front O(n)? Use collections.deque for O(1) appendleft/popleft
-Sort in place? arr.sort() returns None - Get sorted copy? sorted(arr) returns new list`,
+bad()  # → [1]
+bad()  # → [1, 1] (NOT [1]!)
+
+def good(arr=None):  # Correct
+    if arr is None:
+        arr = []
+    arr.append(1)
+    return arr
+\`\`\`
+
+CORE PROPERTIES: Ordered, mutable, heterogeneous, dynamic arrays.
+
+\`\`\`python
+# ORDERED: Maintains insertion order
+arr = [3, 1, 2]  # Order preserved
+
+# MUTABLE: Can change in place
+arr[0] = 99  # OK
+arr.append(4)  # OK
+arr.remove(1)  # OK
+
+# HETEROGENEOUS: Mixed types allowed
+mixed = [1, "hello", 3.14, [1, 2], {"key": "val"}]
+
+# DYNAMIC: Grows/shrinks automatically
+arr = []
+for i in range(100):
+    arr.append(i)  # Auto-resizes as needed
+
+# INDEXABLE: O(1) random access
+arr = [10, 20, 30, 40]
+arr[2]  # → 30 (O(1))
+
+# NESTED: Lists of lists (2D arrays)
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+\`\`\`
+
+INDEXING AND SLICING: Access elements and ranges.
+
+\`\`\`python
+arr = [10, 20, 30, 40, 50]
+
+# POSITIVE INDEXING:
+arr[0]  # → 10 (first)
+arr[2]  # → 30
+arr[4]  # → 50 (last)
+
+# NEGATIVE INDEXING: Count from end
+arr[-1]  # → 50 (last)
+arr[-2]  # → 40 (second to last)
+
+# SLICING [start:stop:step]:
+arr[1:3]  # → [20, 30] (indices 1, 2)
+arr[:3]  # → [10, 20, 30] (first 3)
+arr[2:]  # → [30, 40, 50] (from index 2)
+arr[::2]  # → [10, 30, 50] (every 2nd)
+arr[::-1]  # → [50, 40, 30, 20, 10] (reverse!)
+
+# CRITICAL: Slicing NEVER raises IndexError
+arr[100:200]  # → [] (silently empty)
+arr[-100:-200]  # → [] (silently empty)
+
+# COPY with slicing:
+copy = arr[:]  # Shallow copy
+\`\`\`
+
+LIST OPERATIONS: Concatenation, repetition, membership.
+
+\`\`\`python
+# CONCATENATION: + creates NEW list
+[1, 2] + [3, 4]  # → [1, 2, 3, 4]
+
+# REPETITION: * creates NEW list
+[1, 2] * 3  # → [1, 2, 1, 2, 1, 2]
+
+# MEMBERSHIP: in checks if element exists (O(n))
+3 in [1, 2, 3, 4]  # → True
+10 in [1, 2, 3, 4]  # → False
+
+# LENGTH:
+len([1, 2, 3])  # → 3
+
+# ITERATION:
+for item in [1, 2, 3]:
+    print(item)
+
+# MIN/MAX (if comparable):
+min([3, 1, 4, 2])  # → 1
+max([3, 1, 4, 2])  # → 4
+sum([1, 2, 3, 4])  # → 10
+
+# COUNT/INDEX:
+arr = [1, 2, 3, 2, 1]
+arr.count(2)  # → 2 (occurrences)
+arr.index(3)  # → 2 (first index of 3)
+\`\`\`
+
+LIST METHODS: In-place modifications.
+
+\`\`\`python
+arr = [1, 2, 3]
+
+# APPEND: Add to end (O(1))
+arr.append(4)  # → [1, 2, 3, 4]
+
+# EXTEND: Add multiple (O(k) for k items)
+arr.extend([5, 6])  # → [1, 2, 3, 4, 5, 6]
+arr += [7, 8]  # Same as extend
+
+# INSERT: Add at index (O(n) - shifts elements!)
+arr.insert(0, 0)  # → [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+# POP: Remove and return (O(1) at end, O(n) at index)
+arr.pop()  # → 8, arr = [0, 1, 2, 3, 4, 5, 6, 7]
+arr.pop(0)  # → 0, arr = [1, 2, 3, 4, 5, 6, 7] (O(n)!)
+
+# REMOVE: Delete first occurrence by value (O(n))
+arr.remove(3)  # → [1, 2, 4, 5, 6, 7]
+
+# CLEAR: Empty list
+arr.clear()  # → []
+
+# REVERSE: In-place reversal (O(n))
+arr = [1, 2, 3]
+arr.reverse()  # → [3, 2, 1]
+
+# SORT: In-place sorting (O(n log n))
+arr = [3, 1, 4, 2]
+arr.sort()  # → [1, 2, 3, 4] (modifies arr, returns None!)
+arr.sort(reverse=True)  # → [4, 3, 2, 1]
+arr.sort(key=lambda x: -x)  # Custom key
+
+# COPY: Shallow copy
+arr2 = arr.copy()  # Same as arr[:]
+\`\`\`
+
+SORT VS SORTED: In-place vs new list.
+
+\`\`\`python
+arr = [3, 1, 4, 2]
+
+# SORT: In-place, returns None
+result = arr.sort()  # result is None!
+# arr is now [1, 2, 3, 4]
+
+# SORTED: Returns new list, original unchanged
+arr = [3, 1, 4, 2]
+result = sorted(arr)  # → [1, 2, 3, 4]
+# arr still [3, 1, 4, 2]
+
+# CUSTOM KEY:
+words = ["apple", "pie", "zoo", "a"]
+sorted(words, key=len)  # → ['a', 'pie', 'zoo', 'apple']
+
+# STABILITY: Equal elements keep original order
+pairs = [(1, 'a'), (2, 'b'), (1, 'c')]
+sorted(pairs)  # → [(1, 'a'), (1, 'c'), (2, 'b')]
+# Note: (1, 'a') before (1, 'c') - stable!
+\`\`\`
+
+LIST COMPREHENSIONS: Concise list building.
+
+\`\`\`python
+# BASIC:
+[x**2 for x in range(5)]  # → [0, 1, 4, 9, 16]
+
+# WITH FILTER:
+[x for x in range(10) if x % 2 == 0]  # → [0, 2, 4, 6, 8]
+
+# WITH TRANSFORMATION:
+[x.upper() for x in ["a", "b", "c"]]  # → ['A', 'B', 'C']
+
+# NESTED (flattening):
+matrix = [[1, 2], [3, 4], [5, 6]]
+[x for row in matrix for x in row]  # → [1, 2, 3, 4, 5, 6]
+# Reads: for row in matrix, for x in row
+
+# NESTED (2D):
+[[x*y for x in range(3)] for y in range(3)]
+# → [[0, 0, 0], [0, 1, 2], [0, 2, 4]]
+
+# VS MANUAL LOOP: Comprehensions often faster
+# Slow:
+result = []
+for x in data:
+    if x > 0:
+        result.append(x**2)
+
+# Fast:
+result = [x**2 for x in data if x > 0]
+\`\`\`
+
+COMMON INTERVIEW PATTERNS:
+
+\`\`\`python
+# PATTERN 1: Two pointers (opposite ends)
+def is_palindrome(arr):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        if arr[left] != arr[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+
+# PATTERN 2: Sliding window
+def max_sum_subarray(arr, k):
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    for i in range(k, len(arr)):
+        window_sum += arr[i] - arr[i - k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum
+
+# PATTERN 3: Frequency counting
+from collections import Counter
+def most_common(arr):
+    return Counter(arr).most_common(1)[0][0]
+
+# PATTERN 4: In-place modification
+def remove_duplicates(arr):
+    if not arr:
+        return 0
+    write = 1
+    for read in range(1, len(arr)):
+        if arr[read] != arr[read - 1]:
+            arr[write] = arr[read]
+            write += 1
+    return write
+
+# PATTERN 5: Merge sorted lists
+def merge(arr1, arr2):
+    result = []
+    i = j = 0
+    while i < len(arr1) and j < len(arr2):
+        if arr1[i] < arr2[j]:
+            result.append(arr1[i])
+            i += 1
+        else:
+            result.append(arr2[j])
+            j += 1
+    result.extend(arr1[i:])
+    result.extend(arr2[j:])
+    return result
+\`\`\`
+
+PERFORMANCE: Know O() complexity for operations.
+
+\`\`\`python
+# O(1) - Constant time:
+arr[i]  # Index access
+arr.append(x)  # Add to end
+arr.pop()  # Remove from end
+len(arr)  # Length
+
+# O(n) - Linear time:
+x in arr  # Membership (scans all)
+arr.insert(0, x)  # Insert at front (shift all)
+arr.pop(0)  # Remove from front (shift all)
+arr.remove(x)  # Remove by value (scan + shift)
+arr.reverse()  # Reverse
+min(arr), max(arr), sum(arr)  # Aggregate
+
+# O(n log n) - Linearithmic:
+arr.sort()  # Sorting
+sorted(arr)
+
+# OPTIMIZATION: Use deque for front operations
+from collections import deque
+q = deque([1, 2, 3])
+q.appendleft(0)  # O(1) instead of O(n)!
+q.popleft()  # O(1) instead of O(n)!
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: Mutable default argument
+def bad(arr=[]):  # WRONG!
+    arr.append(1)
+    return arr
+# Shares one list across all calls!
+
+# GOTCHA 2: Shallow copy
+arr = [[1, 2], [3, 4]]
+copy = arr[:]  # Shallow copy
+copy[0][0] = 99  # Modifies BOTH arr and copy!
+# arr is now [[99, 2], [3, 4]]
+
+# Deep copy:
+import copy
+deep = copy.deepcopy(arr)
+
+# GOTCHA 3: Modifying while iterating
+arr = [1, 2, 3, 4, 5]
+for i in arr:
+    if i % 2 == 0:
+        arr.remove(i)  # WRONG! Skips elements
+# Solution: Iterate over copy or build new list
+
+# GOTCHA 4: sort() returns None
+arr = [3, 1, 2]
+result = arr.sort()  # result is None!
+# Use sorted() if you need the result
+
+# GOTCHA 5: Slice creates copy
+arr = [1, 2, 3]
+arr2 = arr  # Same list!
+arr2[0] = 99  # Changes arr too!
+arr3 = arr[:]  # Copy, safe
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use append() for adding to end (O(1), not insert(len(arr), x))
+✅ Use list comprehensions for building lists (faster than loops)
+✅ Use arr[:] or arr.copy() for shallow copy
+✅ Use copy.deepcopy() for nested structures
+✅ Use deque for frequent front operations (O(1) not O(n))
+✅ Use sorted() if you need original unchanged
+✅ Use enumerate() for index+value: for i, val in enumerate(arr)
+❌ NEVER use mutable default arguments: def f(arr=[])
+❌ NEVER modify list while iterating over it
+❌ NEVER assume shallow copy is enough for nested lists
+❌ NEVER use arr.sort() if you need the return value (returns None!)`,
+    tip: `Last element? arr[-1], second to last arr[-2] - negative indexing from end (O(1))
+Copy shallow? arr[:] or arr.copy() - deep copy nested? import copy; copy.deepcopy(arr)
+Insert/pop at FRONT O(n)? Use collections.deque for O(1) appendleft/popleft - critical optimization!
+Sort in place? arr.sort() returns None (modifies arr) - sorted copy? sorted(arr) returns new list
+Mutable default BUG? NEVER def f(arr=[]) - use arr=None, check if arr is None: arr = []`,
   },
   tuple: {
     type: 'Tuple',
@@ -1822,25 +2160,357 @@ Immutability is SHALLOW? t = ([1, 2], [3]) - can't reassign t[0], but CAN modify
     badge: 'dict',
     color: 'var(--accent-dict)',
     description: 'Hash table with O(1) key-value lookups. Keys must be hashable. Ordered since Python 3.7.',
-    intro: `Dictionaries are unordered (pre-3.7) or insertion-ordered (3.7+) collections of arbitrary objects accessed by key rather than offset. As mutable mappings, they can be changed in place but don't support sequence operations like slicing or concatenation. Ideal for labeled data and fast lookups.
+    intro: `Dictionaries are hash tables providing O(1) key-value lookups. The key insight: use dicts for "seen" patterns (Two Sum), frequency counting, and grouping—dramatically faster than lists for lookups! Keys must be hashable (immutable), values can be anything. Ordered since Python 3.7 (insertion order maintained). Most common interview pattern: hash map for O(1) lookups to avoid O(n²) nested loops.
 
-Core Properties: Implemented as hash tables for O(1) retrieval. Keys must be hashable (immutable): strings, numbers, tuples of immutables. Values can be any type. Since Python 3.7, dicts maintain insertion order—keys appear left-to-right based on when added. Like a check-in desk with labeled cubbies: you look for the one with your name (key), not a number.
+KEY INSIGHT: DICTIONARIES ARE HASH TABLES WITH O(1) LOOKUPS. Checking "if key in dict" is O(1)—instant! Compare to lists where "if x in list" is O(n). This makes dicts the MOST COMMON optimization in coding interviews: convert nested O(n²) loops to single O(n) pass with dict. CRITICAL: Keys must be hashable (immutable)—strings, numbers, tuples OK; lists, dicts, sets NOT allowed as keys!
 
-Basic Operations: Fetch with \`D[key]\` (raises KeyError if missing). Store with \`D[key] = value\`. Delete with \`del D[key]\`. Length with \`len(D)\`. Key existence with \`key in D\` (O(1) check). Iteration \`for k in D\` yields keys.
+\`\`\`python
+# TWO SUM: Classic dict optimization
+# BAD: O(n²) nested loops
+def two_sum_slow(arr, target):
+    for i in range(len(arr)):
+        for j in range(i+1, len(arr)):
+            if arr[i] + arr[j] == target:
+                return [i, j]
 
-Construction: Literals \`{key: value, ...}\`. Constructor \`dict(name='Pat', age=30)\` or \`dict(zip(keys, vals))\`. From keys \`dict.fromkeys(['a','b'], 0)\`. Unpacking \`{**d1, **d2}\` merges. Comprehensions \`{k: v for k, v in pairs}\`.
+# GOOD: O(n) with dict
+def two_sum(arr, target):
+    seen = {}  # Value → index
+    for i, num in enumerate(arr):
+        if target - num in seen:  # O(1) lookup!
+            return [seen[target - num], i]
+        seen[num] = i
 
-Methods: \`get(key, default)\` returns default if key missing (avoids KeyError). \`setdefault(key, default)\` returns value if exists, else sets and returns default. \`pop(key)\` removes and returns value. \`popitem()\` removes and returns last item (LIFO since 3.7). \`update(other)\` merges another dict or key-value pairs. \`clear()\` empties dict.
+# FREQUENCY COUNTING:
+from collections import Counter
+freq = Counter([1, 2, 2, 3, 3, 3])  # → {3: 3, 2: 2, 1: 1}
+# Or manual:
+freq = {}
+for x in arr:
+    freq[x] = freq.get(x, 0) + 1
+\`\`\`
 
-Views: \`keys()\`, \`values()\`, \`items()\` return view objects—iterables that dynamically reflect dict changes. Views from \`keys()\` and \`items()\` support set operations: \`d1.keys() & d2.keys()\` for common keys, \`d1.keys() | d2.keys()\` for all keys.
+CORE PROPERTIES: Mutable mappings with O(1) operations.
 
-Merge Operators: Python 3.9+ adds \`d1 | d2\` (creates new merged dict) and \`d1 |= d2\` (updates d1 in place). Right-hand dict wins on key conflicts.
+\`\`\`python
+# ORDERED (3.7+): Maintains insertion order
+d = {"c": 3, "a": 1, "b": 2}
+list(d.keys())  # → ['c', 'a', 'b'] (insertion order!)
 
-Usage Patterns: Labeled records (field names as keys), sparse data (most positions empty), memoization caches, counting with \`Counter\`, grouping with \`defaultdict(list)\`.`,
-    tip: `Two Sum pattern? seen = {}; check if (target - num) in seen - O(1) lookup beats O(n²) nested loops
-Count frequency? Counter(arr).most_common(k) - or manual: freq = {}; freq[x] = freq.get(x, 0) + 1
-Group by key? defaultdict(list) auto-creates empty list - or dict.setdefault(key, []).append(val)
-Avoid KeyError? dict.get(key, default) or use defaultdict - d[key] raises if missing`,
+# MUTABLE: Can change in place
+d["c"] = 99  # Modify value
+d["d"] = 4  # Add new key
+del d["a"]  # Delete key
+
+# KEYS MUST BE HASHABLE:
+d = {1: "one", "two": 2, (3, 4): "tuple"}  # OK
+d = {[1, 2]: "list"}  # TypeError: unhashable type: 'list'
+
+# VALUES CAN BE ANYTHING:
+d = {"list": [1, 2], "dict": {"nested": True}, "set": {1, 2}}
+
+# HASH TABLE: O(1) average case
+key in d  # O(1) membership
+d[key]  # O(1) access
+d[key] = val  # O(1) assignment
+\`\`\`
+
+CONSTRUCTION: Multiple ways to create dicts.
+
+\`\`\`python
+# LITERAL SYNTAX:
+d = {"name": "Alice", "age": 30}
+d = {}  # Empty dict (NOT set!)
+
+# DICT CONSTRUCTOR with keywords:
+d = dict(name="Alice", age=30)
+
+# FROM KEY-VALUE PAIRS:
+pairs = [("a", 1), ("b", 2)]
+d = dict(pairs)  # → {'a': 1, 'b': 2}
+
+# FROM KEYS + VALUES:
+keys = ["a", "b", "c"]
+values = [1, 2, 3]
+d = dict(zip(keys, values))  # → {'a': 1, 'b': 2, 'c': 3}
+
+# FROM KEYS with default value:
+d = dict.fromkeys(["a", "b", "c"], 0)  # → {'a': 0, 'b': 0, 'c': 0}
+
+# DICT COMPREHENSION:
+d = {x: x**2 for x in range(5)}  # → {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+d = {k: v for k, v in pairs if v > 0}  # With filter
+
+# MERGING (3.9+):
+d1 = {"a": 1, "b": 2}
+d2 = {"b": 3, "c": 4}
+d = d1 | d2  # → {'a': 1, 'b': 3, 'c': 4} (d2 wins)
+
+# MERGING (3.5+): Unpacking
+d = {**d1, **d2}  # → {'a': 1, 'b': 3, 'c': 4}
+\`\`\`
+
+BASIC OPERATIONS: Get, set, delete, check membership.
+
+\`\`\`python
+d = {"a": 1, "b": 2, "c": 3}
+
+# GET: Access by key
+d["a"]  # → 1
+d["z"]  # KeyError: 'z'
+
+# GET with default (avoid KeyError):
+d.get("a")  # → 1
+d.get("z")  # → None
+d.get("z", 0)  # → 0 (custom default)
+
+# SET: Assign value
+d["a"] = 99  # Update existing
+d["d"] = 4  # Add new
+
+# DELETE:
+del d["b"]  # Remove key (raises KeyError if missing)
+
+# MEMBERSHIP: Check if key exists (O(1)!)
+"a" in d  # → True
+"z" in d  # → False
+
+# LENGTH:
+len(d)  # → 3
+
+# ITERATION: Over keys by default
+for key in d:
+    print(key, d[key])
+
+# ITERATION: Over values
+for val in d.values():
+    print(val)
+
+# ITERATION: Over key-value pairs
+for key, val in d.items():
+    print(f"{key}: {val}")
+\`\`\`
+
+DICT METHODS: Essential operations.
+
+\`\`\`python
+d = {"a": 1, "b": 2}
+
+# GET: Safe access
+d.get("a")  # → 1
+d.get("z", 0)  # → 0 (default if missing)
+
+# SETDEFAULT: Get or set+return
+val = d.setdefault("c", 3)  # Sets d['c']=3, returns 3
+val = d.setdefault("c", 99)  # d['c'] exists, returns 3 (not 99!)
+
+# POP: Remove and return
+val = d.pop("a")  # → 1, d = {'b': 2, 'c': 3}
+val = d.pop("z", 0)  # → 0 (default if missing)
+
+# POPITEM: Remove and return LAST item (3.7+)
+key, val = d.popitem()  # → ('c', 3), LIFO order
+
+# UPDATE: Merge dict or key-value pairs
+d.update({"d": 4, "e": 5})
+d.update(d=99)  # Keyword args
+d |= {"f": 6}  # 3.9+ in-place merge
+
+# CLEAR: Remove all items
+d.clear()  # → {}
+
+# KEYS/VALUES/ITEMS: View objects
+d = {"a": 1, "b": 2, "c": 3}
+d.keys()  # → dict_keys(['a', 'b', 'c'])
+d.values()  # → dict_values([1, 2, 3])
+d.items()  # → dict_items([('a', 1), ('b', 2), ('c', 3)])
+
+# VIEWS reflect changes:
+keys = d.keys()
+d["d"] = 4
+list(keys)  # → ['a', 'b', 'c', 'd'] (dynamic!)
+\`\`\`
+
+MERGE OPERATORS (3.9+): Union and update.
+
+\`\`\`python
+d1 = {"a": 1, "b": 2}
+d2 = {"b": 3, "c": 4}
+
+# | UNION: Creates new dict (right wins conflicts)
+d3 = d1 | d2  # → {'a': 1, 'b': 3, 'c': 4}
+# d1 and d2 unchanged
+
+# |= UPDATE: In-place merge
+d1 |= d2  # d1 = {'a': 1, 'b': 3, 'c': 4}
+# Same as d1.update(d2)
+
+# MULTIPLE MERGES:
+d = d1 | d2 | d3  # Left to right, rightmost wins
+
+# PRE-3.9 ALTERNATIVE: Unpacking
+d = {**d1, **d2}  # → {'a': 1, 'b': 3, 'c': 4}
+\`\`\`
+
+COMMON INTERVIEW PATTERNS:
+
+\`\`\`python
+# PATTERN 1: Two Sum (hash map)
+def two_sum(nums, target):
+    seen = {}  # Value → index
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+
+# PATTERN 2: Frequency counting
+from collections import Counter
+def most_frequent(arr):
+    counts = Counter(arr)
+    return counts.most_common(1)[0][0]
+
+# Manual frequency:
+def count_freq(arr):
+    freq = {}
+    for x in arr:
+        freq[x] = freq.get(x, 0) + 1
+    return freq
+
+# PATTERN 3: Grouping by key
+from collections import defaultdict
+def group_anagrams(words):
+    groups = defaultdict(list)
+    for word in words:
+        key = "".join(sorted(word))
+        groups[key].append(word)
+    return list(groups.values())
+
+# PATTERN 4: Memoization
+memo = {}
+def fibonacci(n):
+    if n in memo:
+        return memo[n]
+    if n <= 1:
+        return n
+    memo[n] = fibonacci(n-1) + fibonacci(n-2)
+    return memo[n]
+
+# PATTERN 5: Index mapping
+def index_of_chars(s):
+    return {char: i for i, char in enumerate(s)}
+\`\`\`
+
+DEFAULTDICT AND COUNTER: Specialized dicts.
+
+\`\`\`python
+from collections import defaultdict, Counter
+
+# DEFAULTDICT: Auto-creates missing keys
+d = defaultdict(int)  # Default value: 0
+d["a"] += 1  # Works! Creates d['a']=0 first
+d["b"] += 5  # → {'a': 1, 'b': 5}
+
+# GROUPING with defaultdict(list):
+groups = defaultdict(list)
+for key, val in pairs:
+    groups[key].append(val)  # Auto-creates empty list
+
+# VS REGULAR DICT:
+d = {}
+d["a"].append(1)  # KeyError!
+# Must use:
+d.setdefault("a", []).append(1)
+
+# COUNTER: Frequency counting
+c = Counter([1, 2, 2, 3, 3, 3])  # → Counter({3: 3, 2: 2, 1: 1})
+c.most_common(2)  # → [(3, 3), (2, 2)]
+c["missing"]  # → 0 (returns 0 for missing keys!)
+
+# COUNTER operations:
+c1 = Counter("aab")  # → {'a': 2, 'b': 1}
+c2 = Counter("abc")  # → {'a': 1, 'b': 1, 'c': 1}
+c1 + c2  # → {'a': 3, 'b': 2, 'c': 1}
+c1 - c2  # → {'a': 1}
+c1 & c2  # → {'a': 1, 'b': 1} (min)
+c1 | c2  # → {'a': 2, 'b': 1, 'c': 1} (max)
+\`\`\`
+
+PERFORMANCE: O() complexity for operations.
+
+\`\`\`python
+# O(1) - Constant time (average):
+d[key]  # Access
+d[key] = val  # Assignment
+del d[key]  # Deletion
+key in d  # Membership
+d.get(key)  # Safe access
+
+# O(n) - Linear time:
+len(d)  # Length (fast, stored)
+for key in d  # Iteration
+list(d.keys())  # Convert to list
+d.values()  # Iterate all values
+d.items()  # Iterate all pairs
+
+# LIST vs DICT lookup:
+# List: O(n) for "x in list"
+# Dict: O(1) for "x in dict"
+# CRITICAL optimization in interviews!
+\`\`\`
+
+COMMON GOTCHAS:
+
+\`\`\`python
+# GOTCHA 1: Unhashable keys
+d = {[1, 2]: "value"}  # TypeError: unhashable type: 'list'
+# Solution: Use tuple
+d = {(1, 2): "value"}  # Works!
+
+# GOTCHA 2: Missing key error
+d = {"a": 1}
+d["b"]  # KeyError: 'b'
+# Solutions:
+d.get("b", default)  # Safe
+"b" in d  # Check first
+
+# GOTCHA 3: Modifying while iterating
+d = {"a": 1, "b": 2, "c": 3}
+for key in d:
+    if key == "b":
+        del d[key]  # RuntimeError: dictionary changed size!
+# Solution: Iterate over copy
+for key in list(d.keys()):
+    if key == "b":
+        del d[key]
+
+# GOTCHA 4: Mutable default in defaultdict
+d = defaultdict(list)  # OK - list is factory
+d = defaultdict([])  # WRONG! [] is value, not factory
+
+# GOTCHA 5: dict.fromkeys with mutable default
+d = dict.fromkeys(["a", "b"], [])  # ALL keys share SAME list!
+d["a"].append(1)  # d = {'a': [1], 'b': [1]} (both modified!)
+\`\`\`
+
+BEST PRACTICES:
+
+✅ Use dicts for O(1) lookups (faster than lists!)
+✅ Use Counter for frequency counting
+✅ Use defaultdict for grouping/accumulation
+✅ Use d.get(key, default) to avoid KeyError
+✅ Use "key in d" before accessing (O(1) check)
+✅ Use dict comprehensions for transformations
+✅ Use | operator for merging (3.9+, cleaner than update)
+❌ NEVER use unhashable keys (lists, dicts, sets)
+❌ NEVER modify dict while iterating (use list(d.keys()))
+❌ NEVER assume order before Python 3.7
+❌ NEVER use d[key] without checking if unsure (use get)`,
+    tip: `Two Sum pattern? seen = {}; if (target - num) in seen: return - O(1) lookup beats O(n²) loops, MOST COMMON optimization!
+Count frequency? Counter(arr).most_common(k) fastest - or manual: freq={}; freq[x]=freq.get(x,0)+1
+Group by key? defaultdict(list) auto-creates lists - or d.setdefault(key, []).append(val) for regular dict
+Avoid KeyError? d.get(key, default) returns default if missing - or check "if key in d:" before access (O(1))
+Keys must be HASHABLE? Strings/ints/tuples OK, lists/dicts/sets NOT - use tuple(list) to freeze for key`,
   },
   set: {
     type: 'Set',
