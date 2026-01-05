@@ -9,6 +9,175 @@ import { segmentTreeMethods } from '../data/segmentTree'
 import { DSCategoryTabs } from '../components/DSCategoryTabs'
 import { getProblemCount } from '../data/learn'
 
+const stdlibIntro = `Python's Standard Library provides battle-tested tools that make interview problems dramatically simpler. The key insight: @lru_cache converts O(2^n) DP to O(n) with one decorator, Counter eliminates manual counting, and deque gives O(1) queue operations. Mastering stdlib is interview gold.
+
+@LRU_CACHE - THE #1 INTERVIEW TOOL: Dynamic programming problems often start with exponential time complexity due to repeated subproblem calculations. Manual memoization requires managing a dictionary, checking for cached results, and handling edge cases. The @lru_cache decorator does all this automatically—convert any recursive function to memoized DP by adding one line. It's implemented in C, thread-safe, provides cache statistics, and handles hashable argument types correctly.
+
+\`\`\`python
+# Manual DP - error-prone, verbose
+memo = {}
+def fib(n):
+    if n in memo:
+        return memo[n]
+    if n < 2:
+        return n
+    memo[n] = fib(n-1) + fib(n-2)
+    return memo[n]
+
+# @lru_cache - clean, fast
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n-1) + fib(n-2)
+
+# Interview wins: Fibonacci, climbing stairs, coin change, word break
+# All become one-decorator solutions
+\`\`\`
+
+COLLECTIONS - SPECIALIZED CONTAINERS: Python's collections module provides Counter, defaultdict, deque, OrderedDict, and ChainMap—each optimized for specific use cases. Counter eliminates manual frequency counting with one line. defaultdict removes KeyError checking when building dictionaries. deque provides O(1) operations at both ends, essential for BFS and queues. OrderedDict maintains insertion order and powers the cleanest LRU cache implementation.
+
+COUNTER PATTERN: Frequency analysis appears constantly in interviews—finding anagrams, top-k frequent elements, character counts, majority elements. Manual dictionary counting requires initialization checks and increment logic. Counter does it all: \`Counter(arr)\` counts frequencies, \`.most_common(k)\` finds top k elements, and Counter supports set-like operations (intersection, union, difference) for comparing frequencies.
+
+\`\`\`python
+# Manual counting - verbose
+freq = {}
+for char in string:
+    if char in freq:
+        freq[char] += 1
+    else:
+        freq[char] = 1
+
+# Counter - one line
+from collections import Counter
+freq = Counter(string)
+
+# Interview patterns
+is_anagram = Counter(s1) == Counter(s2)  # Anagram check
+top_k = Counter(arr).most_common(k)      # Top k frequent
+majority = Counter(arr).most_common(1)[0][0]  # Majority element
+\`\`\`
+
+DEQUE - DOUBLE-ENDED QUEUE: Never use list for queue operations! \`list.pop(0)\` shifts all elements (O(n)), while \`deque.popleft()\` is O(1). This difference turns O(n²) BFS into O(n). deque also supports efficient sliding window implementations with O(1) operations at both ends. For any problem involving BFS, queue operations, or sliding windows, deque is mandatory.
+
+ITERTOOLS - COMBINATORICS MADE EASY: Implementing permutations or combinations from scratch requires complex recursive backtracking (15+ lines, easy to bug). itertools provides permutations(), combinations(), product() as one-liners. These are lazy iterators (memory-efficient) implemented in C (fast). Also provides infinite iterators (count, cycle, repeat) and powerful chainers (chain, groupby, accumulate).
+
+WHEN STDLIB BEATS MANUAL: Use stdlib when it matches your needs exactly—the code is cleaner, faster, and less buggy. Implement manually when: you need custom logic, the interviewer explicitly asks for the algorithm, or stdlib doesn't support your specific requirements. Always start with stdlib; switch to manual only when necessary.`
+
+const designPatternsIntro = `Design pattern problems test your ability to build custom data structures optimized for specific constraints. The key insight: combine basic structures (arrays, hash maps, stacks) to achieve required time complexities. LRU cache, min stack, and rate limiters are frequently asked.
+
+LRU CACHE - THE CLASSIC: Least Recently Used cache requires O(1) get and put operations with a capacity limit. When capacity is exceeded, evict the least recently used item. The challenge: how to track usage order efficiently? Two approaches: OrderedDict (Python-specific, ~20 lines) or HashMap + Doubly Linked List (universal, ~80 lines). Both achieve O(1) operations.
+
+\`\`\`python
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.cache = OrderedDict()
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        self.cache.move_to_end(key)  # Mark as recently used
+        return self.cache[key]
+
+    def put(self, key, value):
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)  # Remove oldest
+
+# OrderedDict.move_to_end() moves key to end (most recent)
+# popitem(last=False) removes from front (least recent)
+\`\`\`
+
+LRU VS LFU - CHOOSING EVICTION POLICY: LRU (Least Recently Used) evicts items not accessed recently. LFU (Least Frequently Used) evicts items accessed least often. LRU optimizes for temporal locality—recent items are likely needed again. LFU optimizes for frequency—popular items stay cached longer. Choose LRU for general caching (web browsers, file systems). Choose LFU when frequency matters more than recency (music streaming, trending content).
+
+MIN STACK PATTERN: Design a stack supporting push, pop, top, and getMin—all in O(1). The naive approach \`min(stack)\` is O(n). The insight: track minimum alongside each element. Store tuples \`(value, current_min)\` where current_min is the minimum of all elements at or below this position. When pushing, compare new value with current min. When popping, the new min is automatically the min of the element now on top.
+
+\`\`\`python
+class MinStack:
+    def __init__(self):
+        self.stack = []  # Store (value, current_min) pairs
+
+    def push(self, val):
+        if not self.stack:
+            self.stack.append((val, val))
+        else:
+            current_min = min(val, self.stack[-1][1])
+            self.stack.append((val, current_min))
+
+    def pop(self):
+        self.stack.pop()
+
+    def top(self):
+        return self.stack[-1][0]
+
+    def getMin(self):
+        return self.stack[-1][1]  # O(1) min!
+\`\`\`
+
+ITERATOR PROTOCOL: Python's iteration protocol uses __iter__() (returns iterator) and __next__() (yields next value, raises StopIteration when done). Design problems often ask for custom iterators—flattening nested lists, peeking iterators, zigzag iterators. The pattern: store state in __init__, return self from __iter__, update and yield in __next__, raise StopIteration when exhausted.
+
+RATE LIMITER - SYSTEM DESIGN: Limit requests to N per time window. Three approaches: Fixed Window (reset counter every window—simple but allows bursts), Sliding Window (track timestamps, drop old ones—accurate but higher space), Token Bucket (refill tokens at rate—smooth rate limiting). Sliding window with deque is most common in interviews: store timestamps, add new timestamp, remove timestamps older than window, check if count exceeds limit.
+
+COMMON DESIGN PATTERNS: Min/Max Stack (track extreme with tuples), Queue using Two Stacks (amortized O(1)), Insert/Delete/GetRandom (HashMap + Array), Browser History (two stacks for back/forward), Circular Queue (array with wraparound), MedianFinder (two heaps). Each combines basic structures to achieve required complexities.`
+
+const generatorsIntro = `Generators enable lazy evaluation—producing values one at a time instead of building entire sequences in memory. The key insight: process infinite sequences, handle huge files, and build data pipelines with constant memory. The yield keyword transforms functions into generators.
+
+MEMORY EFFICIENCY: Lists store all elements in memory simultaneously. Generators yield one element at a time, maintaining state between yields. For large datasets, this difference is dramatic. Reading a 100GB log file: list approach loads entire file into memory (crashes), generator approach processes one line at a time with O(1) memory (works perfectly). For infinite sequences, generators are the only option.
+
+\`\`\`python
+# List - loads everything into memory
+def range_list(n):
+    result = []
+    for i in range(n):
+        result.append(i)
+    return result
+
+huge_list = range_list(1_000_000_000)  # 8GB+ memory!
+
+# Generator - yields one at a time
+def range_gen(n):
+    for i in range(n):
+        yield i  # Pause here, return value
+
+huge_gen = range_gen(1_000_000_000)  # ~128 bytes memory
+for num in huge_gen:
+    process(num)  # Only one number in memory at a time
+\`\`\`
+
+YIELD KEYWORD: When a function contains yield, calling it returns a generator object (doesn't execute the function). Each call to next() executes until the next yield, returns the yielded value, and pauses. State (local variables, execution position) is preserved. On the next next() call, execution resumes right after the yield. This enables writing iterators as simple functions instead of classes with __iter__ and __next__.
+
+GENERATOR EXPRESSIONS: Like list comprehensions but with parentheses instead of brackets. \`(x**2 for x in range(10))\` creates a generator that yields squares lazily. List comprehension \`[x**2 for x in range(10)]\` computes and stores all squares immediately. Use generator expressions when: iterating once, working with large data, building pipelines. Use list comprehensions when: need multiple iterations, need len(), need random access.
+
+\`\`\`python
+# List comprehension - immediate evaluation
+squares_list = [x**2 for x in range(1_000_000)]  # ~8MB memory
+print(squares_list[500000])  # Random access OK
+
+# Generator expression - lazy evaluation
+squares_gen = (x**2 for x in range(1_000_000))  # ~128 bytes
+# Can iterate once
+for sq in squares_gen:
+    if sq > 1000: break
+
+# Can't do: squares_gen[500000] - TypeError!
+# Can't do: len(squares_gen) - TypeError!
+\`\`\`
+
+GENERATOR PIPELINES: Chain generators to process data in stages without intermediate storage. Each generator feeds the next, maintaining constant memory. Pattern: data source → filter → transform → consume. Example: read huge file → filter for errors → parse lines → count by type. The entire pipeline uses O(1) memory regardless of file size.
+
+YIELD FROM: Delegate to another generator. Instead of \`for item in other_gen: yield item\`, write \`yield from other_gen\`. Useful for flattening nested generators, recursive tree traversals, and composing generators. Cleaner and slightly faster than manual looping.
+
+WHEN GENERATORS WIN: Large or infinite sequences, one-pass iteration, streaming data, memory constraints, lazy evaluation needed. Files are generators by default—iterating over \`open(file)\` yields lines without loading entire file. Use generators for data processing pipelines, streaming APIs, and any time you think "I don't need it all at once."
+
+WHEN GENERATORS LOSE: Need len() (generators don't have length), need random access (no indexing), need to iterate multiple times (generators exhaust), small data that fits in memory (lists are simpler). Convert generator to list if needed: \`list(generator)\`, but this defeats the memory benefits.`
+
 const greedyIntro = `Greedy algorithms make locally optimal choices at each step hoping to find a global optimum. The key insight: if you can prove that a local optimum leads to a global optimum, greedy is simple and fast—but proving correctness is often harder than with DP.
 
 WHEN GREEDY WORKS: A greedy algorithm works when the problem has two properties: (1) Greedy choice property - a locally optimal choice leads to a globally optimal solution, (2) Optimal substructure - an optimal solution contains optimal solutions to subproblems. Classic greedy problems: activity selection, Huffman coding, minimum spanning trees (Kruskal's, Prim's), Dijkstra's shortest path, fractional knapsack.
@@ -109,9 +278,12 @@ export function StdlibPage() {
     <TypePage
       type="Python Standard Library" badge="py" color="var(--accent-stdlib)"
       description="Essential functools, itertools, and collections for interviews. @lru_cache is interview gold for DP memoization."
-      tip={`DP memoization? @lru_cache decorator
-Top-k elements? Counter(arr).most_common(k)
-Group by key? defaultdict(list)`}
+      intro={stdlibIntro}
+      tip={`DP with recursion? @lru_cache decorator - converts O(2^n) to O(n) with one line
+Top-k frequent elements? Counter(arr).most_common(k) - beats manual dict counting
+BFS or queue operations? collections.deque - NEVER use list.pop(0), it's O(n)! Use deque.popleft() O(1)
+Group by key without KeyError? defaultdict(list) - auto-creates empty list for new keys
+All permutations/combinations? itertools.permutations(arr), combinations(arr, k) - one-liners vs complex backtracking`}
       methods={stdlibMethods}
     />
   )
@@ -122,9 +294,12 @@ export function DesignPatternsPage() {
     <TypePage
       type="Design Patterns" badge="LRU" color="var(--accent-design)"
       description="LRU/LFU Cache, Min Stack, Rate Limiter, and other frequently asked design problems."
-      tip={`LRU Cache? OrderedDict + move_to_end()
-Min Stack? Stack of (val, current_min)
-Iterator pattern? __iter__ + __next__ + StopIteration`}
+      intro={designPatternsIntro}
+      tip={`LRU Cache? OrderedDict + move_to_end() for O(1) get/put - cleanest Python approach (~20 lines)
+LFU vs LRU? LRU evicts by recency (recent access), LFU evicts by frequency (access count)
+Min Stack with O(1) getMin? Store (value, current_min) tuples - min always available
+Iterator protocol? __iter__ returns self, __next__ yields values, raise StopIteration when done
+Rate limiter (N requests per window)? Sliding window with deque - track timestamps, drop old ones`}
       methods={designPatternsMethods}
     />
   )
@@ -185,9 +360,12 @@ export function GeneratorsPage() {
     <TypePage
       type="Generators & Iterators" badge="yield" color="var(--accent-generators)"
       description="Memory-efficient iteration with yield. Process huge files with constant memory. Build data pipelines."
-      tip={`Process huge file? Generator with yield (O(1) memory)
-Infinite sequence? Generator, not list
-Advance iterator? next(gen)`}
+      intro={generatorsIntro}
+      tip={`Process huge file or infinite sequence? Generator with yield - O(1) memory vs O(n) for list
+Generator expression vs list comprehension? (x**2 for x in arr) lazy vs [x**2 for x in arr] eager
+Advance generator manually? next(gen) - returns next value, raises StopIteration when exhausted
+Flatten or chain generators? yield from other_gen - cleaner than "for item in other_gen: yield item"
+Gotcha: can't iterate twice! Generators exhaust after one pass - convert to list if multiple iterations needed`}
       methods={generatorMethods}
     />
   )
