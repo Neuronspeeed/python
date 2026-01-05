@@ -87,16 +87,16 @@ def range_min(arr, L, R):
 # Easier to code and debug
 
 # USE SEGMENT TREE WHEN:
-# ✓ Frequent queries AND updates
-# ✓ Large n (>10,000)
-# ✓ Complex range operations (min, GCD, etc.)
-# ✓ Can't use simpler alternatives
+# - Frequent queries AND updates
+# - Large n (>10,000)
+# - Complex range operations (min, GCD, etc.)
+# - Can't use simpler alternatives
 
 # AVOID when:
-# ✗ Static data (use prefix sum)
-# ✗ Rare updates (recompute)
-# ✗ Small n (brute force)
-# ✗ Only need sums (use BIT instead)`,
+# - Static data (use prefix sum)
+# - Rare updates (recompute)
+# - Small n (brute force)
+# - Only need sums (use BIT instead)`,
   },
 
   // Lazy Propagation
@@ -306,7 +306,7 @@ print(bit.prefix_sum(3))  # 1+5+5 = 11` },
 # arr = [0, 0, 0, 0, 0]
 # range_add(2, 4, 5)
 # diff becomes: [0, 0, 5, 0, 0, -5]
-# point_query(3) = prefix_sum(3) = 0 + 0 + 5 = 5 ✓
+# point_query(3) = prefix_sum(3) = 0 + 0 + 5 = 5 (correct)
 
 # For range update AND range query, need TWO BITs
 class BITRangeUpdateRangeQuery:

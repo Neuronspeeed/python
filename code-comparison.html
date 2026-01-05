@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Patterns: Anti-Pattern vs Better</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Anti-pattern colors */
+      --anti-bg: #fef5f5;
+      --anti-border: #f1d4d4;
+      --anti-accent: #dc2626;
+      --anti-label: #991b1b;
+
+      /* Better pattern colors */
+      --better-bg: #f0fdf9;
+      --better-border: #cceee3;
+      --better-accent: #059669;
+      --better-label: #065f46;
+
+      /* Syntax highlighting */
+      --syn-keyword: #7c3aed;
+      --syn-function: #0891b2;
+      --syn-string: #ca8a04;
+      --syn-comment: #6b7280;
+      --syn-number: #dc2626;
+
+      /* Neutrals */
+      --bg: #fafafa;
+      --text: #171717;
+      --text-muted: #525252;
+      --divider: #e5e5e5;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Instrument Sans', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 3rem 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .comparison-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .comparison {
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .comparison:hover {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .comparison-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--divider);
+      background: linear-gradient(to bottom, #fafafa, #ffffff);
+    }
+
+    .comparison-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.375rem;
+    }
+
+    .comparison-subtitle {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .comparison-body {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      align-items: start;
+    }
+
+    .divider-vertical {
+      width: 1px;
+      background: var(--divider);
+      height: 100%;
+    }
+
+    .code-panel {
+      padding: 0;
+    }
+
+    .code-panel.anti-pattern {
+      background: var(--anti-bg);
+    }
+
+    .code-panel.better {
+      background: var(--better-bg);
+    }
+
+    .panel-label {
+      padding: 0.875rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .anti-pattern .panel-label {
+      color: var(--anti-label);
+      background: linear-gradient(to bottom, var(--anti-bg), transparent);
+      border-color: var(--anti-border);
+    }
+
+    .better .panel-label {
+      color: var(--better-label);
+      background: linear-gradient(to bottom, var(--better-bg), transparent);
+      border-color: var(--better-border);
+    }
+
+    .label-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .anti-pattern .label-icon {
+      background: var(--anti-accent);
+      box-shadow: 0 0 0 2px var(--anti-bg), 0 0 0 3px var(--anti-border);
+    }
+
+    .better .label-icon {
+      background: var(--better-accent);
+      box-shadow: 0 0 0 2px var(--better-bg), 0 0 0 3px var(--better-border);
+    }
+
+    .code-block {
+      padding: 1.5rem;
+      font-family: 'IBM Plex Mono', 'Menlo', 'Monaco', monospace;
+      font-size: 0.8125rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      min-height: 140px;
+    }
+
+    .code-line {
+      display: block;
+    }
+
+    /* Syntax highlighting */
+    .kw { color: var(--syn-keyword); font-weight: 500; }
+    .fn { color: var(--syn-function); }
+    .str { color: var(--syn-string); }
+    .cmt { color: var(--syn-comment); font-style: italic; }
+    .num { color: var(--syn-number); }
+    .op { color: var(--text-muted); }
+
+    .panel-note {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+    }
+
+    .anti-pattern .panel-note {
+      border-color: var(--anti-border);
+      color: var(--anti-label);
+      background: linear-gradient(to top, var(--anti-bg), transparent);
+    }
+
+    .better .panel-note {
+      border-color: var(--better-border);
+      color: var(--better-label);
+      background: linear-gradient(to top, var(--better-bg), transparent);
+    }
+
+    .pattern-badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.375rem;
+    }
+
+    .anti-pattern .pattern-badge {
+      background: var(--anti-border);
+      color: var(--anti-label);
+    }
+
+    .better .pattern-badge {
+      background: var(--better-border);
+      color: var(--better-label);
+    }
+
+    @media (max-width: 1024px) {
+      .comparison-body {
+        grid-template-columns: 1fr;
+      }
+
+      .divider-vertical {
+        display: none;
+      }
+
+      .code-panel.anti-pattern {
+        border-bottom: 1px solid var(--anti-border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Python Pattern Comparisons</h1>
+      <p>Anti-patterns vs optimized solutions</p>
+    </div>
+
+    <div class="comparison-grid">
+      <!-- Comparison 1: HTTP Status Code Handling -->
+      <div class="comparison">
+        <div class="comparison-header">
+          <div class="comparison-title">Dictionary Dispatch</div>
+          <div class="comparison-subtitle">HTTP Status Code Mapping</div>
+        </div>
+        <div class="comparison-body">
+          <div class="code-panel anti-pattern">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Anti-Pattern
+            </div>
+            <div class="code-block">
+<span class="code-line"><span class="kw">def</span> <span class="fn">get_http_message</span>(status_code):</span>
+<span class="code-line">    <span class="kw">if</span> status_code == <span class="num">200</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"OK"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">201</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Created"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">400</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Bad Request"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">401</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Unauthorized"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">403</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Forbidden"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">404</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Not Found"</span></span>
+<span class="code-line">    <span class="kw">elif</span> status_code == <span class="num">500</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Internal Server Error"</span></span>
+<span class="code-line">    <span class="kw">else</span>:</span>
+<span class="code-line">        <span class="kw">return</span> <span class="str">"Unknown"</span></span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># Worst case: 8 comparisons for status 500</span></span>
+            </div>
+            <div class="panel-note">
+              O(n) lookup with sequential comparisons. Performance degrades linearly with more status codes.
+              <div class="pattern-badge">O(n) Complexity</div>
+            </div>
+          </div>
+
+          <div class="divider-vertical"></div>
+
+          <div class="code-panel better">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Better Solution
+            </div>
+            <div class="code-block">
+<span class="code-line">HTTP_MESSAGES = {</span>
+<span class="code-line">    <span class="num">200</span>: <span class="str">"OK"</span>,</span>
+<span class="code-line">    <span class="num">201</span>: <span class="str">"Created"</span>,</span>
+<span class="code-line">    <span class="num">400</span>: <span class="str">"Bad Request"</span>,</span>
+<span class="code-line">    <span class="num">401</span>: <span class="str">"Unauthorized"</span>,</span>
+<span class="code-line">    <span class="num">403</span>: <span class="str">"Forbidden"</span>,</span>
+<span class="code-line">    <span class="num">404</span>: <span class="str">"Not Found"</span>,</span>
+<span class="code-line">    <span class="num">500</span>: <span class="str">"Internal Server Error"</span>,</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="kw">def</span> <span class="fn">get_http_message</span>(status_code):</span>
+<span class="code-line">    <span class="kw">return</span> HTTP_MESSAGES.<span class="fn">get</span>(status_code, <span class="str">"Unknown"</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># Always 1 lookup regardless of status code</span></span>
+            </div>
+            <div class="panel-note">
+              O(1) hash table lookup. Constant-time performance regardless of dictionary size.
+              <div class="pattern-badge">O(1) Complexity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison 2: Function Dispatch -->
+      <div class="comparison">
+        <div class="comparison-header">
+          <div class="comparison-title">Function Dispatch Pattern</div>
+          <div class="comparison-subtitle">Calculator Operations</div>
+        </div>
+        <div class="comparison-body">
+          <div class="code-panel anti-pattern">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Anti-Pattern
+            </div>
+            <div class="code-block">
+<span class="code-line">OPERATIONS = {<span class="str">'+'</span>: <span class="str">'add'</span>, <span class="str">'-'</span>: <span class="str">'subtract'</span>, <span class="str">'*'</span>: <span class="str">'multiply'</span>, <span class="str">'/'</span>: <span class="str">'divide'</span>}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># Maps to operation names, not behaviors</span></span>
+            </div>
+            <div class="panel-note">
+              Mapping values to strings requires additional logic to execute operations.
+              <div class="pattern-badge">Indirection</div>
+            </div>
+          </div>
+
+          <div class="divider-vertical"></div>
+
+          <div class="code-panel better">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Better Solution
+            </div>
+            <div class="code-block">
+<span class="code-line"><span class="kw">def</span> <span class="fn">calculate</span>(x, operator, y):</span>
+<span class="code-line">    operation = OPERATIONS.<span class="fn">get</span>(operator)</span>
+<span class="code-line">    <span class="kw">if</span> operation <span class="kw">is</span> <span class="kw">None</span>:</span>
+<span class="code-line">        <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">f"Unknown operator: {operator}"</span>)</span>
+<span class="code-line">    <span class="kw">return</span> <span class="fn">operation</span>(x, y)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># Map values to functions for behavior selection</span></span>
+            </div>
+            <div class="panel-note">
+              Direct function dispatch eliminates intermediate steps. Functions as first-class values.
+              <div class="pattern-badge">First-Class Functions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison 3: Lazy Evaluation -->
+      <div class="comparison">
+        <div class="comparison-header">
+          <div class="comparison-title">Lazy Evaluation Pattern</div>
+          <div class="comparison-subtitle">Deferred Execution with Lambdas</div>
+        </div>
+        <div class="comparison-body">
+          <div class="code-panel anti-pattern">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Anti-Pattern
+            </div>
+            <div class="code-block">
+<span class="code-line"><span class="kw">def</span> <span class="fn">process</span>(action):</span>
+<span class="code-line">    handlers = {</span>
+<span class="code-line">        <span class="str">'save'</span>: <span class="fn">expensive_save</span>(),</span>
+<span class="code-line">        <span class="str">'load'</span>: <span class="fn">expensive_load</span>(),</span>
+<span class="code-line">    }</span>
+<span class="code-line">    <span class="kw">return</span> handlers.<span class="fn">get</span>(action, <span class="kw">lambda</span>: <span class="kw">None</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># WRONG: Called immediately!</span></span>
+<span class="code-line"><span class="cmt"># Both expensive_save() and expensive_load()</span></span>
+<span class="code-line"><span class="cmt"># execute regardless of selected action</span></span>
+            </div>
+            <div class="panel-note">
+              All functions execute upfront when building the dictionary, wasting computation.
+              <div class="pattern-badge">Eager Evaluation</div>
+            </div>
+          </div>
+
+          <div class="divider-vertical"></div>
+
+          <div class="code-panel better">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Better Solution
+            </div>
+            <div class="code-block">
+<span class="code-line"><span class="kw">def</span> <span class="fn">process</span>(action):</span>
+<span class="code-line">    handlers = {</span>
+<span class="code-line">        <span class="str">'save'</span>: <span class="kw">lambda</span>: <span class="fn">expensive_save</span>(),</span>
+<span class="code-line">        <span class="str">'load'</span>: <span class="kw">lambda</span>: <span class="fn">expensive_load</span>(),</span>
+<span class="code-line">    }</span>
+<span class="code-line">    handler = handlers.<span class="fn">get</span>(action, <span class="kw">lambda</span>: <span class="kw">None</span>)</span>
+<span class="code-line">    <span class="kw">return</span> <span class="fn">handler</span>()</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="cmt"># Lazy: called only if selected action matches</span></span>
+<span class="code-line"><span class="cmt"># Execute the selected function</span></span>
+            </div>
+            <div class="panel-note">
+              Lambdas defer execution. Only the selected handler runs, avoiding unnecessary work.
+              <div class="pattern-badge">Lazy Evaluation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison 4: Dispatch Usage -->
+      <div class="comparison">
+        <div class="comparison-header">
+          <div class="comparison-title">Usage Examples</div>
+          <div class="comparison-subtitle">Dictionary Dispatch in Practice</div>
+        </div>
+        <div class="comparison-body">
+          <div class="code-panel anti-pattern">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              Without Dispatch
+            </div>
+            <div class="code-block">
+<span class="code-line">result = <span class="fn">calculate</span>(<span class="num">10</span>, <span class="str">'+'</span>, <span class="num">5</span>)</span>
+<span class="code-line"><span class="cmt"># Returns: 15</span></span>
+<span class="code-line"></span>
+<span class="code-line">result = <span class="fn">calculate</span>(<span class="num">10</span>, <span class="str">'/'</span>, <span class="num">2</span>)</span>
+<span class="code-line"><span class="cmt"># Returns: 5.0</span></span>
+            </div>
+            <div class="panel-note">
+              Traditional if/elif chains for operation selection. Linear lookup time.
+              <div class="pattern-badge">Linear Search</div>
+            </div>
+          </div>
+
+          <div class="divider-vertical"></div>
+
+          <div class="code-panel better">
+            <div class="panel-label">
+              <span class="label-icon"></span>
+              With Dispatch
+            </div>
+            <div class="code-block">
+<span class="code-line">dispatch_result = <span class="fn">calculate</span>(<span class="num">10</span>, <span class="str">'+'</span>, <span class="num">5</span>)</span>
+<span class="code-line"><span class="cmt"># Returns: 15</span></span>
+<span class="code-line"></span>
+<span class="code-line">dispatch_result = <span class="fn">calculate</span>(<span class="num">10</span>, <span class="str">'/'</span>, <span class="num">2</span>)</span>
+<span class="code-line"><span class="cmt"># Returns: 5.0</span></span>
+            </div>
+            <div class="panel-note">
+              Hash table lookup with function dispatch. Constant-time operation selection.
+              <div class="pattern-badge">O(1) Dispatch</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

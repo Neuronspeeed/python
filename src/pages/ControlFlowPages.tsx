@@ -11,7 +11,7 @@ import { oopMethods } from '../data/oop'
 
 const fundamentalsIntro = `Python's object model is the foundation for understanding EVERYTHING in the language. All data in Python is represented as objects—from simple integers to complex classes. The key insight: understanding Python's dynamic typing model, reference semantics, and garbage collection is critical for avoiding 90% of bugs and writing efficient code.
 
-KEY INSIGHT: DYNAMIC TYPING WITH STRONG TYPE CHECKING. Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
+DYNAMIC TYPING WITH STRONG TYPE CHECKING. Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
 
 \`\`\`python
 # DYNAMIC: No type declarations
@@ -384,15 +384,15 @@ funcs = [lambda i=i: i for i in range(3)]  # Bind i early
 \`\`\`
 
 BEST PRACTICES:
-✅ Use \`is\` for None/True/False checks
-✅ Use \`==\` for value comparison
-✅ Copy explicitly: \`L[:]\`, \`D.copy()\`, \`copy.deepcopy()\`
-✅ Use type hints for large projects
-✅ Understand mutable vs immutable
-✅ Avoid mutable default arguments
-❌ NEVER use \`is\` for number/string comparison
-❌ NEVER assume \`==\` means same object
-❌ NEVER use [[]] * 3 for nested structures`
+- Use \`is\` for None/True/False checks
+- Use \`==\` for value comparison
+- Copy explicitly: \`L[:]\`, \`D.copy()\`, \`copy.deepcopy()\`
+- Use type hints for large projects
+- Understand mutable vs immutable
+- Avoid mutable default arguments
+- NEVER use \`is\` for number/string comparison
+- NEVER assume \`==\` means same object
+- NEVER use [[]] * 3 for nested structures`
 
 export function FundamentalsPage() {
   return (
@@ -413,7 +413,7 @@ Type hints? x: int = 1 — IGNORED at runtime, for tools like mypy only`}
 
 const statementsIntro = `Statements bind names to objects and control program flow. The key insight: assignment in Python creates references, not copies. Understanding this reference semantics is foundational—it explains 90% of Python gotchas and bugs.
 
-KEY INSIGHT: ASSIGNMENT CREATES REFERENCES, NOT COPIES. When you write \`a = b\`, you're creating a new reference to the same object, not copying the object. For immutable objects (int, str, tuple), this distinction doesn't matter because you can't modify them. For mutable objects (list, dict, set), this is CRITICAL—changes through one reference affect ALL references.
+ASSIGNMENT CREATES REFERENCES, NOT COPIES. When you write \`a = b\`, you're creating a new reference to the same object, not copying the object. For immutable objects (int, str, tuple), this distinction doesn't matter because you can't modify them. For mutable objects (list, dict, set), this is CRITICAL—changes through one reference affect ALL references.
 
 \`\`\`python
 # Reference semantics visualization
@@ -742,7 +742,7 @@ Walrus := (3.8+)? while (line := input()) != "": — assign + test in one expres
 
 const conditionalsIntro = `Conditionals control program flow through decision-making. Python's if/elif/else, truthiness, short-circuit evaluation, and ternary expressions form the foundation of all branching logic. The key insight: master guard clauses and early returns to reduce nesting, understand truthiness to write Pythonic code, and leverage short-circuit evaluation for both safety and performance.
 
-KEY INSIGHT: EARLY RETURNS AND GUARD CLAUSES. The most common conditional anti-pattern is deep nesting. Instead of nesting if statements inside if statements, use guard clauses—validate inputs at the top, return early on failure, and let the happy path flow without indentation. This pattern improves readability, reduces cognitive load, and makes bugs more obvious.
+EARLY RETURNS AND GUARD CLAUSES. The most common conditional anti-pattern is deep nesting. Instead of nesting if statements inside if statements, use guard clauses—validate inputs at the top, return early on failure, and let the happy path flow without indentation. This pattern improves readability, reduces cognitive load, and makes bugs more obvious.
 
 \`\`\`python
 # ANTI-PATTERN: Deep nesting
@@ -915,12 +915,12 @@ else:
 \`\`\`
 
 When to Use Ternary:
-- ✅ Simple value assignment based on one condition
-- ✅ Default value selection
-- ✅ Fits on one readable line
-- ❌ NEVER nest ternary expressions
-- ❌ Complex logic (use if/else instead)
-- ❌ Side effects (use if/else for clarity)
+- - Simple value assignment based on one condition
+- - Default value selection
+- - Fits on one readable line
+- - NEVER nest ternary expressions
+- - Complex logic (use if/else instead)
+- - Side effects (use if/else for clarity)
 
 DICTIONARY DISPATCH: Replace long if/elif chains with O(1) dictionary lookups when you have simple value-to-value or value-to-function mappings.
 
@@ -969,13 +969,13 @@ result = calculate(10, "+", 5)  # → 15
 \`\`\`
 
 When to Use Dict Dispatch:
-- ✅ 5+ simple equality branches
-- ✅ Value-to-value mapping
-- ✅ Function/method dispatch
-- ✅ Static mappings (days, months, status codes)
-- ❌ Complex conditions (different variables)
-- ❌ Range checks (use if/elif)
-- ❌ Pattern matching (use match in 3.10+)
+- - 5+ simple equality branches
+- - Value-to-value mapping
+- - Function/method dispatch
+- - Static mappings (days, months, status codes)
+- - Complex conditions (different variables)
+- - Range checks (use if/elif)
+- - Pattern matching (use match in 3.10+)
 
 GUARD CLAUSES AND EARLY RETURNS: The most important conditional pattern for writing readable, maintainable code. Validate inputs early, fail fast, keep happy path at lowest indentation.
 
@@ -1126,7 +1126,7 @@ Any true? any(x < 0 for x in nums) — short-circuits on first True`}
 
 const conditionalPatternsIntro = `Performance and design patterns for Python conditional logic. Understanding when to use if-elif vs dict dispatch vs match, how to apply short-circuit evaluation, and advanced patterns like Strategy and State Machines can dramatically improve code quality, performance, and maintainability. The key insight: choose the right tool based on complexity and performance needs—O(1) dict dispatch beats O(n) if-elif for value mapping, Strategy pattern beats if-elif explosion for behavior selection.
 
-KEY INSIGHT: COMPLEXITY DRIVES CHOICE. Simple condition? if/elif. 5+ value mappings? Dict dispatch. Patterns + destructuring? match (3.10+). Multiple behaviors? Strategy pattern. State transitions? State machine. The decision isn't about syntax preference—it's about algorithmic complexity and maintainability.
+COMPLEXITY DRIVES CHOICE. Simple condition? if/elif. 5+ value mappings? Dict dispatch. Patterns + destructuring? match (3.10+). Multiple behaviors? Strategy pattern. State transitions? State machine. The decision isn't about syntax preference—it's about algorithmic complexity and maintainability.
 
 DICTIONARY DISPATCH DEEP DIVE: Replace O(n) if-elif chains with O(1) hash table lookups when you have simple value-to-value or value-to-function mappings.
 
@@ -1217,13 +1217,13 @@ def process(action):
 \`\`\`
 
 When to Use Dict Dispatch:
-- ✅ 5+ simple equality branches (value == constant)
-- ✅ Value-to-value or value-to-function mapping
-- ✅ Static/known mapping (HTTP codes, months, operations)
-- ✅ O(1) performance critical
-- ❌ Complex conditions (ranges, boolean logic)
-- ❌ Different variables in conditions
-- ❌ Pattern matching (use match instead)
+- - 5+ simple equality branches (value == constant)
+- - Value-to-value or value-to-function mapping
+- - Static/known mapping (HTTP codes, months, operations)
+- - O(1) performance critical
+- - Complex conditions (ranges, boolean logic)
+- - Different variables in conditions
+- - Pattern matching (use match instead)
 
 SHORT-CIRCUIT EVALUATION PATTERNS: Put cheap/likely-false conditions first to maximize short-circuit benefits. This is both a performance optimization AND a safety pattern.
 
@@ -1506,7 +1506,7 @@ Lookup table? Precompute in dict/list — O(1) vs O(n) calculation every time`}
 
 const matchIntro = `Pattern Matching (Python 3.10+) brings structural pattern matching to Python—more powerful than switch statements. Match combines destructuring, type dispatch, and guards in one elegant syntax. The key insight: use match when you're checking ONE value against multiple structural patterns, use if/elif when you're checking DIFFERENT conditions.
 
-KEY INSIGHT: MATCH FOR PATTERNS, IF FOR CONDITIONS. Match excels at destructuring and structural matching (sequences, dicts, classes). If/elif excels at boolean logic with different variables. The decision: same value + patterns → match, different conditions → if/elif.
+MATCH FOR PATTERNS, IF FOR CONDITIONS. Match excels at destructuring and structural matching (sequences, dicts, classes). If/elif excels at boolean logic with different variables. The decision: same value + patterns → match, different conditions → if/elif.
 
 \`\`\`python
 # MATCH: same value, structural patterns
@@ -1857,7 +1857,7 @@ Dict? case {"name": n}: — partial match OK, extra keys ignored (unlike tuple s
 
 const loopsIntro = `Loops are Python's fundamental iteration construct. The for loop is preferred over while—it's simpler, safer (no infinite loops!), and more Pythonic. Python's iteration protocol makes for loops work with any iterable: lists, strings, dicts, files, generators. The key insight: NEVER use range(len()) pattern—use enumerate() instead for cleaner, more Pythonic code.
 
-KEY INSIGHT: FOR > WHILE IN PYTHON. Unlike C/Java where while and for are equally common, Python strongly favors for loops. For loops are safer (can't go infinite), simpler (no manual counter updates), and more expressive (work with any iterable). Use while ONLY when iterations are unknown—user input loops, two-pointer algorithms, binary search convergence. Otherwise, default to for.
+FOR > WHILE IN PYTHON. Unlike C/Java where while and for are equally common, Python strongly favors for loops. For loops are safer (can't go infinite), simpler (no manual counter updates), and more expressive (work with any iterable). Use while ONLY when iterations are unknown—user input loops, two-pointer algorithms, binary search convergence. Otherwise, default to for.
 
 \`\`\`python
 # ANTI-PATTERN: C-style iteration (NEVER do this!)
@@ -2251,18 +2251,18 @@ for combo in combinations([1, 2, 3], 2):
 
 BEST PRACTICES SUMMARY:
 
-✅ Prefer for over while (safer, simpler, more Pythonic)
-✅ Use enumerate() instead of range(len())
-✅ Use zip() for parallel iteration
-✅ Use reversed() instead of [::-1] for large sequences
-✅ Use loop else for search "not found" patterns
-✅ Cache attribute lookups in tight loops (10-15% faster)
-✅ Use sets for membership testing (1000x faster than lists)
-✅ Use comprehensions for simple transforms (20-30% faster)
-✅ Use generators for one-time iteration (80,000x less memory)
-❌ NEVER modify list while iterating over it
-❌ NEVER use range(len()) — use enumerate() instead!
-❌ NEVER use while for known iterations — use for instead!`
+- Prefer for over while (safer, simpler, more Pythonic)
+- Use enumerate() instead of range(len())
+- Use zip() for parallel iteration
+- Use reversed() instead of [::-1] for large sequences
+- Use loop else for search "not found" patterns
+- Cache attribute lookups in tight loops (10-15% faster)
+- Use sets for membership testing (1000x faster than lists)
+- Use comprehensions for simple transforms (20-30% faster)
+- Use generators for one-time iteration (80,000x less memory)
+- NEVER modify list while iterating over it
+- NEVER use range(len()) — use enumerate() instead!
+- NEVER use while for known iterations — use for instead!`
 
 export function LoopsPage() {
   return (
@@ -2284,7 +2284,7 @@ Reversed? reversed(seq) lazy vs [::-1] creates copy — use reversed() to save m
 
 const comprehensionsIntro = `Comprehensions provide Python's concise, declarative syntax for creating collections in a single expression. They combine mapping and filtering from functional programming with Python's readable syntax. The key insight: comprehensions are faster and more Pythonic for simple transformations, but regular loops are clearer for complex logic—readability always wins.
 
-KEY INSIGHT: LIST vs GENERATOR MEMORY TRADE-OFF. List comprehensions \`[x for x in data]\` build the ENTIRE result in memory immediately—great for small data (<100K items) or multiple iterations. Generator expressions \`(x for x in data)\` yield items ONE AT A TIME—O(1) memory, perfect for 100K+ items or one-time iteration. CRITICAL GOTCHA: Generators exhaust after one pass—\`list(gen)\` works ONCE, then \`gen\` is empty forever!
+LIST vs GENERATOR MEMORY TRADE-OFF. List comprehensions \`[x for x in data]\` build the ENTIRE result in memory immediately—great for small data (<100K items) or multiple iterations. Generator expressions \`(x for x in data)\` yield items ONE AT A TIME—O(1) memory, perfect for 100K+ items or one-time iteration. CRITICAL GOTCHA: Generators exhaust after one pass—\`list(gen)\` works ONCE, then \`gen\` is empty forever!
 
 \`\`\`python
 # LIST: Builds all items immediately
@@ -2361,18 +2361,18 @@ sys.getsizeof(gen_expr)  # ~100 bytes (constant!)
 When to Use List vs Generator:
 
 Use LIST \`[]\` when:
-- ✅ Small data (<100K items)
-- ✅ Need multiple iterations
-- ✅ Need len(), indexing, slicing
-- ✅ Need to check membership multiple times
-- ✅ Debugging (can inspect contents)
+- - Small data (<100K items)
+- - Need multiple iterations
+- - Need len(), indexing, slicing
+- - Need to check membership multiple times
+- - Debugging (can inspect contents)
 
 Use GENERATOR \`()\` when:
-- ✅ Large data (100K+ items)
-- ✅ One-time iteration
-- ✅ Pipeline chaining: \`sum(x**2 for x in filter(pred, data))\`
-- ✅ Memory constrained
-- ✅ Infinite sequences: \`(x for x in itertools.count())\`
+- - Large data (100K+ items)
+- - One-time iteration
+- - Pipeline chaining: \`sum(x**2 for x in filter(pred, data))\`
+- - Memory constrained
+- - Infinite sequences: \`(x for x in itertools.count())\`
 
 \`\`\`python
 # GOOD: Generator for large one-time sum
@@ -2664,16 +2664,16 @@ my_set = {x for x in range(5)}  # Set!
 
 BEST PRACTICES SUMMARY:
 
-✅ Use comprehensions for simple map/filter operations
-✅ Use generators for 100K+ items or one-time iteration
-✅ Use lists for <100K items or multiple iterations
-✅ Keep comprehensions to 1-2 levels of nesting max
-✅ Put complex logic in regular loops
-✅ Convert generators to lists if you need multiple passes
-✅ Prefer comprehensions over map/filter for readability
-❌ NEVER use comprehensions for side effects
-❌ NEVER nest 3+ levels
-❌ NEVER use if/elif/else or try/except in comprehensions`
+- Use comprehensions for simple map/filter operations
+- Use generators for 100K+ items or one-time iteration
+- Use lists for <100K items or multiple iterations
+- Keep comprehensions to 1-2 levels of nesting max
+- Put complex logic in regular loops
+- Convert generators to lists if you need multiple passes
+- Prefer comprehensions over map/filter for readability
+- NEVER use comprehensions for side effects
+- NEVER nest 3+ levels
+- NEVER use if/elif/else or try/except in comprehensions`
 
 export function ComprehensionsPage() {
   return (

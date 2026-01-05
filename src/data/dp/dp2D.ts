@@ -10,16 +10,16 @@ export const dp2DMethods: Method[] = [
 # 4. Recurrence: dp[i][j] = f(dp[i-1][j], dp[i][j-1], ...)
 
 # USE 2D DP:
-# ✓ Longest common subsequence (two strings)
-# ✓ Edit distance (transform string A → B)
-# ✓ Grid paths, min path sum
-# ✓ Match wildcards (* and ?)
-# ✓ Two arrays, pick elements with constraints
+# - Longest common subsequence (two strings)
+# - Edit distance (transform string A → B)
+# - Grid paths, min path sum
+# - Match wildcards (* and ?)
+# - Two arrays, pick elements with constraints
 
 # DON'T USE (other techniques):
-# ✗ Single sequence optimization → 1D DP
-# ✗ Tree/graph traversal → DFS/BFS
-# ✗ Greedy works → Use greedy (simpler)
+# - Single sequence optimization → 1D DP
+# - Tree/graph traversal → DFS/BFS
+# - Greedy works → Use greedy (simpler)
 
 # SPACE OPTIMIZATION:
 # 2D: O(m*n) space

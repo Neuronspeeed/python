@@ -48,13 +48,13 @@ export const designCacheMethods: Method[] = [
 # Cache state (LRU): [C, D, E] - most recent
 # User revisits: A
 # LRU evicts C (least recently used)
-# Cache: [D, E, A] ✓ Good! Recency matters
+# Cache: [D, E, A] - Good! Recency matters
 
 # ACCESS PATTERN 2: Hot items
 # Requests: A, A, A, B, C, D (capacity=3)
 # Cache state (LRU): [B, C, D]
 # A is evicted despite being most frequent!
-# LFU cache: [A, B, C] ✓ Better! A is very frequent
+# LFU cache: [A, B, C] - Better! A is very frequent
 
 # COMPARISON:
 # Metric          LRU              LFU

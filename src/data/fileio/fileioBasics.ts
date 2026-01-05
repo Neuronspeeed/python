@@ -333,13 +333,13 @@ with open("data.txt", "w") as f:
         f.write(line.upper())
 
 # Safety checklist:
-# ✓ Use with statement
-# ✓ Specify encoding
-# ✓ Check mode (r/w/a)
-# ✓ Use pathlib for paths
-# ✓ Binary mode for non-text
-# ✓ Handle FileNotFoundError
-# ✓ Read before write (same file)`,
+# - Use with statement
+# - Specify encoding
+# - Check mode (r/w/a)
+# - Use pathlib for paths
+# - Binary mode for non-text
+# - Handle FileNotFoundError
+# - Read before write (same file)`,
   },
 
   // File Basics

@@ -68,14 +68,14 @@ def sieve(n):
 # Sieve: ~0.1 seconds (100x faster!)
 
 # WHEN SIEVE MATTERS:
-# ✓ Need primes up to N (N < 10^7)
-# ✓ Factorization of many numbers
-# ✓ Counting primes in range
+# - Need primes up to N (N < 10^7)
+# - Factorization of many numbers
+# - Counting primes in range
 
 # WHEN TRIAL DIVISION:
-# ✓ Check single number
-# ✓ N is very large (> 10^9)
-# ✓ Need primality only, not all primes
+# - Check single number
+# - N is very large (> 10^9)
+# - Need primality only, not all primes
 
 # INTERVIEW PATTERN:
 # "Count primes up to n" → Sieve (LeetCode 204)
@@ -95,19 +95,19 @@ MOD = 10**9 + 7  # Common in competitive programming
 # MODULAR RULES (what works):
 a, b = 12345, 67890
 
-# Addition ✓
+# Addition (correct)
 print((a + b) % MOD == ((a % MOD) + (b % MOD)) % MOD)
 
-# Subtraction ✓ (watch negatives!)
+# Subtraction - (watch negatives!)
 print((a - b + MOD) % MOD)  # Add MOD to handle negative
 
-# Multiplication ✓
+# Multiplication (correct)
 print((a * b) % MOD == ((a % MOD) * (b % MOD)) % MOD)
 
-# Exponentiation ✓
+# Exponentiation (correct)
 print(pow(2, 100, MOD))  # Built-in handles mod efficiently!
 
-# Division ✗ (DOESN'T WORK DIRECTLY!)
+# Division - (DOESN'T WORK DIRECTLY!)
 # (a / b) % MOD is WRONG!
 # Need modular inverse: (a * modinv(b)) % MOD
 

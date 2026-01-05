@@ -9,15 +9,15 @@ export const slidingWindowMethods: Method[] = [
 # 3. Condition on window state (sum, unique chars, etc.)
 
 # USE SLIDING WINDOW:
-# ✓ Longest substring without repeating
-# ✓ Minimum window with all chars
-# ✓ Max sum of k consecutive
-# ✓ Count subarrays with sum = k
+# - Longest substring without repeating
+# - Minimum window with all chars
+# - Max sum of k consecutive
+# - Count subarrays with sum = k
 
 # DON'T USE (use other techniques):
-# ✗ Subsequence problems (not contiguous) → DP
-# ✗ Global optimization → DP or greedy
-# ✗ Multiple non-overlapping windows → DP
+# - Subsequence problems (not contiguous) → DP
+# - Global optimization → DP or greedy
+# - Multiple non-overlapping windows → DP
 
 # Example decision:
 # "Longest increasing SUBSTRING" → Sliding window

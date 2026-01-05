@@ -294,17 +294,17 @@ s1.lower() == s2.lower()  # Correct way
 
 BEST PRACTICES:
 
-✅ Use f-strings for formatting (fastest, most readable)
-✅ Use "".join() for building strings (O(n) not O(n²))
-✅ Use s[::-1] to reverse strings
-✅ Use in for substring search, startswith/endswith for prefixes
-✅ Use sorted() or Counter() for anagram detection
-✅ Use two pointers for palindrome/reverse problems
-✅ Use sliding window for substring problems
-✅ Lower/strip input for case-insensitive/whitespace-safe comparisons
-❌ NEVER use += in loops for string building (O(n²)!)
-❌ NEVER try to modify string in place (immutable!)
-❌ NEVER use s.split() for parsing (fragile with whitespace)`,
+- Use f-strings for formatting (fastest, most readable)
+- Use "".join() for building strings (O(n) not O(n²))
+- Use s[::-1] to reverse strings
+- Use in for substring search, startswith/endswith for prefixes
+- Use sorted() or Counter() for anagram detection
+- Use two pointers for palindrome/reverse problems
+- Use sliding window for substring problems
+- Lower/strip input for case-insensitive/whitespace-safe comparisons
+- NEVER use += in loops for string building (O(n²)!)
+- NEVER try to modify string in place (immutable!)
+- NEVER use s.split() for parsing (fragile with whitespace)`,
     tip: `Building string in loop? "".join(parts) not s += - O(n) vs O(n²), CRITICAL for large strings!
 Anagram check? sorted(s1) == sorted(s2) or Counter(s1) == Counter(s2) - Counter allows early exit
 Palindrome? s == s[::-1] in one line - or two pointers: left/right converging (O(n), interview favorite)
@@ -392,7 +392,7 @@ DIVISION TYPES: Python has THREE division operators with different behaviors.
 a, b = -7, 2
 print(a == (a // b) * b + (a % b))  # True
 # -7 == (-4) * 2 + 1
-# -7 == -8 + 1 ✓
+# -7 == -8 + 1 (correct)
 
 # DIVMOD: Get quotient + remainder in one operation
 divmod(10, 3)   # → (3, 1) = (10 // 3, 10 % 3)
@@ -703,15 +703,15 @@ WHEN TO USE WHAT:
 - **Fraction**: Exact rational numbers (1/3 stays 1/3)
 
 BEST PRACTICES:
-✅ Use // for integer division (not int(a/b))
-✅ Use divmod(a, b) when you need both quotient and remainder
-✅ Use bit manipulation for flags, masks, interview problems
-✅ Remember Python modulo always returns non-negative (for positive divisor)
-✅ Use float('inf') for initialization in min/max problems
-✅ Count True values with sum(bools)
-❌ NEVER assume integer overflow (Python has none!)
-❌ NEVER use / when you mean // (different results!)
-❌ NEVER forget modulo behavior differs from C/Java`,
+- Use // for integer division (not int(a/b))
+- Use divmod(a, b) when you need both quotient and remainder
+- Use bit manipulation for flags, masks, interview problems
+- Remember Python modulo always returns non-negative (for positive divisor)
+- Use float('inf') for initialization in min/max problems
+- Count True values with sum(bools)
+- NEVER assume integer overflow (Python has none!)
+- NEVER use / when you mean // (different results!)
+- NEVER forget modulo behavior differs from C/Java`,
     tip: `Need infinity for comparisons? float('inf') and float('-inf') - works with min/max
 Reverse integer digits? int(str(abs(n))[::-1]) * (1 if n >= 0 else -1) - handle negatives!
 Quotient + remainder together? divmod(a, b) returns (a//b, a%b) - one operation
@@ -1081,17 +1081,17 @@ Decimal('0.1')  # CORRECT: Exact
 
 BEST PRACTICES:
 
-✅ Use math.isclose() for float comparisons
-✅ Use Decimal for financial calculations with exact decimals
-✅ Use integers for counting, indexing, loop counters
-✅ Format for display: f"{x:.2f}" instead of manual rounding
-✅ Test for special values: math.isinf(), math.isnan()
-✅ Binary search on floats: use epsilon-based termination
-✅ Pass strings to Decimal: Decimal('0.1'), not Decimal(0.1)
-❌ NEVER use == to compare floats (use math.isclose)
-❌ NEVER count with floats (use integers, multiply for value)
-❌ NEVER assume 0.1 + 0.2 == 0.3 (binary precision!)
-❌ NEVER use float for money (use Decimal)`,
+- Use math.isclose() for float comparisons
+- Use Decimal for financial calculations with exact decimals
+- Use integers for counting, indexing, loop counters
+- Format for display: f"{x:.2f}" instead of manual rounding
+- Test for special values: math.isinf(), math.isnan()
+- Binary search on floats: use epsilon-based termination
+- Pass strings to Decimal: Decimal('0.1'), not Decimal(0.1)
+- NEVER use == to compare floats (use math.isclose)
+- NEVER count with floats (use integers, multiply for value)
+- NEVER assume 0.1 + 0.2 == 0.3 (binary precision!)
+- NEVER use float for money (use Decimal)`,
     tip: `NEVER use == for floats! Use math.isclose(a, b, rel_tol=1e-9) - handles relative tolerance automatically
 Binary search on floats? while right - left > epsilon (NOT left < right!) - finite precision needs epsilon
 Money/finance calculations? Use Decimal('0.1') not float(0.1) - pass STRINGS to Decimal for exactness!
@@ -1428,17 +1428,17 @@ def set_flag(value):
 
 BEST PRACTICES:
 
-✅ Use truthiness: \`if data:\` instead of \`if len(data) > 0:\`
-✅ Use \`is\` for None, True, False: \`if x is None:\`
-✅ Use \`==\` for all other comparisons: \`if x == 0:\`
-✅ Chain comparisons: \`1 < x < 10\` instead of \`1 < x and x < 10\`
-✅ Use all()/any() for testing collections: \`if all(x > 0 for x in nums):\`
-✅ Count with sum(): \`sum(x > 0 for x in nums)\` counts True values
-✅ Short-circuit for defaults: \`name = name or "Guest"\`
-❌ NEVER compare boolean to True: \`if flag == True:\` (use \`if flag:\`)
-❌ NEVER use \`not x == y\` (use \`x != y\`)
-❌ NEVER assume 0/"" means "not provided" (use \`is None\` check)
-❌ NEVER nest ternary expressions (use if/elif/else)`,
+- Use truthiness: \`if data:\` instead of \`if len(data) > 0:\`
+- Use \`is\` for None, True, False: \`if x is None:\`
+- Use \`==\` for all other comparisons: \`if x == 0:\`
+- Chain comparisons: \`1 < x < 10\` instead of \`1 < x and x < 10\`
+- Use all()/any() for testing collections: \`if all(x > 0 for x in nums):\`
+- Count with sum(): \`sum(x > 0 for x in nums)\` counts True values
+- Short-circuit for defaults: \`name = name or "Guest"\`
+- NEVER compare boolean to True: \`if flag == True:\` (use \`if flag:\`)
+- NEVER use \`not x == y\` (use \`x != y\`)
+- NEVER assume 0/"" means "not provided" (use \`is None\` check)
+- NEVER nest ternary expressions (use if/elif/else)`,
     tip: `Count True values? sum(bool_list) or sum(x > 0 for x in data) - True=1, False=0 (bool subclasses int!)
 Short-circuit defaults? name = name or "Guest" - GOTCHA: fails if name="" is valid! Use "is None" instead
 All elements pass test? all(x > 0 for x in nums) - short-circuits on first False, returns True for empty!
@@ -1789,17 +1789,17 @@ arr3 = arr[:]  # Copy, safe
 
 BEST PRACTICES:
 
-✅ Use append() for adding to end (O(1), not insert(len(arr), x))
-✅ Use list comprehensions for building lists (faster than loops)
-✅ Use arr[:] or arr.copy() for shallow copy
-✅ Use copy.deepcopy() for nested structures
-✅ Use deque for frequent front operations (O(1) not O(n))
-✅ Use sorted() if you need original unchanged
-✅ Use enumerate() for index+value: for i, val in enumerate(arr)
-❌ NEVER use mutable default arguments: def f(arr=[])
-❌ NEVER modify list while iterating over it
-❌ NEVER assume shallow copy is enough for nested lists
-❌ NEVER use arr.sort() if you need the return value (returns None!)`,
+- Use append() for adding to end (O(1), not insert(len(arr), x))
+- Use list comprehensions for building lists (faster than loops)
+- Use arr[:] or arr.copy() for shallow copy
+- Use copy.deepcopy() for nested structures
+- Use deque for frequent front operations (O(1) not O(n))
+- Use sorted() if you need original unchanged
+- Use enumerate() for index+value: for i, val in enumerate(arr)
+- NEVER use mutable default arguments: def f(arr=[])
+- NEVER modify list while iterating over it
+- NEVER assume shallow copy is enough for nested lists
+- NEVER use arr.sort() if you need the return value (returns None!)`,
     tip: `Last element? arr[-1], second to last arr[-2] - negative indexing from end (O(1))
 Copy shallow? arr[:] or arr.copy() - deep copy nested? import copy; copy.deepcopy(arr)
 Insert/pop at FRONT O(n)? Use collections.deque for O(1) appendleft/popleft - critical optimization!
@@ -2138,17 +2138,17 @@ tuple([5])  # → (5,) Works!
 
 BEST PRACTICES:
 
-✅ Use tuples for fixed data that won't change (coordinates, RGB, returns)
-✅ Use tuples as dict keys when you need composite keys
-✅ Return multiple values as tuple: return x, y, z (implicit)
-✅ Unpack elegantly: a, b, c = func() instead of result[0], result[1], ...
-✅ Swap with unpacking: a, b = b, a (no temp variable)
-✅ Use namedtuple for readability when tuples have many fields
-✅ Remember trailing comma for single-item: (x,) not (x)
-❌ NEVER use tuple if you need to modify elements (use list)
-❌ NEVER forget comma in single-item tuple
-❌ NEVER assume deep immutability (inner mutables can change!)
-❌ NEVER try to hash tuple containing mutables (unhashable)`,
+- Use tuples for fixed data that won't change (coordinates, RGB, returns)
+- Use tuples as dict keys when you need composite keys
+- Return multiple values as tuple: return x, y, z (implicit)
+- Unpack elegantly: a, b, c = func() instead of result[0], result[1], ...
+- Swap with unpacking: a, b = b, a (no temp variable)
+- Use namedtuple for readability when tuples have many fields
+- Remember trailing comma for single-item: (x,) not (x)
+- NEVER use tuple if you need to modify elements (use list)
+- NEVER forget comma in single-item tuple
+- NEVER assume deep immutability (inner mutables can change!)
+- NEVER try to hash tuple containing mutables (unhashable)`,
     tip: `Need hashable dict key? Use tuple (x, y) for coordinates - lists aren't hashable! GOTCHA: tuple([1, 2]) is hashable, tuple([1, [2]]) is NOT
 Swap values elegantly? a, b = b, a - no temp variable needed (tuple unpacking)
 Return multiple values? return a, b, c - automatically creates tuple, unpack with x, y, z = func()
@@ -2495,17 +2495,17 @@ d["a"].append(1)  # d = {'a': [1], 'b': [1]} (both modified!)
 
 BEST PRACTICES:
 
-✅ Use dicts for O(1) lookups (faster than lists!)
-✅ Use Counter for frequency counting
-✅ Use defaultdict for grouping/accumulation
-✅ Use d.get(key, default) to avoid KeyError
-✅ Use "key in d" before accessing (O(1) check)
-✅ Use dict comprehensions for transformations
-✅ Use | operator for merging (3.9+, cleaner than update)
-❌ NEVER use unhashable keys (lists, dicts, sets)
-❌ NEVER modify dict while iterating (use list(d.keys()))
-❌ NEVER assume order before Python 3.7
-❌ NEVER use d[key] without checking if unsure (use get)`,
+- Use dicts for O(1) lookups (faster than lists!)
+- Use Counter for frequency counting
+- Use defaultdict for grouping/accumulation
+- Use d.get(key, default) to avoid KeyError
+- Use "key in d" before accessing (O(1) check)
+- Use dict comprehensions for transformations
+- Use | operator for merging (3.9+, cleaner than update)
+- NEVER use unhashable keys (lists, dicts, sets)
+- NEVER modify dict while iterating (use list(d.keys()))
+- NEVER assume order before Python 3.7
+- NEVER use d[key] without checking if unsure (use get)`,
     tip: `Two Sum pattern? seen = {}; if (target - num) in seen: return - O(1) lookup beats O(n²) loops, MOST COMMON optimization!
 Count frequency? Counter(arr).most_common(k) fastest - or manual: freq={}; freq[x]=freq.get(x,0)+1
 Group by key? defaultdict(list) auto-creates lists - or d.setdefault(key, []).append(val) for regular dict
@@ -2835,17 +2835,17 @@ s.pop()  # Returns some element, not necessarily 1 or 3!
 
 BEST PRACTICES:
 
-✅ Use sets for O(1) membership testing (faster than lists!)
-✅ Use sets to remove duplicates automatically
-✅ Use set operations (& | - ^) for finding common/unique elements
-✅ Use seen = set() pattern for duplicate detection
-✅ Convert list to set ONCE if doing many membership checks
-✅ Use frozenset for dict keys or set elements
-✅ Use dict.fromkeys() to deduplicate while preserving order
-❌ NEVER use {} for empty set (that's a dict!)
-❌ NEVER put unhashable elements (lists, dicts) in sets
-❌ NEVER assume set iteration order (unordered!)
-❌ NEVER use set.pop() if you care which element removed`,
+- Use sets for O(1) membership testing (faster than lists!)
+- Use sets to remove duplicates automatically
+- Use set operations (& | - ^) for finding common/unique elements
+- Use seen = set() pattern for duplicate detection
+- Convert list to set ONCE if doing many membership checks
+- Use frozenset for dict keys or set elements
+- Use dict.fromkeys() to deduplicate while preserving order
+- NEVER use {} for empty set (that's a dict!)
+- NEVER put unhashable elements (lists, dicts) in sets
+- NEVER assume set iteration order (unordered!)
+- NEVER use set.pop() if you care which element removed`,
     tip: `"Have we seen X?" pattern? seen = set(); if x in seen: ... - O(1) membership test, MUCH faster than list!
 Remove duplicates? list(set(arr)) but LOSES order - Preserve order? list(dict.fromkeys(arr)) (3.7+)
 Common elements? a & b (intersection) - Unique to a? a - b (difference) - All? a | b (union) - XOR? a ^ b

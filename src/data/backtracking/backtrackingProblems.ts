@@ -10,17 +10,17 @@ export const backtrackingProblemsMethods: Method[] = [
 # 4. Build solution incrementally, backtrack on failure
 
 # USE BACKTRACKING:
-# ✓ Generate all subsets/combinations
-# ✓ N-Queens, Sudoku puzzles
-# ✓ Word search in grid
-# ✓ Generate valid parentheses
-# ✓ Permutations with constraints
+# - Generate all subsets/combinations
+# - N-Queens, Sudoku puzzles
+# - Word search in grid
+# - Generate valid parentheses
+# - Permutations with constraints
 
 # DON'T USE (other techniques better):
-# ✗ Shortest path → BFS/Dijkstra
-# ✗ Optimization with overlapping subproblems → DP
-# ✗ Single valid solution exists → Greedy might work
-# ✗ n > 20-25 → Too slow (exponential)
+# - Shortest path → BFS/Dijkstra
+# - Optimization with overlapping subproblems → DP
+# - Single valid solution exists → Greedy might work
+# - n > 20-25 → Too slow (exponential)
 
 # COMPLEXITY WARNING:
 # Backtracking is SLOW (exponential)

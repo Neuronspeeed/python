@@ -71,10 +71,10 @@ def kruskal(n, edges):
 # Best for: Dense graphs (E ~ V²)
 
 # WHEN TO USE MST:
-# ✓ Network design (min cable/pipes)
-# ✓ Clustering (cut largest MST edges)
-# ✓ Approximate TSP (MST + shortcuts)
-# ✓ Image segmentation
+# - Network design (min cable/pipes)
+# - Clustering (cut largest MST edges)
+# - Approximate TSP (MST + shortcuts)
+# - Image segmentation
 
 # WHICH ALGORITHM:
 # Sparse graph (E ~ V) → Kruskal

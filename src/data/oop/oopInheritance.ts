@@ -11,7 +11,7 @@ class Animal:
 class Dog(Animal):
     def bark(self):
         return "woof"
-# Dog IS-A Animal ✓ (shares behavior)
+# Dog IS-A Animal - (shares behavior)
 
 # COMPOSITION - when object HAS-A component
 class Engine:
@@ -24,7 +24,7 @@ class Car:
 
     def start(self):
         return self.engine.start()
-# Car HAS-AN Engine ✓ (assembles behavior)
+# Car HAS-AN Engine - (assembles behavior)
 
 # Use inheritance when:
 # - True "is-a" relationship (Dog is-a Animal)
@@ -119,13 +119,13 @@ class Animal:
 
 class Dog(Animal):
     def __init__(self, name, breed):
-        super().__init__(name)  # Follows MRO ✓
+        super().__init__(name)  # Follows MRO (correct)
         self.breed = breed
 
 # AVOID Parent.method(self) - breaks multiple inheritance
 class BadDog(Animal):
     def __init__(self, name, breed):
-        Animal.__init__(self, name)  # Hard-coded parent ✗
+        Animal.__init__(self, name)  # Hard-coded parent (incorrect)
         self.breed = breed
 
 # Why super() matters: multiple inheritance

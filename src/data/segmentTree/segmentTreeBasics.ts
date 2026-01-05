@@ -169,7 +169,7 @@ export const segmentTreeBasicsMethods: Method[] = [
 #     _query(node=6, 2-2, 1, 2) -> complete overlap, return 5
 #     _query(node=7, 3-3, 1, 2) -> no overlap, return 0
 #     return 5 + 0 = 5
-#   return 3 + 5 = 8 ✓` },
+#   return 3 + 5 = 8 (correct)` },
 
   // Range Min/Max
   { signature: 'Range Minimum Query', description: 'Segment tree for minimum instead of sum. Change aggregate function.', complexity: 'O(log n)', section: 'Range Min/Max', example: `class RangeMinTree:

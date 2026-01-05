@@ -10,20 +10,20 @@ export const greedyProblemsMethods: Method[] = [
 #    Optimal solution contains optimal subsolutions
 
 # CLASSIC GREEDY PROBLEMS:
-# ✓ Activity selection (max non-overlapping)
-# ✓ Huffman coding (min encoding)
-# ✓ Fractional knapsack (take highest value/weight)
-# ✓ Minimum spanning tree (Kruskal, Prim)
-# ✓ Dijkstra's algorithm (shortest path)
+# - Activity selection (max non-overlapping)
+# - Huffman coding (min encoding)
+# - Fractional knapsack (take highest value/weight)
+# - Minimum spanning tree (Kruskal, Prim)
+# - Dijkstra's algorithm (shortest path)
 
 # GREEDY FAILS WHEN:
-# ✗ 0/1 Knapsack (need DP)
-# ✗ Longest increasing subsequence (need DP)
-# ✗ Coin change with arbitrary denominations (need DP)
+# - 0/1 Knapsack (need DP)
+# - Longest increasing subsequence (need DP)
+# - Coin change with arbitrary denominations (need DP)
 
 # Example: Coin Change
 # Coins = [1, 5, 10, 25], amount = 30
-# Greedy: 25 + 5 = 2 coins ✓ (works!)
+# Greedy: 25 + 5 = 2 coins - (works!)
 
 # Coins = [1, 3, 4], amount = 6
 # Greedy: 4 + 1 + 1 = 3 coins

@@ -21,10 +21,10 @@ def max_subarray(nums):
 # Take max! No need to try all O(n²) subarrays.
 
 # USE KADANE'S WHEN:
-# ✓ Maximum/minimum subarray sum
-# ✓ Maximum subarray product
-# ✓ Best time to buy/sell stock (1 transaction)
-# ✓ Circular array max sum (with modification)
+# - Maximum/minimum subarray sum
+# - Maximum subarray product
+# - Best time to buy/sell stock (1 transaction)
+# - Circular array max sum (with modification)
 
 # VARIATIONS:
 # Max product: Track both max and min (negatives!)

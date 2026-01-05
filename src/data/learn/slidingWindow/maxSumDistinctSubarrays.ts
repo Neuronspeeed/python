@@ -144,7 +144,7 @@ export const maxSumDistinctSubarrays: AlgorithmDefinition = {
 
       steps.push({
         lineNumber: 9,
-        description: `Window [${Math.max(0, i - k + 1)}..${i}]: sum=${windowSum}, distinct=${distinctCount}${isValid ? ' ✓' : ''}`,
+        description: `Window [${Math.max(0, i - k + 1)}..${i}]: sum=${windowSum}, distinct=${distinctCount}${isValid ? ' (valid)' : ''}`,
         elements: [
           { type: 'array', id: 'nums', values: nums, highlights:
             i >= k - 1

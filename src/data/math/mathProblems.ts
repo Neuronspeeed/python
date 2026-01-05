@@ -394,7 +394,7 @@ def add_digits(num):
   { signature: 'Self Dividing Numbers', description: 'Numbers divisible by all their digits. No zeros allowed.', complexity: 'O(log n)', section: 'Number Theory', example: `def is_self_dividing(n):
     """
     Number divisible by all its non-zero digits.
-    Example: 128 -> 128%1=0, 128%2=0, 128%8=0 ✓
+    Example: 128 -> 128%1=0, 128%2=0, 128%8=0 (correct)
     """
     original = n
     while n:
