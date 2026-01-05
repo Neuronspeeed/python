@@ -399,11 +399,6 @@ export function ArraysPage() {
       type="Arrays" badge="arr" color="var(--accent-arrays)"
       description="Contiguous memory storage with O(1) access. Foundation of all data structures. Master indexing, slicing, and two-pointer techniques."
       intro={arraysIntro}
-      tip={`O(1) random access needed? Array/list - cache-friendly, simple indexing
-Frequent insertions at middle/start? Linked list O(1) vs array O(n) shift
-Sort first? Unlocks two pointers O(n), binary search O(log n), greedy patterns
-Range sum [i,j] queries? Prefix sum: precompute prefix[i] = sum(arr[0:i]), then sum = prefix[j+1] - prefix[i]
-Max subarray sum? Kadane's algorithm - track current_max and global_max in one pass`}
       methods={arrayMethods}
       tabs={<DSCategoryTabs basePath="/arrays" problemCount={getProblemCount('slidingWindow', 'prefixSum')} />}
     />
@@ -416,11 +411,6 @@ export function LinkedListPage() {
       type="Linked List" badge="list" color="var(--accent-linked-list)"
       description="Sequential nodes with pointer connections. Master fast/slow pointers for cycle detection and middle finding."
       intro={linkedListIntro}
-      tip={`Cycle detection or find middle? Fast/slow pointers - fast moves 2x, slow moves 1x, meet in cycle
-Edge cases (operations at head)? Dummy node: dummy = ListNode(0, head) - simplifies insertion/deletion
-Reverse linked list? Three pointers: prev=None, curr=head, next=curr.next, swap until curr is None
-Merge sorted lists? Two pointers comparing values, build new list or modify in-place
-Nth from end? Two pointers with n-step gap, or reverse and take nth from start`}
       methods={linkedListMethods}
       tabs={<DSCategoryTabs basePath="/linked-list" problemCount={getProblemCount('linkedList')} />}
     />
@@ -433,11 +423,6 @@ export function StackQueuePage() {
       type="Stack & Queue" badge="stk" color="var(--accent-stack-queue)"
       description="LIFO stack for undo/matching/DFS. FIFO queue for BFS/scheduling. Monotonic stack for next greater element."
       intro={stackQueueIntro}
-      tip={`Matching brackets/parentheses? Stack - push opening, pop for closing, check if matches
-"Next greater/smaller element"? Monotonic stack - maintain increasing/decreasing order, pop when broken
-Level-order traversal or shortest path? Queue (BFS) - use collections.deque, NOT list (popleft is O(1))
-DFS traversal? Stack - or just use recursion (call stack)
-Valid expression evaluation? Stack for operators/operands - handles precedence and parentheses`}
       methods={stackQueueMethods}
       tabs={<DSCategoryTabs basePath="/stack-queue" problemCount={getProblemCount('stack')} />}
     />
@@ -450,11 +435,6 @@ export function BinaryTreePage() {
       type="Binary Tree" badge="tree" color="var(--accent-binary-tree)"
       description="Hierarchical structure with at most 2 children per node. Master DFS (pre/in/post order) and BFS (level order)."
       intro={binaryTreeIntro}
-      tip={`BST to sorted array? Inorder traversal (left-root-right) gives ascending order
-Level-by-level processing? BFS with queue - append children, process by level
-Path sum or subtree check? DFS recursion - base case: if not node: return
-Preorder (root-left-right)? Tree serialization, copying structure
-Postorder (left-right-root)? Delete tree, calculate size/height from children first`}
       methods={binaryTreeMethods}
       tabs={<DSCategoryTabs basePath="/binary-tree" problemCount={getProblemCount('dfs', 'bfs')} />}
     />
@@ -467,11 +447,6 @@ export function HeapPage() {
       type="Heap / Priority Queue" badge="heap" color="var(--accent-heap)"
       description="Get min/max in O(1), insert/remove in O(log n). Essential for top-k problems and scheduling."
       intro={heapIntro}
-      tip={`Top K largest elements? Min-heap of size K - if new element > heap[0], pop and push (keeps K largest)
-Top K smallest elements? Max-heap of size K - if new element < heap[0], pop and push
-Need max-heap in Python? heapq is min-heap only - negate values: push(-val), pop and negate result
-Merge K sorted lists? Min-heap with (value, list_index, element_index) - always pop smallest
-Running median? Two heaps - max-heap for lower half, min-heap for upper half, balance sizes`}
       methods={heapMethods}
       tabs={<DSCategoryTabs basePath="/heap" problemCount={getProblemCount('heap')} />}
     />
@@ -484,11 +459,6 @@ export function TriePage() {
       type="Trie" badge="trie" color="var(--accent-trie)"
       description="Prefix tree for efficient string operations. O(L) insert/search where L is word length."
       intro={trieIntro}
-      tip={`Autocomplete or prefix search? Trie - O(P) to find all words with prefix P, vs O(N*L) with list
-Word Search II (find multiple words in grid)? Trie + DFS - build trie from words, DFS grid with trie pruning
-Trie node structure? class TrieNode: children = {}, is_word = False - each edge is a character
-Insert word? Follow/create path for each char, mark is_word=True at end
-Search vs startsWith? Search checks is_word, startsWith just checks if path exists`}
       methods={trieMethods}
       tabs={<DSCategoryTabs basePath="/trie" problemCount={getProblemCount('trie')} />}
     />
@@ -501,11 +471,6 @@ export function UnionFindPage() {
       type="Union Find" badge="uf" color="var(--accent-union-find)"
       description="Track disjoint sets efficiently. Near O(1) union and find with path compression and union by rank."
       intro={unionFindIntro}
-      tip={`Connected components in graph? Union-Find with parent array - find(x) returns root, union(x,y) merges sets
-"Are X and Y connected?" find(x) == find(y) - same root means same component
-Detect cycle in undirected graph? If union(u,v) and find(u)==find(v), adding edge creates cycle
-Path compression? In find(), set parent[x] = find(parent[x]) - flattens tree to O(α(n)) ≈ O(1)
-Count components? Track count, decrement on successful union, or count unique find(i) values`}
       methods={unionFindMethods}
     />
   )
@@ -517,11 +482,6 @@ export function MatrixPage() {
       type="Matrix Operations" badge="[][]" color="var(--accent-matrix)"
       description="2D array operations for grids, images, graphs. Master traversal patterns and transformations."
       intro={matrixIntro}
-      tip={`4-directional grid traversal? directions = [(0,1),(1,0),(0,-1),(-1,0)] - check bounds: 0≤r<rows, 0≤c<cols
-Rotate 90° clockwise? Transpose (swap matrix[i][j] with matrix[j][i]), then reverse each row
-Spiral order traversal? Four pointers: top, bottom, left, right - move inward after each direction
-Island problems (connected 1s)? DFS/BFS - mark visited, count components
-Flood fill or region painting? DFS/BFS from start cell - change color and recurse to neighbors`}
       methods={matrixMethods}
       tabs={<DSCategoryTabs basePath="/matrix" problemCount={getProblemCount('matrices')} />}
     />
@@ -534,11 +494,6 @@ export function BitManipulationPage() {
       type="Bit Manipulation" badge="&|^" color="var(--accent-bit-ops)"
       description="Extremely fast O(1) operations. Essential for flags, subsets, and optimization problems."
       intro={bitManipulationIntro}
-      tip={`Find single non-duplicate number? XOR all elements - duplicates cancel (a^a=0), leaves single
-Check/set/clear bit i? Check: n & (1<<i), Set: n | (1<<i), Clear: n & ~(1<<i), Toggle: n ^ (1<<i)
-Check power of 2? n > 0 and n & (n-1) == 0 - power of 2 has exactly one bit set
-Count set bits? bin(n).count('1') or loop: while n: count += n&1; n >>= 1
-Generate all subsets? Loop mask from 0 to 2^n-1, each bit represents include/exclude element i`}
       methods={bitManipulationMethods}
     />
   )

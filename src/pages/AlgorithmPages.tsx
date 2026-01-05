@@ -438,13 +438,6 @@ export function SortingPage() {
       type="Sorting Algorithms" badge="sort" color="var(--accent-sorting)"
       description="Master sorting algorithms. Know when to use each. Python's Timsort is usually best."
       intro={sortingIntro}
-      tip={`list.sort() returns None! Common gotcha — modifies in-place, sorted() returns new list
-Custom sort key? key=lambda x: (x[0], -x[1]) — tuple for multi-level, negate numbers for descending
-Stable sort? Python is stable — preserves order of equal elements, critical for multi-level sorting
-Sort first strategy? Unlocks two pointers O(n), binary search O(log n), greedy patterns
-Counting sort for integers? O(n+k) when range k is small — linear time vs O(n log n)
-When NOT to sort? Need indices, only need min/max, k smallest (heap), real-time data
-Timsort always? YES for 99% cases — optimized C, stable, adaptive, O(n log n) guaranteed`}
       methods={sortingMethods}
     />
   )
@@ -982,13 +975,6 @@ export function BinarySearchPage() {
       type="Binary Search" badge="log" color="var(--accent-binary-search)"
       description="O(log n) search in sorted data. Master the three variants: exact, left-most, right-most."
       intro={binarySearchIntro}
-      tip={`Sorted data O(log n)? Binary search — 1M elements = 20 comparisons, 1B = 30 comparisons
-Find first/last occurrence? bisect_left (≥ target), bisect_right (> target) — NOT exact match!
-"Minimum X where condition works"? Search on answer (condition must be monotonic)
-Boundary search? while left < right, right = mid — exact match? while left <= right, right = mid - 1
-Off-by-one? Use < for boundaries (not <=), or infinite loop when left == right
-Validate index! bisect_left can return len(arr) — check idx < len(arr) and arr[idx] == target
-Count occurrences? bisect_right(arr, x) - bisect_left(arr, x) — both O(log n)`}
       methods={binarySearchMethods}
       tabs={<DSCategoryTabs basePath="/binary-search" problemCount={getProblemCount('binarySearch')} />}
     />
@@ -1421,13 +1407,6 @@ export function TwoPointersPage() {
       type="Two Pointers & Sliding Window" badge="2ptr" color="var(--accent-two-pointers)"
       description="Two pointers for O(n) solutions. Sliding window for subarray/substring problems."
       intro={twoPointersIntro}
-      tip={`Pair/triplet in sorted array? Opposite ends (left=0, right=n-1) — O(n) beats O(n²) brute force
-"Longest/shortest subarray"? Sliding window (expand right, shrink left when invalid) — O(n)
-Remove duplicates in-place? Same direction fast/slow — slow tracks unique position, fast scans
-3Sum problem? Fix one element, use two pointers on rest — O(n²) total (n × O(n))
-Window size formula? right - left + 1 (INCLUSIVE range) — common off-by-one source!
-Infinite loop risk? ALWAYS move at least one pointer per iteration — missing else causes stuck loop
-Sort first? O(n log n) + O(n) = O(n log n) often beats O(n²) — enables two pointers on unsorted data`}
       methods={twoPointersMethods}
       tabs={<DSCategoryTabs basePath="/two-pointers" problemCount={getProblemCount('twoPointers')} />}
     />
@@ -1872,13 +1851,6 @@ export function BacktrackingPage() {
       type="Backtracking" badge="bt" color="var(--accent-backtracking)"
       description="Explore all solutions by building incrementally. Essential for permutations, combinations, constraint satisfaction."
       intro={backtrackingIntro}
-      tip={`"Find ALL" or "List ALL"? Backtracking — DP is for counting/optimizing, not enumerating
-Pattern? choose → explore → unchoose — modify state, recurse, restore (3-step template)
-Store result? result.append(path[:]) — NEVER append path directly (copies reference!)
-Prune early? Check is_valid() BEFORE recursing — 1000x faster than checking after
-Restore ALL state? path.pop() AND visited.remove() — forgot to restore = subtle bugs
-Permutations vs Combinations? Perm: order matters, all remaining. Combo: start index, avoid duplicates
-n > 20? Too large for backtracking (2²⁰=1M, 2²⁵=33M) — use DP/greedy/approximation`}
       methods={backtrackingMethods}
       tabs={<DSCategoryTabs basePath="/backtracking" problemCount={getProblemCount('backtracking')} />}
     />
@@ -2343,13 +2315,6 @@ export function DynamicProgrammingPage() {
       type="Dynamic Programming" badge="dp" color="var(--accent-dp)"
       description="Solve complex problems by breaking into overlapping subproblems. Memoization vs tabulation."
       intro={dpIntro}
-      tip={`"Count ways" or "min/max cost"? Almost always DP — "find ALL solutions" use backtracking instead
-4-step framework? (1) Define state (2) Find recurrence (3) Set base cases (4) Determine order
-Top-down vs bottom-up? @lru_cache is easiest (memoization), dp[] table is fastest (tabulation)
-1D vs 2D? Single sequence/amount → 1D, two sequences/knapsack → 2D
-Space optimization? If dp[i] only needs dp[i-1], use two variables instead of array — O(n) → O(1)
-Forgetting base cases? dp[0], dp[1] must be initialized — common source of wrong answers!
-Reconstruct solution? Store parent pointers to track choices, not just final optimal value`}
       methods={dpMethods}
       tabs={<DSCategoryTabs basePath="/dynamic-programming" problemCount={getProblemCount('dynamicProgramming')} />}
     />
@@ -3009,13 +2974,6 @@ export function GraphPage() {
       type="Graph Algorithms" badge="bfs" color="var(--accent-graph)"
       description="Graph traversal, shortest paths, and spanning trees. Master DFS, BFS, Dijkstra, and topological sort."
       intro={graphIntro}
-      tip={`Shortest path unweighted? BFS O(V+E) — weighted non-negative? Dijkstra O((V+E)log V) — negative? Bellman-Ford
-BFS vs DFS? BFS for shortest path/levels, DFS for all paths/cycles/topological sort
-Mark visited WHEN ADDING to queue! Not when popping — prevents duplicate additions
-Topological sort? Kahn's (BFS, detects cycles), DFS (reverse post-order, simpler)
-Cycle detection? Undirected: DFS with parent check — Directed: 3-color (GRAY node = cycle)
-Graph representation? Adjacency list for sparse (99% of interviews), matrix for dense/Floyd-Warshall
-Use deque for BFS! collections.deque is O(1) for popleft(), list is O(n)`}
       methods={graphMethods}
       tabs={<DSCategoryTabs basePath="/graph" problemCount={getProblemCount('graphs')} />}
     />

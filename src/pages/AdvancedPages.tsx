@@ -496,13 +496,6 @@ export function DocumentationPage() {
       type="Documentation" badge="doc" color="var(--accent-logging)"
       description="Tools for documenting Python code: comments, docstrings, dir(), help(), and external tools."
       intro={documentationIntro}
-      tip={`Comments vs Docstrings? Comments = WHY (for developers), Docstrings = WHAT (for users of API)
-Public function? ALWAYS write docstring with Args/Returns/Examples — users need to understand API
-Type hints? Completely ignored at runtime, but enable mypy/IDE autocomplete — use both hints + docstrings
-Docstring format? Google style most readable, NumPy for science, reST for Sphinx — pick one, be consistent
-Explore API? dir(obj) shows attributes, help(obj) shows formatted docstrings — perfect for REPL
-Executable docs? Use >>> examples in docstrings, run with doctest.testmod() — docs that test themselves!
-Project docs? Sphinx with autodoc extracts docstrings → beautiful HTML — standard for Python projects`}
       methods={documentationMethods}
     />
   )
@@ -912,13 +905,6 @@ export function ModulesPage() {
       type="Modules" badge="import" color="var(--accent-concurrency)"
       description="Import mechanics, bytecode, packages, and program architecture."
       intro={modulesIntro}
-      tip={`import runs module code ONCE — cached in sys.modules, subsequent imports instant
-Shadow stdlib? NEVER name files random.py, string.py — your file wins, stdlib hidden!
-Circular import? A imports B, B imports A fails — fix: move shared code to third module
-import vs from? import math preserves namespace, from math import sqrt collapses — prefer import for clarity
-Relative import? from .module works ONLY in packages, NOT in scripts run directly
-if __name__ == "__main__"? Code runs when executed as script, skipped when imported — use for tests/CLI
-__all__ = [...]? Controls from module import * — lists public API, hides internals`}
       methods={modulesMethods}
     />
   )
@@ -1446,13 +1432,6 @@ export function ExceptionsPage() {
       type="Exceptions" badge="try" color="var(--accent-exceptions)"
       description="Exception handling in Python. Try/except for graceful error handling, raise for signaling errors."
       intro={exceptionsIntro}
-      tip={`EAFP vs LBYL? Try and catch (EAFP) is Pythonic, faster, atomic — avoid if checks before operations
-Bare except? NEVER use it! Catches Ctrl+C and sys.exit() — use except Exception: minimum
-Catch specific first? Order matters — except ValueError before except Exception (specific → general)
-else clause? Runs ONLY if try succeeds with NO exception — keeps success logic separate from error handling
-finally ALWAYS runs? Even if exception, even if return/break — use for cleanup (or use with statement)
-Exception chaining? raise NewError from original preserves context — shows both errors in traceback
-assert for validation? NEVER! Can be disabled with python -O — use raise ValueError instead`}
       methods={exceptionsMethods}
     />
   )
@@ -1805,13 +1784,6 @@ export function LoggingPage() {
       type="Logging & Debug" badge="log" color="var(--accent-logging)"
       description="Logging, debugging, and profiling in Python. Better than print for production code."
       intro={loggingIntro}
-      tip={`Production logging? Use logging module, NEVER print() — configurable levels, file output, timestamps
-Log exception stack trace? logging.error("msg", exc_info=True) — includes full traceback
-Performance hotspot? logging.debug(f"{expensive()}") calls expensive() even when disabled! Use logging.debug("msg %s", expensive())
-Micro-benchmark? timeit.timeit(stmt, setup, number=10000) — runs millions of times for accuracy
-Find slow function? cProfile.run('my_func()') then pstats — shows ncalls, tottime, cumtime
-Interactive debugging? breakpoint() drops into pdb (3.7+) — step through code, inspect vars
-Log levels? DEBUG (dev trace), INFO (events), WARNING (unexpected), ERROR (failures), CRITICAL (system failure)`}
       methods={loggingMethods}
     />
   )
@@ -2134,13 +2106,6 @@ export function ConcurrencyPage() {
       type="Concurrency" badge="async" color="var(--accent-concurrency)"
       description="Concurrent and parallel programming in Python. Threading, multiprocessing, and async/await."
       intro={concurrencyIntro}
-      tip={`I/O-bound? Threading (<100 tasks) or Async (1000+ tasks) — GIL released during I/O waits
-CPU-bound? ONLY Multiprocessing — threading won't help due to GIL (one thread at a time!)
-Threading fails for CPU? GIL allows only ONE thread executing bytecode at a time — no parallelism!
-Use ProcessPoolExecutor? executor.map(func, data) cleaner than raw Process — auto manages workers
-async requires async libs? Can't use requests, must use aiohttp — mixing sync/async is hard
-Rate limit? ThreadPoolExecutor(max_workers=5) — limits concurrent tasks
-Timeout? future.result(timeout=5) raises TimeoutError — prevents hanging tasks`}
       methods={concurrencyMethods}
     />
   )
@@ -2550,13 +2515,6 @@ export function FileIOPage() {
       type="File I/O" badge="file" color="var(--accent-fileio)"
       description="Reading and writing files. Cross-platform path handling with pathlib."
       intro={fileioIntro}
-      tip={`with statement? ALWAYS use it — auto-closes file even if exception, prevents resource leaks
-encoding='utf-8'? ALWAYS specify it — platform default varies (Windows CP1252, Linux UTF-8)
-Mode 'w' DESTROYS file! Creates/overwrites — use 'a' to append, 'r+' to read+write without destroying
-Large file? for line in f: iterates lazily O(1) memory — f.read() loads ALL into memory!
-Path().read_text()? Convenient for small files — auto opens, reads, closes in one call
-writelines() gotcha? Does NOT add newlines! — must add \\n yourself: writelines(line + '\\n' for line in data)
-FileNotFoundError? Use try/except, NOT if exists() — TOCTTOU race: file might be deleted between check and open!`}
       methods={fileioMethods}
     />
   )

@@ -400,12 +400,6 @@ export function FundamentalsPage() {
       type="Python Fundamentals" badge="py" color="var(--accent-functions)"
       description="Core concepts: dynamic typing, strong typing, polymorphism. Understanding Python's object model and type categories."
       intro={fundamentalsIntro}
-      tip={`Dynamic typing? Python tracks types at runtime — no declarations, variables can hold any type
-Strong typing? "1" + 1 raises TypeError — no silent coercion like JavaScript
-== vs is? == value equality, is identity (same object) — use is ONLY for None/True/False
-Shared refs? a = b = [] creates ONE object — mutations visible to ALL refs, DANGEROUS for mutables!
-Copy? slice [:], .copy() shallow vs deepcopy() for nested — understand shared structure
-Type hints? x: int = 1 — IGNORED at runtime, for tools like mypy only`}
       methods={fundamentalsMethods}
     />
   )
@@ -728,13 +722,6 @@ export function StatementsPage() {
       type="Statements" badge="=" color="var(--accent-none)"
       description="Assignment forms, variable naming, expression statements, and print operations. The building blocks of Python programs."
       intro={statementsIntro}
-      tip={`Swap without temp? a, b = b, a — right side evaluated first, then assigned left-to-right
-* unpacking? first, *rest = items — * ALWAYS creates list (even if empty: a, *b = [1] → b=[])
-Multiple assignment? a = b = [] creates SHARED reference — safe for immutables, DANGEROUS for mutables!
-+= in-place? L += [3] extends L, but L = L + [3] creates NEW list — shared refs see += changes!
-Mutable default BUG? def f(arr=[]): — default shared across calls! Use arr=None, then arr = arr or []
-In-place returns None? L.sort(), L.append(4) return None — L = L.sort() loses list!
-Walrus := (3.8+)? while (line := input()) != "": — assign + test in one expression`}
       methods={statementsMethods}
     />
   )
@@ -1112,13 +1099,6 @@ export function ConditionalsPage() {
       type="Conditionals" badge="if" color="var(--accent-none)"
       description="Selection and branching with if, ternary expressions, and boolean logic. Dictionary dispatch for cleaner multi-way branching."
       intro={conditionalsIntro}
-      tip={`Ternary? x if cond else y — simple assignment only, NEVER nest ternaries!
-Default value? name = input() or "Guest" — GOTCHA: 0 or 10 = 10 (0 is falsy!)
-Dict dispatch? ops[op] for O(1) vs if/elif O(n) — use when 5+ simple branches
-Guard clauses? if not valid: return early — reduces nesting, fail fast pattern
-Chain comparisons? 1 < x < 10 instead of x > 1 and x < 10 — more Pythonic
-All true? all(x > 0 for x in nums) — short-circuits on first False
-Any true? any(x < 0 for x in nums) — short-circuits on first True`}
       methods={conditionalsMethods}
     />
   )
@@ -1493,12 +1473,6 @@ export function ConditionalPatternsPage() {
       type="Selection Patterns" badge="O(1)" color="var(--accent-none)"
       description="Performance comparisons and best practices: if-elif vs dict vs match, short-circuit evaluation, when to use ternary."
       intro={conditionalPatternsIntro}
-      tip={`Dict dispatch O(1)? Use when 5+ simple branches — 10x faster than 20-branch if-elif
-match vs if? match for patterns, if for boolean logic — match needs 3.10+
-Short-circuit order? cheap() and expensive() — put cheap/likely-false first
-Strategy pattern? Dict of behavior objects — when if-elif exceeds ~50 lines, isolate behaviors
-State machine? Dict[state][event] = next_state — cleaner than nested ifs for transitions
-Lookup table? Precompute in dict/list — O(1) vs O(n) calculation every time`}
       methods={conditionalPatternsMethods}
     />
   )
@@ -1842,14 +1816,6 @@ export function MatchPage() {
       type="Match Statement" badge="match" color="var(--accent-none)"
       description="Structural pattern matching (Python 3.10+). Destructure sequences, match types, bind variables, use guards. More powerful than switch."
       intro={matchIntro}
-      tip={`Python 3.10+ only! SyntaxError on 3.9 — check version first or use if-elif fallback
-Use match when? Same value, many patterns/destructuring — use if-elif for different conditions/vars
-Literal case? case 200: or "start": — matches exact value (O(1) for simple literals)
-Sequence? case (0, y): or [first, *rest]: — destructures AND binds variables
-OR patterns? case 200 | 201 | 204: — matches ANY alternative (like multiple conditions)
-Guard? case (x, y) if x > y: — pattern + condition (pattern must match first, THEN guard)
-Wildcard _? case _: matches all but DOESN'T bind — use case x: to capture value
-Dict? case {"name": n}: — partial match OK, extra keys ignored (unlike tuple strict length)`}
       methods={matchMethods}
     />
   )
@@ -2270,13 +2236,6 @@ export function LoopsPage() {
       type="Loops" badge="for" color="var(--accent-none)"
       description="Python loops: for iterates over sequences, while repeats until condition is false. Includes iteration tools and loop control."
       intro={loopsIntro}
-      tip={`Prefer for over while? for is safer (no infinite loops!), simpler, more Pythonic — use while ONLY when iterations unknown
-Index + value? enumerate(arr) — NEVER use range(len(arr))!
-Parallel iteration? zip(a, b) — stops at shortest, use zip_longest() for all
-Loop else? Runs if NO break — perfect for search "not found" pattern
-Modify while iterating? NEVER! Create new list or iterate over copy [:]
-Set for membership? O(1) vs list O(n) — 1000x faster for 10K items
-Reversed? reversed(seq) lazy vs [::-1] creates copy — use reversed() to save memory`}
       methods={loopsMethods}
     />
   )
@@ -2681,13 +2640,6 @@ export function ComprehensionsPage() {
       type="Comprehensions" badge="[]" color="var(--accent-none)"
       description="Concise syntax for creating collections: list, dict, set, generator. Transform and filter iterables in one readable expression."
       intro={comprehensionsIntro}
-      tip={`List vs Generator? [] builds all O(n) memory, () yields lazy O(1) — use () for 100K+ items
-Set comprehension? {x**2 for x in data} — automatic deduplication, unordered
-Dict? {x: x**2 for x in range(10)} or {k: v for k, v in pairs}
-Nested? [x*y for x in a for y in b] — reads LEFT-TO-RIGHT (x outer, y inner)
-Walrus in filter? [y for x in data if (y := f(x)) > 0] — call f() once, not twice
-GENERATOR EXHAUSTION! gen = (x for x); list(gen) works ONCE — second list(gen) = []!
-Too complex? Use regular loop — >3 clauses or doesn't fit one line`}
       methods={comprehensionsMethods}
     />
   )
@@ -2744,9 +2696,6 @@ export function FunctionsPage() {
       type="Functions" badge="def" color="var(--accent-functions)"
       description="Functions are first-class objects in Python. Use def for named functions, lambda for anonymous functions."
       intro={functionsIntro}
-      tip={`Mutable default trap? def f(arr=None): arr = arr or []
-DP memoization? @lru_cache decorator
-Custom sort key? key=lambda x: x[1]`}
       methods={functionsMethods}
     />
   )
@@ -2778,9 +2727,6 @@ export function OOPPage() {
       type="OOP" badge="class" color="var(--accent-oop)"
       description="Object-Oriented Programming in Python. Classes bundle data + behavior. Use when you have state + multiple operations on that state."
       intro={oopIntro}
-      tip={`Custom heap comparison? Define __lt__
-Hashable object? Define __hash__ and __eq__
-Design problem? Class with state + methods`}
       methods={oopMethods}
     />
   )
