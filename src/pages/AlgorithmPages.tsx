@@ -639,40 +639,457 @@ Prune early? Check constraints BEFORE recursing, not after (huge speedup)`}
   )
 }
 
-const dpIntro = `Dynamic Programming (DP) solves optimization problems by breaking them into overlapping subproblems, solving each subproblem once, and storing results to avoid redundant computation. The key insight: if a problem has optimal substructure (optimal solution contains optimal solutions to subproblems) and overlapping subproblems (same subproblems solved multiple times), DP can reduce exponential time to polynomial.
+const dpIntro = `Dynamic Programming (DP) solves optimization problems by breaking them into overlapping subproblems, solving each subproblem once, and storing results to avoid redundant computation. The key insight: if a problem exhibits optimal substructure (optimal solution contains optimal solutions to subproblems) AND overlapping subproblems (same subproblems appear multiple times), DP can reduce exponential O(2ⁿ) time to polynomial O(n) or O(n²) time.
 
-WHEN TO USE DP: Signal words: "count the number of ways", "find minimum/maximum cost", "longest/shortest sequence". If the problem asks for ALL solutions, use backtracking. If it asks to COUNT or OPTIMIZE, use DP. Classic DP: Fibonacci, coin change, knapsack, longest common subsequence, edit distance, matrix chain multiplication.
-
-TOP-DOWN (MEMOIZATION) VS BOTTOM-UP (TABULATION): Top-down: write recursive solution, add memoization to cache results. Natural to think about, solves only needed subproblems. Use \`@lru_cache\` decorator in Python (one line!). Bottom-up: build table iteratively from base cases. Usually faster, better space control, no recursion overhead. Choose top-down for clarity, bottom-up for performance.
+WHY DYNAMIC PROGRAMMING WORKS: DP eliminates redundant work. Naive Fibonacci recursion solves fib(n) by calling fib(n-1) and fib(n-2), which both recursively call fib(n-3), causing exponential redundancy. DP solves fib(n-3) ONCE and reuses the result, reducing O(2ⁿ) to O(n).
 
 \`\`\`python
-# TOP-DOWN (memoization with @lru_cache)
+# NAIVE RECURSION: O(2^n) - exponential
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+# fib(5) calls fib(3) twice, fib(2) three times!
+
+# DYNAMIC PROGRAMMING: O(n) - linear
 from functools import lru_cache
 
 @lru_cache(maxsize=None)
 def fib(n):
-    if n <= 1: return n
+    if n <= 1:
+        return n
     return fib(n-1) + fib(n-2)
+# Each fib(k) computed ONCE, cached, reused
+\`\`\`
 
-# BOTTOM-UP (tabulation with array)
-def fib(n):
-    if n <= 1: return n
+TWO REQUIREMENTS FOR DP:
+
+**1. Optimal Substructure**: The optimal solution to a problem contains optimal solutions to its subproblems.
+
+Example (Shortest Path): If shortest path A→C goes through B, then A→B must be the shortest A→B path. You can't have shorter A→C by taking a longer A→B.
+
+**2. Overlapping Subproblems**: The same subproblems are solved multiple times when solving the original problem.
+
+Example (Fibonacci): Computing fib(5) requires fib(4) and fib(3). Computing fib(4) also requires fib(3). fib(3) is an overlapping subproblem.
+
+**Without both properties, DP doesn't help:**
+- No overlapping subproblems? Just use regular recursion (Merge Sort, Quick Sort)
+- No optimal substructure? Can't build solution from subproblems (Traveling Salesman needs different approach)
+
+WHEN TO USE DP: SIGNAL WORDS
+
+**Strong DP signals:**
+- "Count the number of ways to..."
+- "Find minimum/maximum cost/value/length"
+- "Longest/shortest subsequence/substring"
+- "Is it possible to..." (decision problems)
+
+**NOT DP:**
+- "Find ALL solutions" → Use Backtracking instead (DP counts or optimizes, doesn't enumerate)
+- "Find ONE valid solution" → May not need DP, could use greedy or simple algorithm
+
+\`\`\`python
+# DP: "How many ways can you climb to step n?"
+def climb_stairs(n):
     dp = [0] * (n + 1)
-    dp[1] = 1
+    dp[0], dp[1] = 1, 1
     for i in range(2, n + 1):
         dp[i] = dp[i-1] + dp[i-2]
     return dp[n]
+
+# BACKTRACKING: "List all ways to climb to step n"
+def climb_stairs_all(n, path=[]):
+    if n == 0:
+        results.append(path[:])
+        return
+    if n >= 1:
+        climb_stairs_all(n-1, path + [1])
+    if n >= 2:
+        climb_stairs_all(n-2, path + [2])
 \`\`\`
 
-THE 4-STEP DP FRAMEWORK: (1) Define STATE: what information do you need to solve a subproblem? For Fibonacci: dp[i] = ith Fibonacci number. For knapsack: dp[i][w] = max value using first i items with capacity w. (2) Find RECURRENCE: how to compute dp[state] from smaller states? Fibonacci: dp[i] = dp[i-1] + dp[i-2]. (3) Set BASE CASES: smallest subproblems you can solve directly. Fibonacci: dp[0] = 0, dp[1] = 1. (4) Determine COMPUTATION ORDER: which direction to fill the table? Fibonacci: increasing order (i = 2 to n).
+THE 4-STEP DP FRAMEWORK:
 
-1D DP PATTERNS: Use when state depends on a single variable. Climbing stairs: dp[i] = ways to reach step i. House robber: dp[i] = max money robbing houses 0..i. Coin change: dp[i] = min coins to make amount i. Generally: problems with single sequence, single variable optimization.
+**Step 1: Define STATE**
+What information do you need to solve a subproblem? This becomes your dp array dimensions.
 
-2D DP PATTERNS: Use when state depends on two variables. Two sequences: LCS (longest common subsequence) dp[i][j] = LCS of first i chars of s1, first j chars of s2. Edit distance: dp[i][j] = min edits to transform first i chars to first j chars. Knapsack: dp[i][w] = max value with first i items, capacity w. Intervals: dp[i][j] = optimal for range [i, j]. Grid paths: dp[i][j] = ways to reach cell (i, j).
+Examples:
+- Fibonacci: \`dp[i]\` = ith Fibonacci number (1D)
+- Knapsack: \`dp[i][w]\` = max value using first i items with capacity w (2D)
+- Edit Distance: \`dp[i][j]\` = min edits to transform s1[:i] to s2[:j] (2D)
 
-COMMON MISTAKES: Forgetting base cases (causes wrong answers or crashes). Wrong iteration order (accessing uncomputed values). Not using enough dimensions (state missing critical information). Thinking DP works when subproblems aren't overlapping (just use recursion). Off-by-one errors in indices.
+**Step 2: Find RECURRENCE RELATION**
+How do you compute \`dp[state]\` from smaller states? This is the heart of DP.
 
-OPTIMIZATION TECHNIQUES: Space optimization - if dp[i] only depends on dp[i-1], use two variables instead of array (Fibonacci: O(n) → O(1) space). State compression - encode multiple dimensions into one using bitmask. Print solution - store parent pointers to reconstruct path, not just optimal value.`
+Examples:
+- Fibonacci: \`dp[i] = dp[i-1] + dp[i-2]\`
+- Climbing Stairs: \`dp[i] = dp[i-1] + dp[i-2]\` (can arrive from 1 or 2 steps below)
+- Coin Change: \`dp[i] = min(dp[i - coin] + 1 for coin in coins)\`
+
+**Step 3: Set BASE CASES**
+Smallest subproblems you can solve directly without recursion.
+
+Examples:
+- Fibonacci: \`dp[0] = 0, dp[1] = 1\`
+- Climbing Stairs: \`dp[0] = 1, dp[1] = 1\`
+- Knapsack: \`dp[0][w] = 0\` for all w (no items = no value)
+
+**Step 4: Determine COMPUTATION ORDER**
+Which direction should you fill the table to ensure smaller problems are solved before larger ones?
+
+Examples:
+- Fibonacci: Forward (i = 2 to n)
+- Knapsack: Forward for both dimensions
+- Interval DP: By increasing interval length
+
+TOP-DOWN (MEMOIZATION) VS BOTTOM-UP (TABULATION):
+
+**Top-Down (Memoization):**
+- Write natural recursive solution
+- Add caching to avoid recomputation
+- Python's \`@lru_cache\` makes this trivial
+
+Pros:
+- Easier to think about (natural recursion)
+- Only computes needed subproblems
+- Cleaner code (less index management)
+
+Cons:
+- Recursion overhead (slower)
+- Stack overflow risk for deep recursion
+- Less control over evaluation order
+
+\`\`\`python
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def climb_stairs(n):
+    if n <= 1:
+        return 1
+    return climb_stairs(n-1) + climb_stairs(n-2)
+\`\`\`
+
+**Bottom-Up (Tabulation):**
+- Build table iteratively from base cases
+- No recursion, just loops
+
+Pros:
+- Usually faster (no function call overhead)
+- Better space control (can optimize to O(1))
+- No stack overflow
+
+Cons:
+- Harder to think about initially
+- Computes ALL subproblems (even unneeded)
+- More complex code with index management
+
+\`\`\`python
+def climb_stairs(n):
+    if n <= 1:
+        return 1
+
+    dp = [0] * (n + 1)
+    dp[0], dp[1] = 1, 1
+
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+
+    return dp[n]
+\`\`\`
+
+**When to choose:**
+- Interviews: Start with top-down (@lru_cache), convert to bottom-up if asked
+- Production: Bottom-up for performance-critical code
+- Learning: Try both to understand the pattern
+
+1D DP PATTERNS:
+
+Use 1D DP when state depends on a single variable.
+
+**Pattern: Single Sequence**
+\`dp[i]\` = answer for first i elements
+
+\`\`\`python
+# House Robber: Max money without robbing adjacent houses
+def rob(nums):
+    if not nums:
+        return 0
+
+    n = len(nums)
+    if n == 1:
+        return nums[0]
+
+    dp = [0] * n
+    dp[0] = nums[0]
+    dp[1] = max(nums[0], nums[1])
+
+    for i in range(2, n):
+        # Either rob current + i-2, or skip current (take i-1)
+        dp[i] = max(nums[i] + dp[i-2], dp[i-1])
+
+    return dp[n-1]
+# Time: O(n), Space: O(n)
+\`\`\`
+
+**Pattern: Target Sum**
+\`dp[i]\` = ways to reach sum i
+
+\`\`\`python
+# Coin Change: Min coins to make amount
+def coin_change(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0  # Base case: 0 coins for amount 0
+
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
+
+    return dp[amount] if dp[amount] != float('inf') else -1
+# Time: O(amount * coins), Space: O(amount)
+\`\`\`
+
+2D DP PATTERNS:
+
+Use 2D DP when state depends on two variables.
+
+**Pattern 1: Two Sequences**
+\`dp[i][j]\` = answer for s1[:i] and s2[:j]
+
+\`\`\`python
+# Longest Common Subsequence
+def lcs(s1, s2):
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1  # Match!
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])  # Skip one
+
+    return dp[m][n]
+# Time: O(m*n), Space: O(m*n)
+\`\`\`
+
+**Pattern 2: Knapsack (Items + Capacity)**
+\`dp[i][w]\` = max value using first i items with capacity w
+
+\`\`\`python
+# 0/1 Knapsack
+def knapsack(weights, values, capacity):
+    n = len(weights)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            # Option 1: Don't take item i
+            dp[i][w] = dp[i-1][w]
+
+            # Option 2: Take item i (if it fits)
+            if weights[i-1] <= w:
+                dp[i][w] = max(dp[i][w],
+                              dp[i-1][w - weights[i-1]] + values[i-1])
+
+    return dp[n][capacity]
+# Time: O(n*capacity), Space: O(n*capacity)
+\`\`\`
+
+**Pattern 3: Grid Paths**
+\`dp[i][j]\` = answer for cell (i, j)
+
+\`\`\`python
+# Unique Paths: Ways to reach bottom-right
+def unique_paths(m, n):
+    dp = [[0] * n for _ in range(m)]
+    dp[0][0] = 1
+
+    # Fill first row and column
+    for i in range(m):
+        dp[i][0] = 1
+    for j in range(n):
+        dp[0][j] = 1
+
+    # Each cell = sum of top + left
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+    return dp[m-1][n-1]
+# Time: O(m*n), Space: O(m*n)
+\`\`\`
+
+**Pattern 4: Intervals**
+\`dp[i][j]\` = answer for range [i, j]
+
+\`\`\`python
+# Palindromic Substrings: Count all palindromes
+def count_palindromes(s):
+    n = len(s)
+    dp = [[False] * n for _ in range(n)]
+    count = 0
+
+    # Every single character is a palindrome
+    for i in range(n):
+        dp[i][i] = True
+        count += 1
+
+    # Check substrings of length 2
+    for i in range(n - 1):
+        if s[i] == s[i+1]:
+            dp[i][i+1] = True
+            count += 1
+
+    # Check substrings of length 3+
+    for length in range(3, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            if s[i] == s[j] and dp[i+1][j-1]:
+                dp[i][j] = True
+                count += 1
+
+    return count
+# Time: O(n²), Space: O(n²)
+\`\`\`
+
+SPACE OPTIMIZATION:
+
+When \`dp[i]\` only depends on \`dp[i-1]\`, use rolling array or variables instead of full array.
+
+\`\`\`python
+# Fibonacci - Space: O(n) → O(1)
+def fib_optimized(n):
+    if n <= 1:
+        return n
+
+    prev2, prev1 = 0, 1
+
+    for i in range(2, n + 1):
+        curr = prev1 + prev2
+        prev2, prev1 = prev1, curr
+
+    return prev1
+# Time: O(n), Space: O(1)
+
+# House Robber - Space: O(n) → O(1)
+def rob_optimized(nums):
+    if not nums:
+        return 0
+
+    prev2, prev1 = 0, 0
+
+    for num in nums:
+        curr = max(num + prev2, prev1)
+        prev2, prev1 = prev1, curr
+
+    return prev1
+# Time: O(n), Space: O(1)
+\`\`\`
+
+COMMON PITFALLS:
+
+**1. Forgetting Base Cases**
+\`\`\`python
+# BAD: Missing base case causes crash
+dp = [0] * n
+for i in range(2, n):
+    dp[i] = dp[i-1] + dp[i-2]  # dp[0], dp[1] are 0!
+
+# GOOD: Initialize base cases
+dp = [0] * n
+dp[0], dp[1] = 1, 1
+for i in range(2, n):
+    dp[i] = dp[i-1] + dp[i-2]
+\`\`\`
+
+**2. Wrong Iteration Order**
+\`\`\`python
+# BAD: Computing dp[i] before dp[i-1]
+for i in range(n, 0, -1):  # Wrong direction!
+    dp[i] = dp[i-1] + dp[i-2]  # Accessing uncomputed values
+
+# GOOD: Compute smaller problems first
+for i in range(2, n + 1):
+    dp[i] = dp[i-1] + dp[i-2]
+\`\`\`
+
+**3. Off-by-One Errors**
+\`\`\`python
+# BAD: Index out of bounds
+dp = [0] * n
+dp[n] = ...  # IndexError!
+
+# GOOD: Allocate correct size
+dp = [0] * (n + 1)  # Extra space for dp[n]
+\`\`\`
+
+**4. Not Using Enough Dimensions**
+\`\`\`python
+# BAD: Missing critical state information
+# Knapsack with 1D won't work - need current capacity!
+dp = [0] * num_items
+
+# GOOD: Include all state variables
+dp = [[0] * (capacity + 1) for _ in range(num_items + 1)]
+\`\`\`
+
+DECISION TREE: RECURSION VS DP VS GREEDY
+
+\`\`\`
+Does the problem ask to optimize/count?
+├─ No → Just solve it directly
+└─ Yes
+   ├─ Can you make locally optimal choice that's globally optimal?
+   │  └─ Yes → GREEDY (Activity Selection, Huffman Coding)
+   └─ No
+      ├─ Are there overlapping subproblems?
+      │  ├─ Yes → DYNAMIC PROGRAMMING
+      │  └─ No → RECURSION (Merge Sort, Tree Traversal)
+      └─ Do you need ALL solutions (not just count/optimize)?
+         └─ Yes → BACKTRACKING
+\`\`\`
+
+RECONSTRUCTING THE SOLUTION:
+
+DP often finds the optimal VALUE, but you may need to reconstruct the actual SOLUTION.
+
+\`\`\`python
+# Coin Change: Return actual coins used
+def coin_change_solution(coins, amount):
+    dp = [float('inf')] * (amount + 1)
+    parent = [-1] * (amount + 1)  # Track which coin was used
+    dp[0] = 0
+
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if coin <= i and dp[i - coin] + 1 < dp[i]:
+                dp[i] = dp[i - coin] + 1
+                parent[i] = coin  # Remember this choice
+
+    if dp[amount] == float('inf'):
+        return []
+
+    # Reconstruct solution
+    result = []
+    curr = amount
+    while curr > 0:
+        coin = parent[curr]
+        result.append(coin)
+        curr -= coin
+
+    return result
+\`\`\`
+
+BEST PRACTICES:
+
+1. **Start with recursion**: Write the recursive solution first, then add memoization
+2. **Draw the recursion tree**: Visualize overlapping subproblems to verify DP is useful
+3. **Define state carefully**: Missing information in state = wrong answer
+4. **Test with small examples**: dp[0], dp[1], dp[2] catch most bugs
+5. **Check boundaries**: i-1, j-1 can go negative—handle edge cases
+6. **Consider space optimization**: After solving, optimize O(n) → O(1) if possible
+7. **Use @lru_cache first**: Simplest way to verify your recursion is correct`
 
 export function DynamicProgrammingPage() {
   return (
@@ -680,10 +1097,13 @@ export function DynamicProgrammingPage() {
       type="Dynamic Programming" badge="dp" color="var(--accent-dp)"
       description="Solve complex problems by breaking into overlapping subproblems. Memoization vs tabulation."
       intro={dpIntro}
-      tip={`"Count ways" or "min/max cost"? Almost always DP
-Framework? (1) state (2) recurrence (3) base case (4) order
-Quick memo? @lru_cache decorator (top-down), or build dp[] table (bottom-up)
-1D vs 2D? Single sequence → 1D, two sequences or intervals → 2D`}
+      tip={`"Count ways" or "min/max cost"? Almost always DP — "find ALL solutions" use backtracking instead
+4-step framework? (1) Define state (2) Find recurrence (3) Set base cases (4) Determine order
+Top-down vs bottom-up? @lru_cache is easiest (memoization), dp[] table is fastest (tabulation)
+1D vs 2D? Single sequence/amount → 1D, two sequences/knapsack → 2D
+Space optimization? If dp[i] only needs dp[i-1], use two variables instead of array — O(n) → O(1)
+Forgetting base cases? dp[0], dp[1] must be initialized — common source of wrong answers!
+Reconstruct solution? Store parent pointers to track choices, not just final optimal value`}
       methods={dpMethods}
       tabs={<DSCategoryTabs basePath="/dynamic-programming" problemCount={getProblemCount('dynamicProgramming')} />}
     />
