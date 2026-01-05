@@ -4,6 +4,9 @@
 
 ### ✅ COMPLETED
 
+**Control Flow Category (7/7 pages) - DONE** (Previous session)
+- All 7 pages already enhanced to 200-300+ lines in commit `26e578a`
+
 **Data Types Category (8/8 pages) - DONE**
 - String (25→302 lines, 4→5 tips)
 - Integer (11→396 lines, 4→5 tips)
@@ -14,11 +17,28 @@
 - List (14→360 lines, 4→5 tips)
 - Dictionary (16→356 lines, 4→5 tips)
 
-**Commits:**
-- `5f601c4` - Enhanced first 6 Data Type pages
+**Advanced Pages Category (6 pages) - IN PROGRESS (3/6 DONE)**
+- ✅ Logging & Debug (8→340 lines, 3→7 tips) - commit `00c2cbd`
+  - Comprehensive logging vs print(), 5 log levels, handlers, structured logging
+  - PDB debugging, timeit/cProfile profiling, memory profiling with tracemalloc
+- ✅ Concurrency (9→310 lines, 3→7 tips) - commit `00c2cbd`
+  - GIL deep dive, I/O-bound vs CPU-bound decision tree
+  - Threading, Multiprocessing, Async/Await with decision matrix
+- ✅ Documentation (10→483 lines, 3→7 tips) - commit `14bc9d6`
+  - Comments vs Docstrings (WHY vs WHAT), type hints, dir()/help()
+  - Google/NumPy/reST docstring formats, Sphinx, doctest
+- ⏳ **Exceptions** (24 lines → needs expansion to 250+, 3→5+ tips)
+- ⏳ **Modules** (12 lines → needs expansion to 250+, 3→5+ tips)
+- ⏳ **File I/O** (14 lines → needs expansion to 250+, 3→5+ tips)
+
+**All Commits:**
+- `14bc9d6` - Advanced Pages: Documentation enhancement
+- `00c2cbd` - Advanced Pages: Logging and Concurrency enhancements
+- `5a241e5` - Updated strategy.md with Data Types completion
+- `03ee233` - COMPREHENSIVE CLEANUP (removed ALL emoticons and KEY INSIGHT boxes)
 - `4c85cd4` - Completed final 2 Data Type pages
-- `eefa8ec` - Initial cleanup (removed KEY INSIGHT from algorithm comments)
-- `03ee233` - **COMPREHENSIVE CLEANUP** (removed ALL emoticons and KEY INSIGHT boxes)
+- `5f601c4` - Enhanced first 6 Data Type pages
+- `26e578a` - Control Flow pages (7/7 enhanced in previous session)
 
 **Cleanup Completed:**
 - ✅ Removed 150+ emoticons (✅ ❌ ✓ ✗) from all documentation
@@ -29,20 +49,50 @@
 
 ---
 
-## 🎯 NEXT: Control Flow Category (7 pages)
+## 🎯 NEXT: Complete Advanced Pages Category (3 remaining pages)
 
-### Priority Order (shortest intros first)
+### Priority Order (by current length)
 
-1. **Statements** (9 lines) - CRITICAL
-2. **Match** (10 lines) - CRITICAL
-3. **Conditionals** (11 lines) - CRITICAL
-4. **Conditional Patterns** (13 lines)
-5. **Comprehensions** (14 lines)
-6. **Loops** (20 lines)
-7. **Fundamentals** (38 lines) - already good foundation
+1. **Modules** (12 lines) - Shortest, needs most work
+2. **File I/O** (14 lines) - Second shortest
+3. **Exceptions** (24 lines) - Has foundation, needs expansion
 
-**Target:** Expand each from current 9-38 lines to 200-300 lines
-**Rubric:** Expand from 3-4 tips to 5+ comprehensive tips
+**Target:** Expand each from current 12-24 lines to 250-300 lines
+**Rubric:** Expand from 3 tips to 5-7 comprehensive tips
+
+### Modules Enhancement Plan (12 → 250+ lines)
+- Import mechanics deep dive (find, compile, execute)
+- sys.path and module search order
+- import vs from vs from...import *
+- Packages and __init__.py
+- Relative vs absolute imports
+- Circular import gotchas and solutions
+- Module reloading with importlib
+- if __name__ == "__main__" pattern
+- Best practices and anti-patterns
+
+### File I/O Enhancement Plan (14 → 250+ lines)
+- Text vs binary modes
+- Encoding (UTF-8, ASCII, etc.) and common pitfalls
+- Reading strategies (read(), readline(), readlines(), iteration)
+- Writing and appending modes
+- with statement for automatic cleanup
+- pathlib for cross-platform paths
+- Common file operations (exists, rename, delete)
+- CSV, JSON file handling
+- Performance patterns (buffering, chunking)
+- Error handling (FileNotFoundError, PermissionError)
+
+### Exceptions Enhancement Plan (24 → 250+ lines)
+- Expand on existing foundation with:
+- Complete try/except/else/finally examples
+- Exception hierarchy and custom exceptions
+- Context manager protocol (__enter__, __exit__)
+- Common exception types and when to use
+- Exception chaining (raise...from)
+- Performance impact of exceptions
+- Defensive programming patterns
+- Real-world exception handling strategies
 
 ---
 
