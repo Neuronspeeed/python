@@ -691,44 +691,472 @@ Common mistake? Sorting by wrong key (start vs end) or no proof — "seems greed
   )
 }
 
-const intervalsIntro = `Interval problems involve ranges with start and end points. These problems appear frequently in scheduling, time management, and range queries. The key insight: sorting by start or end time (choosing correctly!) often transforms a hard problem into a simple linear scan.
+const intervalsIntro = `Interval problems involve ranges with start and end points. These problems appear frequently in scheduling, time management, and range queries. The key insight: sorting by start or end time (choosing correctly!) often transforms a hard problem into a simple linear scan—but the wrong sort choice makes the problem impossible.
 
-SORT BY START VS END: This is the critical decision. Sort by START time when: checking for overlaps (merge intervals), finding gaps, processing events in chronological order. Sort by END time when: maximizing non-overlapping intervals (greedy scheduling), earliest deadline first. The sorting choice determines the algorithm—wrong choice makes the problem unsolvable.
+WHY INTERVALS ARE INTERVIEW FAVORITES: Interval problems test multiple skills at once: sorting strategy, greedy thinking, and edge case handling. The pattern appears everywhere: meeting rooms, task scheduling, resource allocation, range merging. Master intervals and you've conquered 10-15% of all interview problems.
 
-OVERLAP DETECTION PATTERN: To check if intervals overlap, sort by START time, then scan consecutive pairs. If intervals[i].end > intervals[i+1].start, they overlap. To merge overlapping intervals: sort by start, iterate through, if current overlaps with last merged, extend last merged's end time, otherwise add current as new merged interval.
+**The interval paradox:**
+- Sort by START: enables overlap detection, merging, finding gaps
+- Sort by END: enables greedy maximum selection (activity selection)
+- Wrong choice: correct algorithm becomes impossible
+- The decision is NOT arbitrary—it depends on what you're optimizing
+
+SORT BY START VS END: THE CRITICAL DECISION
+
+This is the #1 decision in interval problems. Get it wrong and your algorithm fails on edge cases.
+
+**Sort by START time when:**
+1. **Merging overlapping intervals**: Need to process in chronological order
+2. **Finding gaps**: Need consecutive intervals in time order
+3. **Detecting all overlaps**: Need to scan pairs in sequence
+4. **Insert interval into sorted list**: Need to find position by start time
+
+**Sort by END time when:**
+1. **Maximizing non-overlapping intervals**: Greedy—pick earliest ending leaves most room
+2. **Activity selection**: Choose activities that finish early
+3. **Minimum intervals to remove**: Keep ones that end earliest
+4. **Earliest deadline first scheduling**: Process shortest tasks first
+
+**Why the difference matters:**
+\`\`\`python
+intervals = [[1, 4], [2, 3], [3, 6]]
+
+# Sort by START
+sorted_start = [[1, 4], [2, 3], [3, 6]]
+# Best for merging: [1,4] overlaps [2,3], merge to [1,4], overlaps [3,6], merge to [1,6]
+
+# Sort by END
+sorted_end = [[2, 3], [1, 4], [3, 6]]
+# Best for max non-overlapping: pick [2,3], skip [1,4] (overlaps), pick [3,6] = 2 intervals
+\`\`\`
+
+PATTERN 1: MERGE OVERLAPPING INTERVALS
+
+**Problem**: Given list of intervals, merge all overlapping intervals.
+
+**Strategy**: Sort by START, scan linearly, extend or add
 
 \`\`\`python
 def merge_intervals(intervals):
-    if not intervals: return []
-    intervals.sort(key=lambda x: x[0])  # Sort by START
+    """
+    Merge all overlapping intervals.
+    Time: O(n log n) for sorting
+    Space: O(n) for result
+    """
+    if not intervals:
+        return []
+
+    # CRITICAL: Sort by START time
+    intervals.sort(key=lambda x: x[0])
+
     merged = [intervals[0]]
+
     for start, end in intervals[1:]:
-        if start <= merged[-1][1]:  # Overlap
+        last_end = merged[-1][1]
+
+        if start <= last_end:
+            # Overlap: extend last interval
             merged[-1][1] = max(merged[-1][1], end)
         else:
+            # No overlap: add new interval
             merged.append([start, end])
+
     return merged
+
+# Example
+intervals = [[1,3], [2,6], [8,10], [15,18]]
+# Result: [[1,6], [8,10], [15,18]]
+# Explanation: [1,3] and [2,6] overlap → [1,6]
 \`\`\`
 
-SWEEP LINE TECHNIQUE: Process events (start/end of intervals) in chronological order, maintaining active count. Useful for: minimum rooms needed, maximum concurrent intervals, range coverage. Pattern: create events list, sort by time, process events updating counter (start = +1, end = -1), track maximum counter value.
+**Key insights:**
+- Must use \`max(merged[-1][1], end)\` not just \`end\` - current might be inside previous!
+- Example: \`[[1,5], [2,3]]\` → without max, would incorrectly become \`[1,3]\`
+- Overlap condition: \`start <= last_end\` (not \`<\`) - touching intervals merge!
+- Example: \`[[1,2], [2,3]]\` should merge to \`[1,3]\`
+
+PATTERN 2: INSERT INTERVAL
+
+**Problem**: Insert new interval into sorted non-overlapping list, merge if needed.
+
+**Strategy**: Find position, insert, merge overlaps
+
+\`\`\`python
+def insert_interval(intervals, new_interval):
+    """
+    Insert interval into sorted list and merge overlaps.
+    Time: O(n)
+    Space: O(n)
+    """
+    result = []
+    i = 0
+    n = len(intervals)
+    new_start, new_end = new_interval
+
+    # Add all intervals before new interval
+    while i < n and intervals[i][1] < new_start:
+        result.append(intervals[i])
+        i += 1
+
+    # Merge all overlapping intervals with new interval
+    while i < n and intervals[i][0] <= new_end:
+        new_start = min(new_start, intervals[i][0])
+        new_end = max(new_end, intervals[i][1])
+        i += 1
+
+    result.append([new_start, new_end])
+
+    # Add all intervals after new interval
+    while i < n:
+        result.append(intervals[i])
+        i += 1
+
+    return result
+
+# Example
+intervals = [[1,3], [6,9]]
+new = [2,5]
+# Result: [[1,5], [6,9]]
+# Explanation: [2,5] merges with [1,3] → [1,5]
+\`\`\`
+
+PATTERN 3: NON-OVERLAPPING INTERVALS (GREEDY MAXIMUM)
+
+**Problem**: Find maximum number of non-overlapping intervals.
+
+**Strategy**: SORT BY END, greedy select earliest ending
+
+\`\`\`python
+def max_non_overlapping(intervals):
+    """
+    Maximum number of non-overlapping intervals.
+    Time: O(n log n)
+    """
+    if not intervals:
+        return 0
+
+    # CRITICAL: Sort by END time!
+    intervals.sort(key=lambda x: x[1])
+
+    count = 1
+    current_end = intervals[0][1]
+
+    for start, end in intervals[1:]:
+        if start >= current_end:
+            # No overlap: include this interval
+            count += 1
+            current_end = end
+
+    return count
+
+# Example
+intervals = [[1,3], [2,4], [3,5]]
+# Sorted by end: [[1,3], [2,4], [3,5]]
+# Pick [1,3] (end=3), skip [2,4] (starts at 2 < 3), pick [3,5] = 2 intervals
+\`\`\`
+
+**Why sort by END?**
+- Greedy: pick interval that ends earliest
+- Leaves maximum room for future intervals
+- Exchange argument: swapping any other choice doesn't improve solution
+
+**Variant: Minimum intervals to remove**
+\`\`\`python
+def min_intervals_to_remove(intervals):
+    # Remove fewest to make non-overlapping
+    # Answer: total - max_non_overlapping
+    return len(intervals) - max_non_overlapping(intervals)
+\`\`\`
+
+PATTERN 4: SWEEP LINE TECHNIQUE
+
+**Concept**: Process interval start/end events in chronological order, maintain active count.
+
+**Use cases:**
+- Minimum meeting rooms needed
+- Maximum concurrent intervals
+- Interval coverage count
 
 \`\`\`python
 def min_meeting_rooms(intervals):
+    """
+    Minimum meeting rooms to accommodate all meetings.
+    Time: O(n log n)
+    Space: O(n)
+    """
+    if not intervals:
+        return 0
+
+    # Create events: (time, type)
     events = []
     for start, end in intervals:
-        events.append((start, 1))   # Meeting starts
-        events.append((end, -1))    # Meeting ends
+        events.append((start, 1))   # Meeting starts: +1 room
+        events.append((end, -1))    # Meeting ends: -1 room
+
     events.sort()
-    rooms, max_rooms = 0, 0
+
+    current_rooms = 0
+    max_rooms = 0
+
     for time, delta in events:
-        rooms += delta
-        max_rooms = max(max_rooms, rooms)
+        current_rooms += delta
+        max_rooms = max(max_rooms, current_rooms)
+
     return max_rooms
+
+# Example
+intervals = [[0,30], [5,10], [15,20]]
+# Events: (0,+1), (5,+1), (10,-1), (15,+1), (20,-1), (30,-1)
+# Rooms:    1       2       1        2        1       0
+# Max = 2
 \`\`\`
 
-PRIORITY QUEUE PATTERN: Alternative to sweep line for interval problems. Useful when you need to track which specific intervals are active. Pattern: sort intervals by start, use min-heap of end times, when processing new interval, remove all ended intervals from heap, heap size = active count.
+**Why sweep line works:**
+- Processes events in time order (causality!)
+- Tracks active count at each time point
+- Maximum active count = minimum resources needed
 
-COMMON INTERVAL PATTERNS: Merge overlapping → sort by start, merge consecutive. Insert interval → binary search for position, merge overlaps. Non-overlapping intervals → sort by end, greedy pick earliest ending. Minimum rooms → sweep line or heap. Interval intersection → two pointers on sorted intervals. Remove covered intervals → sort by start ascending, end descending.`
+**Tie-breaking rule:**
+- When start and end at same time: end first!
+- Reason: room becomes free before next meeting starts
+- Implementation: sort by time, then by type (-1 before 1)
+
+\`\`\`python
+# Better: handle tie-breaking
+events.sort(key=lambda x: (x[0], x[1]))  # time, then delta
+# end=-1 comes before start=+1 alphabetically
+\`\`\`
+
+PATTERN 5: PRIORITY QUEUE / MIN-HEAP
+
+**Alternative to sweep line**: Track specific intervals, not just count.
+
+\`\`\`python
+import heapq
+
+def min_meeting_rooms_heap(intervals):
+    """
+    Min meeting rooms using heap.
+    Time: O(n log n)
+    Space: O(n)
+    """
+    if not intervals:
+        return 0
+
+    # Sort by start time
+    intervals.sort(key=lambda x: x[0])
+
+    # Min-heap of end times
+    heap = []
+
+    for start, end in intervals:
+        # Remove all meetings that have ended
+        while heap and heap[0] <= start:
+            heapq.heappop(heap)
+
+        # Add current meeting's end time
+        heapq.heappush(heap, end)
+
+    # Heap size = concurrent meetings
+    return len(heap)
+
+# Same example: [[0,30], [5,10], [15,20]]
+# Process [0,30]: heap = [30], size = 1
+# Process [5,10]: heap = [10, 30], size = 2
+# Process [15,20]: pop 10 (ended), heap = [20, 30], size = 2
+# Max heap size = 2
+\`\`\`
+
+**Heap vs Sweep Line:**
+- Heap: O(n log n), tracks specific intervals
+- Sweep Line: O(n log n), tracks count only
+- Use heap when you need to know which intervals are active
+- Use sweep line when you only need the count
+
+PATTERN 6: INTERVAL INTERSECTION
+
+**Problem**: Find intersection of two lists of intervals.
+
+\`\`\`python
+def interval_intersection(list1, list2):
+    """
+    Find intersection of two interval lists.
+    Both lists are sorted and non-overlapping.
+    Time: O(m + n)
+    """
+    result = []
+    i, j = 0, 0
+
+    while i < len(list1) and j < len(list2):
+        start1, end1 = list1[i]
+        start2, end2 = list2[j]
+
+        # Check if intervals overlap
+        overlap_start = max(start1, start2)
+        overlap_end = min(end1, end2)
+
+        if overlap_start <= overlap_end:
+            result.append([overlap_start, overlap_end])
+
+        # Move pointer of interval that ends first
+        if end1 < end2:
+            i += 1
+        else:
+            j += 1
+
+    return result
+
+# Example
+list1 = [[0,2], [5,10], [13,23], [24,25]]
+list2 = [[1,5], [8,12], [15,24], [25,26]]
+# Result: [[1,2], [5,5], [8,10], [15,23], [24,24], [25,25]]
+\`\`\`
+
+PATTERN 7: REMOVE COVERED INTERVALS
+
+**Problem**: Remove intervals that are covered by another interval.
+
+\`\`\`python
+def remove_covered_intervals(intervals):
+    """
+    Count intervals not covered by another.
+    Interval [a,b] is covered by [c,d] if c <= a and b <= d.
+    Time: O(n log n)
+    """
+    # Sort by start ascending, end descending
+    intervals.sort(key=lambda x: (x[0], -x[1]))
+
+    count = 0
+    max_end = 0
+
+    for start, end in intervals:
+        if end > max_end:
+            # Not covered by previous intervals
+            count += 1
+            max_end = end
+
+    return count
+
+# Example
+intervals = [[1,4], [2,3], [3,6]]
+# Sorted: [[1,4], [3,6], [2,3]]
+# Process [1,4]: max_end = 4, count = 1
+# Process [3,6]: 6 > 4, count = 2, max_end = 6
+# Process [2,3]: 3 <= 6, skip (covered by [1,4])
+# Result: 2
+\`\`\`
+
+**Why sort by (start ascending, end descending)?**
+- Intervals with same start: process longest first
+- Longer interval can cover shorter ones with same start
+- Example: \`[[1,5], [1,3]]\` → \`[1,5]\` covers \`[1,3]\`
+
+COMMON PATTERNS SUMMARY
+
+| Problem | Sort By | Algorithm | Time |
+|---------|---------|-----------|------|
+| Merge overlapping | START | Linear scan, extend/add | O(n log n) |
+| Insert interval | START | Three-phase scan | O(n) |
+| Max non-overlapping | END | Greedy earliest end | O(n log n) |
+| Min meeting rooms | Events | Sweep line or heap | O(n log n) |
+| Interval intersection | None (presorted) | Two pointers | O(m + n) |
+| Remove covered | START, -END | Track max end | O(n log n) |
+
+COMMON GOTCHAS AND EDGE CASES
+
+**1. Touching intervals: overlap or not?**
+\`\`\`python
+# [[1,2], [2,3]] - do they overlap?
+# Depends on problem! Usually YES (use <=)
+if start <= last_end:  # Touching counts as overlap
+    merge()
+\`\`\`
+
+**2. Merging must use max, not just end:**
+\`\`\`python
+# ❌ WRONG
+merged[-1][1] = end  # Fails for [[1,5], [2,3]]
+
+# ✅ CORRECT
+merged[-1][1] = max(merged[-1][1], end)
+\`\`\`
+
+**3. Sweep line tie-breaking:**
+\`\`\`python
+# If meeting ends at time T and another starts at T,
+# end should process first (room becomes free)
+events.sort(key=lambda x: (x[0], x[1]))  # -1 (end) before +1 (start)
+\`\`\`
+
+**4. Empty intervals edge case:**
+\`\`\`python
+# What if intervals = []?
+if not intervals:
+    return []  # or 0, or appropriate default
+\`\`\`
+
+**5. Interval representation:**
+- Some problems use \`[start, end]\`
+- Others use \`(start, end)\` tuples
+- Or objects with \`.start\` and \`.end\` attributes
+- Be consistent!
+
+BEST PRACTICES FOR INTERVIEWS
+
+1. **Clarify interval format:**
+   - Inclusive or exclusive endpoints?
+   - \`[start, end]\` or \`[start, end)\`?
+   - Can start equal end (zero-length interval)?
+
+2. **Ask about edge cases:**
+   - Empty list?
+   - Single interval?
+   - All overlapping?
+   - All non-overlapping?
+
+3. **Choose sort strategy carefully:**
+   - Merge/insert/gaps → sort by START
+   - Max selection → sort by END
+   - When unsure, think: "What do I process first?"
+
+4. **Draw timeline:**
+   - Visualize intervals on a number line
+   - Helps see overlaps and patterns
+   - Catches edge cases
+
+5. **Complexity check:**
+   - Sorting: O(n log n)
+   - Linear scan after sort: O(n)
+   - Total: O(n log n)
+   - If asked to optimize: usually can't beat O(n log n) due to sorting
+
+6. **Communication:**
+   - State your sort choice explicitly: "I'll sort by END time because..."
+   - Explain why (greedy, chronological, etc.)
+   - Walk through an example
+
+WHEN INTERVALS APPEAR IN INTERVIEWS
+
+**Strong signals:**
+- "Schedule", "meetings", "rooms", "resources"
+- "Overlapping", "non-overlapping", "merge"
+- "Earliest", "latest", "maximum", "minimum"
+- Input: list of \`[start, end]\` pairs
+
+**Common problems:**
+- LeetCode 56: Merge Intervals
+- LeetCode 57: Insert Interval
+- LeetCode 435: Non-overlapping Intervals
+- LeetCode 252: Meeting Rooms
+- LeetCode 253: Meeting Rooms II
+- LeetCode 986: Interval List Intersections
+
+**Pro tip:** If you see intervals, immediately ask:
+1. "Should I sort by start or end time?"
+2. "How should I handle touching intervals?"
+3. "What does overlap mean exactly?"
+
+Mastering intervals means recognizing the pattern, choosing the right sort, and handling edge cases. Once you've seen the 5-6 core patterns (merge, insert, max selection, sweep line, heap, intersection), you can solve any interval problem.`
 
 export function IntervalsPage() {
   return (
@@ -736,10 +1164,13 @@ export function IntervalsPage() {
       type="Intervals Pattern" badge="[ ]" color="var(--accent-intervals)"
       description="Interval problems: merge, insert, schedule. Key techniques: sort by start/end, sweep line, event processing."
       intro={intervalsIntro}
-      tip={`Check overlap? Sort by START, compare consecutive
-Max non-overlapping? Sort by END (greedy - earliest end leaves most room)
-Min rooms needed? Sweep line (events: start +1, end -1) or min-heap of end times
-Gotcha? Sort by END for greedy max, not by start!`}
+      tip={`Merge overlapping? Sort by START, extend with max(last_end, end) — NOT just end! Fails on [[1,5],[2,3]]
+Max non-overlapping? Sort by END (greedy) — earliest end leaves most room, exchange argument
+Min meeting rooms? Sweep line O(n log n) or heap O(n log n) — both work, heap tracks which intervals
+Insert interval? Three-phase: before, merge overlapping, after — O(n) since presorted
+Touching intervals? start <= last_end (not <) — [[1,2],[2,3]] usually merges to [1,3]
+Sweep line tie-break? End before start at same time — room frees before next meeting starts
+Summary table? START for merge/insert/gaps, END for greedy max — wrong sort = impossible problem`}
       methods={intervalMethods}
       tabs={<DSCategoryTabs basePath="/intervals" problemCount={getProblemCount('intervals')} />}
     />
