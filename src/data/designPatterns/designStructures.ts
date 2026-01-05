@@ -2,6 +2,91 @@ import type { Method } from '../../types'
 
 // Min Stack, Max Stack, Queue using Stacks, Stack using Queues, Circular Queue
 export const designStructuresMethods: Method[] = [
+  // Why & When
+  { signature: 'Why custom data structures?', description: 'Design structures optimized for specific constraints. Use when stdlib doesn\'t meet O() requirements.', complexity: 'Concept', section: 'Why & When', example: `# DESIGN PATTERNS = Custom data structures for interviews
+# Common: Min Stack, Queue using Stacks, Circular Queue
+
+# WHY CUSTOM STRUCTURES?
+# - Meet specific O() requirements (O(1) getMin)
+# - Combine operations (stack + min tracking)
+# - Implement missing features (queue using stacks)
+# - Optimize for constraints (circular queue)
+
+# MIN STACK PATTERN:
+# Problem: Stack that supports push, pop, top, getMin in O(1)
+# Challenge: How to track minimum efficiently?
+# Solution: Store min alongside each element
+
+# WHY NOT JUST min(stack)?
+# - min(stack) is O(n) - too slow!
+# - Need O(1) getMin
+
+# APPROACHES:
+# 1. Tuple Stack: store (val, current_min) pairs
+# 2. Two Stacks: main stack + min stack
+# Both are O(1) space per element
+
+# INTERVIEW SIGNALS:
+# "Design X with O(1) Y" → Custom structure
+# "Implement queue using stacks" → Algorithmic thinking
+# "Circular buffer" → Array + wraparound indexing
+
+# WHEN TO DESIGN CUSTOM:
+# - Specific O() constraint
+# - Combine multiple operations
+# - Simulate one structure with another
+# - Memory/space optimization needed
+
+# WHEN TO USE STDLIB:
+# - Standard operations sufficient
+# - No special constraints
+# - Readability matters more
+# - Not in interview context` },
+
+  { signature: 'Design patterns decision tree', description: 'Choose structure based on operations needed and constraints given.', complexity: 'Concept', section: 'Why & When', example: `# DECISION TREE FOR DESIGN PROBLEMS
+
+# Need O(1) min/max on stack?
+# → Min Stack / Max Stack
+# Store (value, current_min/max) tuples
+
+# Implement queue using stacks?
+# → Two stacks: input + output
+# Amortized O(1) operations
+
+# Implement stack using queues?
+# → Two queues or one queue + rotation
+# O(1) pop OR push (not both)
+
+# Fixed-size circular buffer?
+# → Array + head/tail pointers
+# Wrap around with modulo
+
+# Need O(1) insert/delete/getRandom?
+# → HashMap + Array
+# Map for O(1) lookup, array for O(1) random
+
+# Track running median?
+# → Two heaps (max-heap + min-heap)
+# Balance sizes for O(1) median
+
+# LRU Cache?
+# → OrderedDict or HashMap + DLL
+# O(1) get/put operations
+
+# IMPLEMENTATION COMPLEXITY:
+# Min Stack: ~15 lines
+# Queue using 2 Stacks: ~30 lines
+# Circular Queue: ~40 lines
+# Insert/Delete/GetRandom: ~50 lines
+# LRU Cache: ~20 (OrderedDict) or ~80 (DLL)
+
+# INTERVIEW STRATEGY:
+# 1. Clarify requirements (what operations, what O()?)
+# 2. Identify data structures needed
+# 3. Sketch approach before coding
+# 4. Code cleanly with edge cases
+# 5. Test with examples` },
+
   // Min Stack
   { signature: 'Min Stack', description: 'Stack with O(1) getMin. Store min alongside each element or use auxiliary stack.', complexity: 'O(1) all ops', section: 'Min Stack', example: `class MinStack:
     """
