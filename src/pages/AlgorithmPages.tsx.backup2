@@ -8,429 +8,45 @@ import { graphMethods } from '../data/graph'
 import { DSCategoryTabs } from '../components/DSCategoryTabs'
 import { getProblemCount } from '../data/learn'
 
-const sortingIntro = `Sorting is the process of arranging elements in a specific order (ascending or descending). It's one of the most fundamental operations in computer science—many complex algorithms become trivial once data is sorted. The key insight: spending O(n log n) to sort often unlocks O(n) or O(log n) solutions that would otherwise be O(n²) or impossible.
+const sortingIntro = `Sorting is the process of arranging elements in order. It's one of the most fundamental operations in computer science—many algorithms become trivial once data is sorted. The key insight: spending O(n log n) to sort often unlocks O(n) or O(log n) algorithms that would otherwise be O(n²) or impossible.
 
-WHY SORTING MATTERS: Sorted data enables powerful patterns and dramatically reduces complexity for many problems:
-- Two Pointers: Find pair with target sum in O(n) instead of O(n²)
-- Binary Search: Search in O(log n) instead of O(n)
-- Greedy: Make locally optimal choices (interval scheduling, activity selection)
-- Duplicate Detection: Check consecutive elements instead of hash set
-- Finding Closest Pairs: Adjacent elements in sorted array are closest
-- Merging: Combine sorted sequences efficiently
+PYTHON'S TIMSORT: Python uses Timsort (hybrid merge-insertion sort) for both \`list.sort()\` and \`sorted()\`. Timsort is optimized for real-world data with runs of already-sorted elements. Performance: O(n log n) worst case, O(n) best case on nearly-sorted data. It's stable (preserves order of equal elements) and highly optimized in C. Bottom line: Python's built-in sort is usually your best choice—don't implement quicksort or mergesort unless specifically required.
 
-Trade-off: Sorting costs O(n log n), but often reduces overall complexity from O(n²) to O(n log n) or O(n).
+SORT FIRST STRATEGY: When stuck on a problem, ask "what if I sort first?" Sorting unlocks powerful patterns. Sorting enables two pointers (find pair with target sum), binary search (search in O(log n)), greedy algorithms (interval scheduling), and eliminates the need to track multiple states. Example: "Find if array has duplicate" becomes trivial after sorting—just check consecutive elements.
 
-PYTHON'S TIMSORT: The Gold Standard
-
-Python uses Timsort for both \`list.sort()\` and \`sorted()\`. Timsort is a hybrid of merge sort and insertion sort, optimized for real-world data with runs of already-sorted elements.
-
-**Performance:**
-- Worst case: O(n log n)
-- Best case: O(n) on nearly-sorted data
-- Average case: O(n log n)
-- Space: O(n)
-- Stable: YES (preserves order of equal elements)
-
-**Why Timsort wins:**
-- Highly optimized C implementation
-- Adaptive: exploits existing order in data
-- Stable: critical for multi-level sorting
-- General-purpose: handles all data types
-
-**Bottom line:** Use Python's built-in \`sort()\`/\`sorted()\` for 99% of cases. Only implement custom sorting algorithms when specifically required by the problem or interviewer.
+CUSTOM SORT KEYS: The \`key\` parameter transforms each element before comparison. Common patterns: \`key=lambda x: x[0]\` sorts tuples by first element, \`key=lambda x: (x[0], -x[1])\` sorts by first ascending, second descending (negate for reverse), \`key=len\` sorts by length, \`key=str.lower\` case-insensitive sort. The key function is called once per element (efficient).
 
 \`\`\`python
-# Use built-in sorting
-arr.sort()  # In-place, O(1) space
-sorted_arr = sorted(arr)  # New list, O(n) space
+# Sort 2D points by x, then y
+points.sort(key=lambda p: (p[0], p[1]))
 
-# Don't implement this unless required:
-def quicksort(arr):  # Timsort is better!
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)
+# Sort intervals by end time (greedy scheduling)
+intervals.sort(key=lambda i: i[1])
+
+# Sort strings by length, then alphabetically
+words.sort(key=lambda w: (len(w), w))
+
+# Descending by first element
+arr.sort(key=lambda x: -x[0])
 \`\`\`
 
-SORTING.SORT() VS SORTED(): When to Use Each
+STABILITY MATTERS: A stable sort preserves the original order of equal elements. Example: sorting [(1, 'a'), (2, 'b'), (1, 'c')] by first element gives [(1, 'a'), (1, 'c'), (2, 'b')]—the two 1s stay in original order. Python's sort is stable. When does this matter? When you sort multiple times by different keys (sort by secondary key first, then primary key—stable sort preserves secondary ordering). When equal elements have hidden state you want preserved. When implementing tie-breakers.
 
-**list.sort()** - In-place sorting:
-- Modifies the original list
-- Returns None (common gotcha!)
-- O(1) extra space
-- Only works on lists
+IN-PLACE VS NEW LIST: \`list.sort()\` sorts in place, modifies the list, returns None, uses O(1) extra space. \`sorted(list)\` returns a new sorted list, original unchanged, uses O(n) extra space. Use \`sort()\` when you don't need the original. Use \`sorted()\` when you need to keep original, or when sorting other iterables (tuples, strings, generators).
 
 \`\`\`python
+# In-place - modifies arr
 arr = [3, 1, 2]
-result = arr.sort()  # result is None! (common mistake)
-print(arr)  # [1, 2, 3] - arr was modified
-\`\`\`
+arr.sort()  # arr is now [1, 2, 3]
 
-**sorted()** - Returns new sorted list:
-- Original unchanged
-- Returns new sorted list
-- O(n) extra space
-- Works on any iterable (list, tuple, string, dict, set, generator)
-
-\`\`\`python
+# New list - original unchanged
 arr = [3, 1, 2]
-sorted_arr = sorted(arr)
-print(arr)  # [3, 1, 2] - original unchanged
-print(sorted_arr)  # [1, 2, 3] - new sorted list
-
-# Works on any iterable
-sorted("hello")  # ['e', 'h', 'l', 'l', 'o']
-sorted({3, 1, 2})  # [1, 2, 3]
-sorted({"b": 2, "a": 1})  # ['a', 'b'] - keys only
+new = sorted(arr)  # new is [1, 2, 3], arr still [3, 1, 2]
 \`\`\`
 
-**When to use:**
-- sort(): When you don't need the original
-- sorted(): When you need to preserve original, or sorting non-list iterables
+ALGORITHM COMPARISON: Bubble/Selection/Insertion are O(n²) average case—only use for educational purposes or tiny arrays (n < 10). Merge sort is O(n log n) worst case, stable, but needs O(n) space—good for linked lists. Quick sort is O(n log n) average, O(n²) worst case, in-place but unstable—rarely implement in Python since Timsort is better. Heap sort is O(n log n) worst case, in-place but unstable—use when you need guaranteed O(n log n) with O(1) space. Counting/Radix sort are O(n+k) for integers in range k—use when sorting integers in limited range.
 
-CUSTOM SORT KEYS: The Power of key Parameter
-
-The \`key\` parameter applies a function to each element BEFORE comparison. The function is called ONCE per element (efficient), not on every comparison.
-
-**Common patterns:**
-
-\`\`\`python
-# Sort tuples/lists by specific index
-points.sort(key=lambda p: p[0])  # Sort by x-coordinate
-
-# Multi-level sorting: tuple of keys
-points.sort(key=lambda p: (p[0], p[1]))  # x first, then y
-
-# Reverse secondary sort: negate numbers
-arr.sort(key=lambda x: (x[0], -x[1]))  # First asc, second desc
-
-# Sort by length
-words.sort(key=len)
-
-# Case-insensitive string sort
-words.sort(key=str.lower)
-
-# Sort by absolute value
-nums.sort(key=abs)
-
-# Sort by multiple criteria
-students.sort(key=lambda s: (s.grade, -s.age, s.name))
-# First by grade (asc), then age (desc), then name (asc)
-
-# Descending order: use reverse parameter
-arr.sort(reverse=True)
-arr.sort(key=lambda x: x[1], reverse=True)
-\`\`\`
-
-**GOTCHA: Negation for descending only works with numbers!**
-
-\`\`\`python
-# GOOD: Numbers can be negated
-arr.sort(key=lambda x: (x[0], -x[1]))
-
-# BAD: Can't negate strings!
-words.sort(key=lambda w: -w)  # TypeError!
-
-# SOLUTION: Sort twice (stable sort preserves)
-words.sort(key=lambda w: w[1])  # Secondary key first
-words.sort(key=lambda w: w[0], reverse=True)  # Primary key second
-
-# OR use functools.cmp_to_key for complex comparisons
-\`\`\`
-
-STABILITY: Why It Matters
-
-A stable sort preserves the relative order of elements with equal keys. Python's sort is STABLE.
-
-\`\`\`python
-# Data: [(grade, name)]
-students = [(85, 'Alice'), (90, 'Bob'), (85, 'Charlie')]
-
-students.sort(key=lambda s: s[0])
-# [(85, 'Alice'), (85, 'Charlie'), (90, 'Bob')]
-# Alice before Charlie preserved (both have 85)
-\`\`\`
-
-**When stability matters:**
-
-1. **Multi-level sorting**: Sort by secondary key first, then primary key
-\`\`\`python
-# Sort by grade (primary), then name (secondary)
-students.sort(key=lambda s: s[1])  # Name second
-students.sort(key=lambda s: s[0])  # Grade first
-# Stable sort preserves name order within same grade
-\`\`\`
-
-2. **Preserving original order**: When equal elements have hidden state
-\`\`\`python
-tasks = [(3, "urgent"), (1, "low"), (3, "normal")]
-tasks.sort(key=lambda t: t[0])
-# Among priority 3 tasks, "urgent" stays before "normal"
-\`\`\`
-
-3. **Tie-breakers**: Natural ordering when primary keys match
-
-SORTING ALGORITHM COMPARISON:
-
-**Quick Reference Table:**
-| Algorithm | Average | Worst | Space | Stable | Notes |
-|-----------|---------|-------|-------|--------|-------|
-| Timsort (Python) | O(n log n) | O(n log n) | O(n) | YES | Best general choice |
-| Quick Sort | O(n log n) | O(n²) | O(log n) | NO | Fast in practice |
-| Merge Sort | O(n log n) | O(n log n) | O(n) | YES | Good for linked lists |
-| Heap Sort | O(n log n) | O(n log n) | O(1) | NO | Guaranteed O(n log n) |
-| Insertion Sort | O(n²) | O(n²) | O(1) | YES | Fast for small/sorted |
-| Bubble Sort | O(n²) | O(n²) | O(1) | YES | Educational only |
-| Counting Sort | O(n+k) | O(n+k) | O(k) | YES | Integers in range k |
-
-**1. Quick Sort:** (Interview classic)
-- Average O(n log n), worst O(n²) if poor pivot choice
-- In-place (O(log n) stack space for recursion)
-- Unstable
-- Fast in practice due to cache locality and low constants
-
-\`\`\`python
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-
-    pivot = arr[len(arr) // 2]  # Choose middle element
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-
-    return quicksort(left) + middle + quicksort(right)
-# Time: O(n log n) average, O(n²) worst
-# Space: O(n) for new lists (can optimize to O(log n))
-\`\`\`
-
-**2. Merge Sort:** (Stable, predictable)
-- Always O(n log n) (no worst case degradation)
-- O(n) space for merging
-- Stable
-- Best for linked lists (no random access needed)
-
-\`\`\`python
-def mergesort(arr):
-    if len(arr) <= 1:
-        return arr
-
-    mid = len(arr) // 2
-    left = mergesort(arr[:mid])
-    right = mergesort(arr[mid:])
-
-    return merge(left, right)
-
-def merge(left, right):
-    result = []
-    i = j = 0
-
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:  # <= for stability
-            result.append(left[i])
-            i += 1
-        else:
-            result.append(right[j])
-            j += 1
-
-    result.extend(left[i:])
-    result.extend(right[j:])
-    return result
-\`\`\`
-
-**3. Heap Sort:** (Space-efficient)
-- Always O(n log n)
-- O(1) space (in-place)
-- Unstable
-- Use when you need guaranteed O(n log n) with minimal space
-
-**4. Counting Sort:** (Linear for integers)
-- O(n + k) where k is range of values
-- O(k) space
-- Stable
-- Only for integers in known, limited range
-
-\`\`\`python
-def counting_sort(arr):
-    if not arr:
-        return arr
-
-    # Find range
-    min_val, max_val = min(arr), max(arr)
-    range_size = max_val - min_val + 1
-
-    # Count occurrences
-    count = [0] * range_size
-    for num in arr:
-        count[num - min_val] += 1
-
-    # Reconstruct sorted array
-    result = []
-    for i, cnt in enumerate(count):
-        result.extend([i + min_val] * cnt)
-
-    return result
-# Time: O(n + k), Space: O(k)
-# Only use when k is small (k ≈ n or smaller)
-\`\`\`
-
-SORT FIRST STRATEGY: When to Sort
-
-**Strong signals to sort first:**
-- "Find pair/triplet with target sum" → Sort + two pointers
-- "Find duplicates" → Sort, check consecutive elements
-- "Merge intervals" → Sort by start time
-- "Find kth largest" → Sort (or use heap for O(n log k))
-- "Activity selection / scheduling" → Sort by end time (greedy)
-- "Closest pair" → Sort, check adjacent elements
-
-\`\`\`python
-# BEFORE SORTING: Find if array has duplicate - O(n) with hash set
-def has_duplicate(arr):
-    return len(arr) != len(set(arr))  # O(n) space
-
-# AFTER SORTING: Find duplicate - O(n log n) with O(1) space
-def has_duplicate(arr):
-    arr.sort()
-    for i in range(len(arr) - 1):
-        if arr[i] == arr[i + 1]:
-            return True
-    return False
-# Trade-off: O(n log n) time but O(1) space vs O(n) time and O(n) space
-\`\`\`
-
-**When NOT to sort:**
-- Need to preserve original indices (use hash map instead)
-- Only need min/max (use O(n) min()/max() instead of O(n log n) sort)
-- Need k smallest/largest (use heap - O(n log k) vs O(n log n))
-- Data arrives in real-time (maintain heap/BST, don't re-sort)
-- Problem has no ordering benefit (graph traversal, tree problems)
-
-INTERVIEW PATTERNS:
-
-**Pattern 1: Sort + Two Pointers**
-\`\`\`python
-# Two Sum II (sorted array)
-def two_sum(arr, target):
-    arr.sort()  # O(n log n)
-    left, right = 0, len(arr) - 1
-
-    while left < right:  # O(n)
-        current_sum = arr[left] + arr[right]
-        if current_sum == target:
-            return [left, right]
-        elif current_sum < target:
-            left += 1
-        else:
-            right -= 1
-    return None
-# Total: O(n log n)
-\`\`\`
-
-**Pattern 2: Sort + Greedy**
-\`\`\`python
-# Merge Intervals
-def merge_intervals(intervals):
-    if not intervals:
-        return []
-
-    # Sort by start time
-    intervals.sort(key=lambda x: x[0])
-    merged = [intervals[0]]
-
-    for curr in intervals[1:]:
-        if curr[0] <= merged[-1][1]:  # Overlap
-            merged[-1][1] = max(merged[-1][1], curr[1])
-        else:  # No overlap
-            merged.append(curr)
-
-    return merged
-\`\`\`
-
-**Pattern 3: Custom Comparator**
-\`\`\`python
-# Largest Number: Arrange to form largest number
-# [3, 30, 34, 5, 9] → "9534330"
-from functools import cmp_to_key
-
-def largest_number(nums):
-    # Compare concatenations: "9" + "5" vs "5" + "9"
-    def compare(x, y):
-        if x + y > y + x:
-            return -1  # x should come first
-        elif x + y < y + x:
-            return 1   # y should come first
-        else:
-            return 0
-
-    nums_str = [str(num) for num in nums]
-    nums_str.sort(key=cmp_to_key(compare))
-
-    return ''.join(nums_str)
-\`\`\`
-
-COMMON PITFALLS:
-
-**1. Forgetting list.sort() returns None**
-\`\`\`python
-# WRONG
-arr = [3, 1, 2]
-sorted_arr = arr.sort()  # sorted_arr is None!
-
-# RIGHT
-arr.sort()  # arr is now sorted
-# OR
-sorted_arr = sorted(arr)
-\`\`\`
-
-**2. Mutating during iteration**
-\`\`\`python
-# WRONG
-for x in arr:
-    if condition(x):
-        arr.remove(x)  # Modifies while iterating!
-
-# RIGHT
-arr = [x for x in arr if not condition(x)]
-\`\`\`
-
-**3. Negating non-numbers for descending**
-\`\`\`python
-# WRONG
-words.sort(key=lambda w: -w)  # Can't negate strings!
-
-# RIGHT
-words.sort(reverse=True)
-# OR
-words.sort(key=lambda w: w, reverse=True)
-\`\`\`
-
-**4. Assuming in-place after sorted()**
-\`\`\`python
-# WRONG
-arr = [3, 1, 2]
-sorted(arr)  # Returns new list, doesn't modify arr
-print(arr)  # Still [3, 1, 2]!
-
-# RIGHT
-arr = sorted(arr)
-# OR
-arr.sort()
-\`\`\`
-
-BEST PRACTICES:
-
-1. **Default to Python's built-in sort**: Timsort is fast, stable, and optimized
-2. **Use key parameter**: More Pythonic and efficient than comparators
-3. **Leverage stability**: Sort by secondary key first, then primary key
-4. **Consider space**: sort() is O(1) extra space, sorted() is O(n)
-5. **Test with edge cases**: Empty, single element, all duplicates, reverse sorted
-6. **Know when NOT to sort**: Sometimes O(n) hash approach beats O(n log n) sort
-7. **Understand stability**: Critical for multi-level sorting and preserving order`
-
+WHEN NOT TO SORT: If you need the k smallest/largest elements, use a heap (O(n log k) vs O(n log n) for full sort). If data arrives in real-time, maintain a sorted structure (heap, BST) instead of repeatedly sorting. If you only need one element (min/max), use O(n) \`min()\`/\`max()\` instead of O(n log n) sort.`
 
 export function SortingPage() {
   return (
@@ -438,13 +54,10 @@ export function SortingPage() {
       type="Sorting Algorithms" badge="sort" color="var(--accent-sorting)"
       description="Master sorting algorithms. Know when to use each. Python's Timsort is usually best."
       intro={sortingIntro}
-      tip={`list.sort() returns None! Common gotcha — modifies in-place, sorted() returns new list
-Custom sort key? key=lambda x: (x[0], -x[1]) — tuple for multi-level, negate numbers for descending
-Stable sort? Python is stable — preserves order of equal elements, critical for multi-level sorting
-Sort first strategy? Unlocks two pointers O(n), binary search O(log n), greedy patterns
-Counting sort for integers? O(n+k) when range k is small — linear time vs O(n log n)
-When NOT to sort? Need indices, only need min/max, k smallest (heap), real-time data
-Timsort always? YES for 99% cases — optimized C, stable, adaptive, O(n log n) guaranteed`}
+      tip={`Custom sort key? key=lambda x: (x[0], -x[1]) for tuples, use - for descending
+In-place vs new? list.sort() mutates O(1) space, sorted() returns new O(n) space
+Stuck on problem? Try sorting first - unlocks greedy, two pointers, binary search
+Stable sort matters? Python's sort is stable (preserves original order for equal elements)`}
       methods={sortingMethods}
     />
   )

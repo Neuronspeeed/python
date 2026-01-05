@@ -438,13 +438,10 @@ export function SortingPage() {
       type="Sorting Algorithms" badge="sort" color="var(--accent-sorting)"
       description="Master sorting algorithms. Know when to use each. Python's Timsort is usually best."
       intro={sortingIntro}
-      tip={`list.sort() returns None! Common gotcha — modifies in-place, sorted() returns new list
-Custom sort key? key=lambda x: (x[0], -x[1]) — tuple for multi-level, negate numbers for descending
-Stable sort? Python is stable — preserves order of equal elements, critical for multi-level sorting
-Sort first strategy? Unlocks two pointers O(n), binary search O(log n), greedy patterns
-Counting sort for integers? O(n+k) when range k is small — linear time vs O(n log n)
-When NOT to sort? Need indices, only need min/max, k smallest (heap), real-time data
-Timsort always? YES for 99% cases — optimized C, stable, adaptive, O(n log n) guaranteed`}
+      tip={`Custom sort key? key=lambda x: (x[0], -x[1]) for tuples, use - for descending
+In-place vs new? list.sort() mutates O(1) space, sorted() returns new O(n) space
+Stuck on problem? Try sorting first - unlocks greedy, two pointers, binary search
+Stable sort matters? Python's sort is stable (preserves original order for equal elements)`}
       methods={sortingMethods}
     />
   )
