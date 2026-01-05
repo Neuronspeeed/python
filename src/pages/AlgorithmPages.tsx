@@ -133,21 +133,425 @@ Python has it! bisect_left for ≥ target, bisect_right for > target`}
   )
 }
 
-const twoPointersIntro = `Two pointers uses two integer variables moving along an array or string. Instead of checking all O(n²) pairs with nested loops, we strategically move pointers to find answers in O(n) time.
+const twoPointersIntro = `Two pointers is a technique that uses two integer variables to traverse an array or string, typically moving in opposite directions or at different speeds. Instead of checking all O(n²) pairs with nested loops, we strategically move pointers based on problem constraints to find solutions in O(n) time. The key insight: proper pointer movement eliminates impossible candidates without checking them.
 
-PATTERN 1 - OPPOSITE ENDS: Start pointers at first and last index, move toward each other until they meet. Use when: searching for pairs in SORTED arrays, palindrome checking, or comparing elements from both ends.
+WHY TWO POINTERS WORKS: The efficiency comes from eliminating large portions of the search space with each pointer movement. In a sorted array searching for a pair sum, if \`arr[left] + arr[right] > target\`, we know ALL pairs ending at right index are too large—we eliminate n potential pairs with one comparison! This is why two pointers achieves O(n) instead of O(n²).
 
-Template: \`left, right = 0, len(arr) - 1\` then \`while left < right\` — at each step, move left forward, right backward, or both based on comparison. Key insight: in sorted array, if \`arr[left] + arr[right] > target\`, ALL pairs ending at right are too big (move right back). If sum is too small, ALL pairs starting at left are too small (move left forward).
+\`\`\`python
+# BRUTE FORCE: Check all pairs - O(n²)
+for i in range(len(arr)):
+    for j in range(i + 1, len(arr)):
+        if arr[i] + arr[j] == target:
+            return [i, j]
 
-PATTERN 2 - SAME DIRECTION: Both pointers start at index 0, move forward through input. Use when: merging sorted arrays, comparing two sequences, or finding subsequences.
+# TWO POINTERS: Eliminate half the pairs each step - O(n)
+left, right = 0, len(arr) - 1
+while left < right:
+    current_sum = arr[left] + arr[right]
+    if current_sum == target:
+        return [left, right]
+    elif current_sum < target:
+        left += 1  # All pairs with this left are too small
+    else:
+        right -= 1  # All pairs with this right are too large
+\`\`\`
 
-Template: \`i, j = 0, 0\` then \`while i < len(arr1) and j < len(arr2)\` — move whichever pointer points to the smaller/relevant element. After loop, handle remaining elements in either array.
+PATTERN 1: OPPOSITE ENDS (Converging Pointers)
 
-SLIDING WINDOW: A special two-pointer pattern for subarray/substring problems. Expand window (move right) to include elements, shrink window (move left) when constraint violated. Use when: "longest/shortest subarray with property X", "subarray with sum = k", or "substring containing all characters".
+Start pointers at opposite ends (index 0 and n-1), move toward each other until they meet. This pattern works when the array is SORTED or when the problem has symmetry (like palindromes).
 
-WHY IT WORKS: Each pointer moves at most n times and never moves backward. Total operations: O(n), not O(n²). Works because sorted order or problem structure lets us eliminate impossible pairs/subarrays without checking them.
+**When to use:**
+- Find pair/triplet in sorted array with target sum
+- Palindrome validation (compare characters from both ends)
+- Container with most water (maximize area between boundaries)
+- Trapping rain water (process from both ends)
+- Reverse array in-place
 
-WHEN TO USE: Pair/triplet in sorted array → opposite ends. Merge sorted inputs → same direction. "Longest subarray with X" → sliding window. Palindrome check → opposite ends. Subsequence matching → same direction.`
+**Template:**
+\`\`\`python
+left, right = 0, len(arr) - 1
+
+while left < right:
+    # Process current pair
+    if condition_met(arr[left], arr[right]):
+        return result
+
+    # Move pointers based on comparison
+    if arr[left] + arr[right] < target:
+        left += 1  # Need larger sum
+    else:
+        right -= 1  # Need smaller sum
+\`\`\`
+
+**Example: Two Sum II (sorted array)**
+\`\`\`python
+def two_sum(arr, target):
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        current_sum = arr[left] + arr[right]
+
+        if current_sum == target:
+            return [left, right]  # Found!
+        elif current_sum < target:
+            left += 1  # Need larger sum
+        else:
+            right -= 1  # Need smaller sum
+
+    return None  # No solution
+# Time: O(n), Space: O(1)
+\`\`\`
+
+**Example: Valid Palindrome**
+\`\`\`python
+def is_palindrome(s):
+    left, right = 0, len(s) - 1
+
+    while left < right:
+        if s[left] != s[right]:
+            return False
+        left += 1
+        right -= 1
+
+    return True
+# Time: O(n), Space: O(1)
+\`\`\`
+
+PATTERN 2: SAME DIRECTION (Fast/Slow Pointers)
+
+Both pointers start at the beginning and move forward, typically at different speeds or with different conditions. This pattern works for merging, partitioning, or processing sequential data.
+
+**When to use:**
+- Merge two sorted arrays
+- Remove duplicates from sorted array (in-place)
+- Partition array (move elements satisfying condition to front)
+- Move zeros to end
+- Compare two sequences or find subsequence
+
+**Template:**
+\`\`\`python
+slow, fast = 0, 0
+
+while fast < len(arr):
+    if condition(arr[fast]):
+        arr[slow] = arr[fast]
+        slow += 1
+    fast += 1
+\`\`\`
+
+**Example: Remove Duplicates from Sorted Array**
+\`\`\`python
+def remove_duplicates(nums):
+    if not nums:
+        return 0
+
+    slow = 0  # Position for next unique element
+
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[slow]:
+            slow += 1
+            nums[slow] = nums[fast]
+
+    return slow + 1  # New length
+# Time: O(n), Space: O(1) - modifies in-place
+\`\`\`
+
+**Example: Merge Two Sorted Arrays**
+\`\`\`python
+def merge(arr1, arr2):
+    i, j = 0, 0
+    result = []
+
+    # Compare and take smaller element
+    while i < len(arr1) and j < len(arr2):
+        if arr1[i] <= arr2[j]:
+            result.append(arr1[i])
+            i += 1
+        else:
+            result.append(arr2[j])
+            j += 1
+
+    # Append remaining elements
+    result.extend(arr1[i:])
+    result.extend(arr2[j:])
+
+    return result
+# Time: O(n + m), Space: O(n + m)
+\`\`\`
+
+PATTERN 3: SLIDING WINDOW (Variable/Fixed Size)
+
+A window defined by two pointers expands (move right) to include new elements and shrinks (move left) when a constraint is violated. This is a specialized two-pointer pattern for contiguous subarray/substring problems.
+
+**When to use:**
+- "Longest/shortest subarray with property X"
+- "Minimum window substring containing all characters"
+- "Maximum sum subarray of size k"
+- "Longest substring without repeating characters"
+- Any problem asking about contiguous subarrays
+
+**Fixed-Size Window Template:**
+\`\`\`python
+window_size = k
+for right in range(len(arr)):
+    # Add arr[right] to window
+
+    if right >= window_size - 1:
+        # Window is full, process it
+        result = max(result, window_sum)
+
+        # Remove arr[left] from window
+        left = right - window_size + 1
+\`\`\`
+
+**Variable-Size Window Template:**
+\`\`\`python
+left = 0
+for right in range(len(arr)):
+    # Add arr[right] to window
+    window_state.add(arr[right])
+
+    # Shrink window while constraint violated
+    while constraint_violated():
+        window_state.remove(arr[left])
+        left += 1
+
+    # Update result with current valid window
+    result = max(result, right - left + 1)
+\`\`\`
+
+**Example: Longest Substring Without Repeating Characters**
+\`\`\`python
+def length_of_longest_substring(s):
+    char_set = set()
+    left = 0
+    max_length = 0
+
+    for right in range(len(s)):
+        # Shrink window while duplicate exists
+        while s[right] in char_set:
+            char_set.remove(s[left])
+            left += 1
+
+        # Add current character
+        char_set.add(s[right])
+
+        # Update max length
+        max_length = max(max_length, right - left + 1)
+
+    return max_length
+# Time: O(n), Space: O(min(n, alphabet_size))
+\`\`\`
+
+**Example: Maximum Sum Subarray of Size K**
+\`\`\`python
+def max_sum_subarray(arr, k):
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+
+    for right in range(k, len(arr)):
+        # Slide window: add new element, remove old element
+        window_sum = window_sum + arr[right] - arr[right - k]
+        max_sum = max(max_sum, window_sum)
+
+    return max_sum
+# Time: O(n), Space: O(1)
+\`\`\`
+
+THREE POINTERS FOR THREE SUM:
+
+For problems requiring three elements (3Sum), use one fixed pointer with two moving pointers.
+
+\`\`\`python
+def three_sum(nums, target):
+    nums.sort()  # O(n log n)
+    result = []
+
+    for i in range(len(nums) - 2):
+        # Skip duplicates for first pointer
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue
+
+        # Two pointers for remaining pair
+        left, right = i + 1, len(nums) - 1
+
+        while left < right:
+            total = nums[i] + nums[left] + nums[right]
+
+            if total == target:
+                result.append([nums[i], nums[left], nums[right]])
+
+                # Skip duplicates
+                while left < right and nums[left] == nums[left + 1]:
+                    left += 1
+                while left < right and nums[right] == nums[right - 1]:
+                    right -= 1
+
+                left += 1
+                right -= 1
+            elif total < target:
+                left += 1
+            else:
+                right -= 1
+
+    return result
+# Time: O(n²), Space: O(1) excluding output
+\`\`\`
+
+WHEN TO SORT FIRST:
+
+Many two-pointer problems require a sorted array. If the input isn't sorted, ask: "Does sorting enable a simpler algorithm?"
+
+**Trade-off:** Sorting costs O(n log n), but unlocks O(n) two-pointer solutions. Total: O(n log n), which is better than O(n²) brute force.
+
+\`\`\`python
+# Without sorting: O(n²) hash map approach
+def two_sum_unsorted(arr, target):
+    seen = {}
+    for i, num in enumerate(arr):
+        if target - num in seen:
+            return [seen[target - num], i]
+        seen[num] = i
+
+# With sorting: O(n log n) sort + O(n) two pointers
+def two_sum_sorted(arr, target):
+    sorted_arr = sorted(enumerate(arr), key=lambda x: x[1])
+    left, right = 0, len(sorted_arr) - 1
+
+    while left < right:
+        current_sum = sorted_arr[left][1] + sorted_arr[right][1]
+        if current_sum == target:
+            return [sorted_arr[left][0], sorted_arr[right][0]]
+        elif current_sum < target:
+            left += 1
+        else:
+            right -= 1
+\`\`\`
+
+**When sorting helps:**
+- Find pairs, triplets, or quadruplets with target sum
+- Find closest pair to target
+- Remove duplicates (sorted duplicates are adjacent)
+- Container/trapping water problems
+
+**When NOT to sort:**
+- Need to preserve original indices (use hash map instead)
+- Input is already structured (linked list, stream)
+- Sorting destroys important properties
+
+POINTER MOVEMENT DECISIONS:
+
+The key to two pointers is knowing WHEN to move WHICH pointer. Common strategies:
+
+**1. Comparison-Based (Opposite Ends):**
+\`\`\`python
+if current_sum < target:
+    left += 1  # Need larger sum
+else:
+    right -= 1  # Need smaller sum
+\`\`\`
+
+**2. Constraint-Based (Sliding Window):**
+\`\`\`python
+while window_invalid():
+    remove(arr[left])
+    left += 1  # Shrink until valid
+\`\`\`
+
+**3. Merge-Based (Same Direction):**
+\`\`\`python
+if arr1[i] <= arr2[j]:
+    take arr1[i]
+    i += 1
+else:
+    take arr2[j]
+    j += 1
+\`\`\`
+
+**4. Partition-Based (Same Direction):**
+\`\`\`python
+if meets_condition(arr[fast]):
+    swap(arr[slow], arr[fast])
+    slow += 1
+fast += 1
+\`\`\`
+
+COMMON PITFALLS:
+
+**1. Infinite Loops:**
+Ensure at least one pointer always moves forward in each iteration.
+
+\`\`\`python
+# BAD: Can infinite loop if condition never met
+while left < right:
+    if some_condition:
+        left += 1
+    # Missing else - right never moves!
+
+# GOOD: Always move at least one pointer
+while left < right:
+    if some_condition:
+        left += 1
+    else:
+        right -= 1
+\`\`\`
+
+**2. Off-by-One Errors:**
+Carefully choose \`<\` vs \`<=\` and understand boundary conditions.
+
+\`\`\`python
+# For opposite ends: use left < right (not <=)
+# If left == right, we're looking at same element twice!
+
+# For sliding window: right - left + 1 is window size
+# (not right - left!)
+\`\`\`
+
+**3. Forgetting to Handle Remaining Elements:**
+When merging or comparing two sequences, don't forget leftover elements.
+
+\`\`\`python
+while i < len(arr1) and j < len(arr2):
+    # Merge logic
+
+# DON'T FORGET THESE!
+result.extend(arr1[i:])
+result.extend(arr2[j:])
+\`\`\`
+
+**4. Skipping Duplicates Incorrectly:**
+In 3Sum-style problems, skip duplicates AFTER finding a solution, not before.
+
+\`\`\`python
+# CORRECT
+if found_solution:
+    result.append(solution)
+    # Skip duplicates after adding
+    while left < right and nums[left] == nums[left + 1]:
+        left += 1
+\`\`\`
+
+DECISION TREE: WHICH PATTERN TO USE?
+
+\`\`\`
+Is the array sorted (or can you sort it)?
+├─ Yes → Opposite ends pattern (find pairs/triplets)
+└─ No
+   ├─ Need to merge two sequences? → Same direction
+   ├─ Need contiguous subarray? → Sliding window
+   ├─ Need to partition/rearrange? → Same direction (fast/slow)
+   └─ Need to detect cycle/find middle? → Fast/slow pointers (linked list)
+\`\`\`
+
+BEST PRACTICES:
+
+1. **Always check if sorting helps**: O(n log n) sort + O(n) two pointers = O(n log n) total, often better than O(n²)
+2. **Draw a diagram**: Visualize pointer positions to understand movement
+3. **Invariant thinking**: What property is maintained as pointers move?
+4. **Handle edge cases**: Empty array, single element, all duplicates
+5. **Test with small examples**: [1, 2], [2, 2], [1, 2, 3] catch most bugs
+6. **Window size formula**: \`right - left + 1\` (inclusive range)
+7. **Shrink before expand**: In sliding window, shrink to fix violations before expanding`
 
 export function TwoPointersPage() {
   return (
@@ -155,9 +559,13 @@ export function TwoPointersPage() {
       type="Two Pointers & Sliding Window" badge="2ptr" color="var(--accent-two-pointers)"
       description="Two pointers for O(n) solutions. Sliding window for subarray/substring problems."
       intro={twoPointersIntro}
-      tip={`Find pair in sorted array? Two pointers from ends
-"Longest subarray with X"? Sliding window
-Shrink window when? Constraint violated`}
+      tip={`Pair/triplet in sorted array? Opposite ends (left=0, right=n-1) — O(n) beats O(n²) brute force
+"Longest/shortest subarray"? Sliding window (expand right, shrink left when invalid) — O(n)
+Remove duplicates in-place? Same direction fast/slow — slow tracks unique position, fast scans
+3Sum problem? Fix one element, use two pointers on rest — O(n²) total (n × O(n))
+Window size formula? right - left + 1 (INCLUSIVE range) — common off-by-one source!
+Infinite loop risk? ALWAYS move at least one pointer per iteration — missing else causes stuck loop
+Sort first? O(n log n) + O(n) = O(n log n) often beats O(n²) — enables two pointers on unsorted data`}
       methods={twoPointersMethods}
       tabs={<DSCategoryTabs basePath="/two-pointers" problemCount={getProblemCount('twoPointers')} />}
     />
