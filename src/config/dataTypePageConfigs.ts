@@ -13,9 +13,9 @@ export const dataTypePageConfigs: Record<string, DataTypePageConfig> = {
     badge: 'str',
     color: 'var(--accent-str)',
     description: 'Immutable text sequences. Every operation returns a NEW string. Use join() for building, f-strings for formatting.',
-    intro: `Strings are immutable sequences of Unicode characters. The key insight: immutability means EVERY operation creates a NEW string—crucial for performance! Building strings in loops with += is O(n²)—use "".join() instead for O(n). Common interview patterns: two pointers for palindromes, sliding window for substrings, character frequency maps for anagrams.
+    intro: `Strings are immutable sequences of Unicode characters—every operation creates a NEW string, which is crucial for understanding performance. Building strings in loops with += is O(n²) because each concatenation creates a new string and copies all characters. Use "".join() instead for O(n) complexity. Common interview patterns: two pointers for palindromes, sliding window for substrings, character frequency maps for anagrams.
 
-KEY INSIGHT: STRING IMMUTABILITY AFFECTS PERFORMANCE. Every s += "x" creates a NEW string and copies all characters—O(n) per iteration, O(n²) total in a loop! Python optimizes some cases, but don't rely on it. Use list.append() + "".join() for O(n) string building. For interviews: two-pointer patterns (palindrome, reverse), sliding windows (longest substring), and hash maps (anagram, frequency) are the most common string techniques.
+PERFORMANCE: String concatenation in loops.
 
 \`\`\`python
 # SLOW: O(n²) string concatenation in loop
@@ -316,9 +316,9 @@ Two pointers for substrings? Classic pattern: left/right expand/contract for win
     badge: 'int',
     color: 'var(--accent-int)',
     description: 'Integers are whole numbers with arbitrary precision. Python handles big integers natively—no overflow!',
-    intro: `Integers represent whole numbers—positive, negative, or zero—with UNLIMITED precision. Python's integer type has no maximum size: compute factorial(1000) or 2**10000 without overflow! The key insight: understand division types (/, //, %), modulo behavior with negatives, and bit manipulation for interview questions.
+    intro: `Integers represent whole numbers—positive, negative, or zero—with UNLIMITED precision. Unlike C/Java where integers wrap around at 2³¹-1, Python integers grow as large as memory allows. No overflow! You can compute factorial(1000) or 2**10000 without errors. This eliminates overflow bugs but means considering memory/performance for huge computations. Key concepts: division types (/, //, %), modulo behavior with negatives, and bit manipulation for interviews.
 
-KEY INSIGHT: NO INTEGER OVERFLOW IN PYTHON. Unlike C/Java where integers wrap around at 2³¹-1, Python integers grow as large as memory allows. \`2**1000\` works perfectly. This eliminates overflow bugs BUT means you must consider memory/performance for huge computations. For bounded integers in competitive programming, you may need manual modulo arithmetic.
+NO OVERFLOW: Python handles arbitrarily large integers.
 
 \`\`\`python
 # NO OVERFLOW: Python handles arbitrarily large integers
@@ -723,9 +723,9 @@ Floor division with negatives? -7 // 2 = -4 (NOT -3!) - rounds toward -∞, not 
     badge: 'float',
     color: 'var(--accent-float)',
     description: 'Floats are double-precision (64-bit) floating point numbers. Use math.isclose() for comparisons!',
-    intro: `Floats represent real numbers with decimal points using 64-bit double-precision IEEE 754 format. The key insight: floats have FINITE PRECISION (~15-17 significant digits) due to binary representation—many simple decimals like 0.1 cannot be represented exactly! Understanding precision limits, comparison methods, and when to use Decimal instead is critical for correct numerical code.
+    intro: `Floats represent real numbers with decimal points using 64-bit double-precision IEEE 754 format. They have FINITE PRECISION (~15-17 significant digits) because they use binary representation. Many simple decimals like 0.1, 0.2, 0.3 cannot be represented exactly in binary—just as 1/3 cannot be exactly represented in decimal (0.333...). This causes 0.1 + 0.2 = 0.30000000000000004 (not exactly 0.3!). Never compare floats with ==—use math.isclose() instead. For financial calculations where exact decimals matter, use decimal.Decimal.
 
-KEY INSIGHT: FLOATS USE BINARY, NOT DECIMAL. Just as 1/3 cannot be represented exactly in decimal (0.333...), many simple decimals like 0.1, 0.2, 0.3 cannot be represented exactly in binary. This causes surprises: 0.1 + 0.2 = 0.30000000000000004 (not exactly 0.3!). NEVER compare floats with ==. Use math.isclose() or epsilon-based comparison. For financial calculations where exact decimals matter, use decimal.Decimal instead of float.
+PRECISION ISSUES: Binary representation causes unexpected results.
 
 \`\`\`python
 # CRITICAL PRECISION ISSUE:
@@ -1103,9 +1103,9 @@ NaN comparisons? NEVER use ==, always math.isnan(x) - nan != nan (even to itself
     badge: 'bool',
     color: 'var(--accent-bool)',
     description: 'Booleans represent True/False values. Bool is a subclass of int—True is 1, False is 0.',
-    intro: `Booleans represent truth values with exactly two constants: True and False. The key insight: Python's truthiness system is broader than other languages—any object can be tested for truth! Understanding which values are falsy (False, None, 0, "", [], {}) versus truthy (everything else) is essential for idiomatic Python code.
+    intro: `Booleans represent truth values with exactly two constants: True and False. Python has universal truthiness—every object has a truth value! In boolean contexts (if, while, and, or, not), Python calls obj.__bool__() or obj.__len__() to determine truthiness. This enables patterns like "if data:" instead of "if len(data) > 0". Important: bool is a subclass of int, so True == 1 and False == 0, enabling arithmetic on booleans. Understanding which values are falsy (False, None, 0, "", [], {}) versus truthy (everything else) is essential for idiomatic Python.
 
-KEY INSIGHT: PYTHON HAS UNIVERSAL TRUTHINESS. Every object has a truth value—not just booleans! In boolean contexts (if, while, and, or, not), Python calls obj.__bool__() or obj.__len__() to determine truthiness. This enables elegant patterns like "if data:" instead of "if len(data) > 0". CRITICAL: bool is a subclass of int, so True == 1 and False == 0, enabling arithmetic on booleans!
+UNIVERSAL TRUTHINESS: Every object can be tested for truth.
 
 \`\`\`python
 # Universal truthiness in action
@@ -1450,9 +1450,9 @@ Falsy values MEMORIZE? False, None, 0, 0.0, 0j, "", [], {}, () - EVERYTHING else
     badge: 'list',
     color: 'var(--accent-list)',
     description: "Python's go-to ordered collection. Mutable, dynamic sizing. O(1) append/pop end, O(n) insert/remove elsewhere.",
-    intro: `Lists are Python's go-to mutable, ordered, dynamic arrays. The key insight: O(1) append/pop at END, but O(n) insert/delete at MIDDLE (elements shift). Understand performance trade-offs: lists excel at stack operations (append/pop end), but use collections.deque for queue operations (insert/delete front). Common interview patterns: two pointers, sliding window, in-place modifications.
+    intro: `Lists are Python's go-to mutable, ordered, dynamic arrays. They provide O(1) append/pop at the END, but O(n) insert/delete in the MIDDLE because elements must shift. Appending is O(1) amortized (with occasional resizes), but inserting at index i requires shifting all elements—O(n) complexity. For frequent front operations, use collections.deque with O(1) appendleft/popleft. Critical gotcha: mutable default arguments like def f(arr=[]) share ONE list across calls—use arr=None instead! Common interview patterns: two pointers, sliding window, in-place modifications.
 
-KEY INSIGHT: LISTS ARE DYNAMIC ARRAYS WITH O(1) END OPERATIONS. Appending to end is O(1) amortized (occasional resize), but inserting at index i requires shifting i elements—O(n). For frequent front operations, use deque with O(1) appendleft/popleft. CRITICAL GOTCHA: Mutable default arguments like def f(arr=[]) share ONE list across calls—use arr=None instead!
+PERFORMANCE: End operations vs middle operations.
 
 \`\`\`python
 # FAST: O(1) append/pop at end
@@ -1811,9 +1811,9 @@ Mutable default BUG? NEVER def f(arr=[]) - use arr=None, check if arr is None: a
     badge: 'tuple',
     color: 'var(--accent-tuple)',
     description: 'Immutable sequences. Hashable, memory-efficient. Only 2 methods. Use for fixed data, dict keys, function returns.',
-    intro: `Tuples are immutable sequences that work like lists but cannot be modified after creation. The key insight: immutability enables hashability—tuples can be dict keys and set elements (lists cannot!). Use tuples for fixed data (coordinates, return values), protection (prevent accidental modification), and performance (faster than lists).
+    intro: `Tuples are immutable sequences that work like lists but cannot be modified after creation. Immutability enables hashability—because tuples cannot change, Python can compute a stable hash value, making them usable as dictionary keys and set elements. Lists are mutable, so their hash would change if modified—therefore lists aren't hashable. Important: tuple immutability is SHALLOW—a tuple of lists like ([1, 2], [3, 4]) can't be reassigned, but the inner lists CAN be modified! Use tuples for fixed data (coordinates, return values), protection (prevent accidental modification), and performance (faster than lists).
 
-KEY INSIGHT: IMMUTABILITY ENABLES HASHABILITY. Because tuples cannot change, Python can compute a stable hash value, making them usable as dictionary keys and set elements. Lists are mutable, so their hash would change if modified—therefore lists aren't hashable. CRITICAL: Tuple immutability is SHALLOW—a tuple of lists like ([1, 2], [3, 4]) can't be changed (can't reassign elements), but the inner lists CAN be modified!
+HASHABILITY: Tuples can be dict keys, lists cannot.
 
 \`\`\`python
 # HASHABLE: Tuples can be dict keys
@@ -2160,9 +2160,9 @@ Immutability is SHALLOW? t = ([1, 2], [3]) - can't reassign t[0], but CAN modify
     badge: 'dict',
     color: 'var(--accent-dict)',
     description: 'Hash table with O(1) key-value lookups. Keys must be hashable. Ordered since Python 3.7.',
-    intro: `Dictionaries are hash tables providing O(1) key-value lookups. The key insight: use dicts for "seen" patterns (Two Sum), frequency counting, and grouping—dramatically faster than lists for lookups! Keys must be hashable (immutable), values can be anything. Ordered since Python 3.7 (insertion order maintained). Most common interview pattern: hash map for O(1) lookups to avoid O(n²) nested loops.
+    intro: `Dictionaries are hash tables providing O(1) key-value lookups. Checking "if key in dict" is O(1)—instant! Compare to lists where "if x in list" is O(n). This makes dicts the most common optimization in coding interviews: convert nested O(n²) loops to single O(n) pass with a hash map. Keys must be hashable (immutable)—strings, numbers, tuples OK; lists, dicts, sets NOT allowed as keys. Values can be anything. Ordered since Python 3.7 (insertion order maintained). Common patterns: "seen" tracking (Two Sum), frequency counting, grouping.
 
-KEY INSIGHT: DICTIONARIES ARE HASH TABLES WITH O(1) LOOKUPS. Checking "if key in dict" is O(1)—instant! Compare to lists where "if x in list" is O(n). This makes dicts the MOST COMMON optimization in coding interviews: convert nested O(n²) loops to single O(n) pass with dict. CRITICAL: Keys must be hashable (immutable)—strings, numbers, tuples OK; lists, dicts, sets NOT allowed as keys!
+O(1) LOOKUPS: Hash tables for instant key access.
 
 \`\`\`python
 # TWO SUM: Classic dict optimization
@@ -2517,9 +2517,9 @@ Keys must be HASHABLE? Strings/ints/tuples OK, lists/dicts/sets NOT - use tuple(
     badge: 'set',
     color: 'var(--accent-set)',
     description: 'Unordered collection with O(1) membership testing. Automatic deduplication. Elements must be hashable.',
-    intro: `Sets are unordered collections of unique, hashable elements with O(1) membership testing. The key insight: use sets for "have we seen this?" checks—dramatically faster than lists! Implemented as hash tables, sets provide O(1) add, remove, and membership testing. Automatic deduplication makes sets perfect for uniqueness problems.
+    intro: `Sets are unordered collections of unique, hashable elements with O(1) membership testing. Use sets for "have we seen this?" checks—dramatically faster than lists! Checking "if x in my_list" is O(n)—slow for large lists! But "if x in my_set" is O(1)—constant time regardless of size. This is the most common interview optimization: converting list to set. Implemented as hash tables, sets provide O(1) add, remove, and membership testing. Automatic deduplication makes sets perfect for uniqueness problems. Set elements must be hashable (immutable)—you can add ints, strings, tuples, but NOT lists or dicts.
 
-KEY INSIGHT: O(1) MEMBERSHIP TESTING IS THE KILLER FEATURE. Checking "if x in my_list" is O(n)—slow for large lists! But "if x in my_set" is O(1)—constant time regardless of size! This is the most common interview optimization: converting list to set. CRITICAL: Set elements must be hashable (immutable)—you can add ints, strings, tuples, but NOT lists or dicts!
+O(1) MEMBERSHIP: Instant "in" checks with hash tables.
 
 \`\`\`python
 # SLOW: O(n) membership test with list
