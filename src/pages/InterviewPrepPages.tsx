@@ -398,9 +398,29 @@ BEST PRACTICES FOR INTERVIEWS
 5. **Import at top**: \`from collections import Counter\` before function, not inside
 6. **Use in context**: Stdlib shines in real interviews, less useful in algorithmic deep dives`
 
-const designPatternsIntro = `Design pattern problems test your ability to build custom data structures optimized for specific constraints. The key insight: combine basic structures (arrays, hash maps, stacks) to achieve required time complexities. LRU cache, min stack, and rate limiters are frequently asked.
+const designPatternsIntro = `Design pattern problems test your ability to build custom data structures optimized for specific constraints. The key insight: combine basic structures (arrays, hash maps, stacks, heaps) to achieve required time complexities—O(1) operations require creative combinations. LRU cache, min stack, and rate limiters are interview favorites.
 
-LRU CACHE - THE CLASSIC: Least Recently Used cache requires O(1) get and put operations with a capacity limit. When capacity is exceeded, evict the least recently used item. The challenge: how to track usage order efficiently? Two approaches: OrderedDict (Python-specific, ~20 lines) or HashMap + Doubly Linked List (universal, ~80 lines). Both achieve O(1) operations.
+WHY DESIGN PATTERNS DOMINATE INTERVIEWS: These problems test multiple skills at once: data structure knowledge, time complexity analysis, and creative problem-solving. They're practical—real systems use LRU caches (browsers, databases), rate limiters (APIs, microservices), and custom iterators (data pipelines). Interviewers love them because they separate candidates who memorize algorithms from those who can design solutions.
+
+**The design pattern mindset:**
+- Start with requirements: What operations? What time complexity?
+- Choose building blocks: Hash map for O(1) lookup, linked list for O(1) insert/delete
+- Combine creatively: LRU = HashMap + Doubly Linked List
+- Trade space for time: Extra memory often enables O(1) operations
+
+LRU CACHE - THE CLASSIC INTERVIEW PROBLEM
+
+**Problem**: Design a cache with:
+- \`get(key)\`: Return value if exists, -1 otherwise—O(1)
+- \`put(key, value)\`: Insert/update key—O(1)
+- Capacity limit: When full, evict Least Recently Used item
+
+**The challenge**: How to track access order AND maintain O(1) lookup?
+- HashMap alone: O(1) lookup, but no ordering
+- List alone: O(n) to find element
+- **Solution**: Combine both!
+
+**Approach 1: OrderedDict (Python-specific, ~20 lines)**
 
 \`\`\`python
 from collections import OrderedDict
@@ -413,28 +433,204 @@ class LRUCache:
     def get(self, key):
         if key not in self.cache:
             return -1
-        self.cache.move_to_end(key)  # Mark as recently used
+        self.cache.move_to_end(key)  # Mark as recently used - O(1)!
         return self.cache[key]
 
     def put(self, key, value):
         if key in self.cache:
-            self.cache.move_to_end(key)
+            self.cache.move_to_end(key)  # Update access order
         self.cache[key] = value
         if len(self.cache) > self.capacity:
-            self.cache.popitem(last=False)  # Remove oldest
+            self.cache.popitem(last=False)  # Remove oldest (LRU) - O(1)
 
-# OrderedDict.move_to_end() moves key to end (most recent)
-# popitem(last=False) removes from front (least recent)
+# Why OrderedDict works:
+# - Maintains insertion order
+# - move_to_end(key) moves to end (most recent) in O(1)
+# - popitem(last=False) removes from front (least recent) in O(1)
+# - All operations O(1) time complexity!
 \`\`\`
 
-LRU VS LFU - CHOOSING EVICTION POLICY: LRU (Least Recently Used) evicts items not accessed recently. LFU (Least Frequently Used) evicts items accessed least often. LRU optimizes for temporal locality—recent items are likely needed again. LFU optimizes for frequency—popular items stay cached longer. Choose LRU for general caching (web browsers, file systems). Choose LFU when frequency matters more than recency (music streaming, trending content).
+**Approach 2: HashMap + Doubly Linked List (universal, ~80 lines)**
 
-MIN STACK PATTERN: Design a stack supporting push, pop, top, and getMin—all in O(1). The naive approach \`min(stack)\` is O(n). The insight: track minimum alongside each element. Store tuples \`(value, current_min)\` where current_min is the minimum of all elements at or below this position. When pushing, compare new value with current min. When popping, the new min is automatically the min of the element now on top.
+This approach works in any language and shows deep understanding of data structures.
+
+\`\`\`python
+class Node:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.cache = {}  # key -> Node
+        # Dummy head and tail for easier manipulation
+        self.head = Node(0, 0)
+        self.tail = Node(0, 0)
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _add_to_head(self, node):
+        """Add node right after head (most recent)"""
+        node.next = self.head.next
+        node.prev = self.head
+        self.head.next.prev = node
+        self.head.next = node
+
+    def _remove_node(self, node):
+        """Remove node from current position"""
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _move_to_head(self, node):
+        """Move existing node to head (mark as recently used)"""
+        self._remove_node(node)
+        self._add_to_head(node)
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._move_to_head(node)  # Update access order
+        return node.value
+
+    def put(self, key, value):
+        if key in self.cache:
+            # Update existing key
+            node = self.cache[key]
+            node.value = value
+            self._move_to_head(node)
+        else:
+            # Add new key
+            node = Node(key, value)
+            self.cache[key] = node
+            self._add_to_head(node)
+
+            # Check capacity
+            if len(self.cache) > self.capacity:
+                # Remove LRU (node before tail)
+                lru = self.tail.prev
+                self._remove_node(lru)
+                del self.cache[lru.key]
+
+# Why this works:
+# - HashMap: O(1) lookup to find node
+# - Doubly Linked List: O(1) move/remove operations
+# - Head = most recent, Tail = least recent
+# - All operations maintain O(1) time!
+\`\`\`
+
+LFU CACHE - LEAST FREQUENTLY USED
+
+**Problem**: Instead of evicting by recency, evict by frequency (access count).
+- \`get(key)\`: Return value, increment frequency—O(1)
+- \`put(key, value)\`: Insert/update, evict least frequent if full—O(1)
+- Tie-breaking: If same frequency, evict LRU
+
+**Solution**: HashMap + HashMap of Doubly Linked Lists
+- \`cache\`: key → (value, frequency)
+- \`freq_map\`: frequency → doubly linked list of keys
+- \`min_freq\`: track minimum frequency for eviction
+
+\`\`\`python
+from collections import defaultdict
+
+class Node:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.freq = 1
+        self.prev = None
+        self.next = None
+
+class LFUCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.cache = {}  # key -> Node
+        self.freq_map = defaultdict(lambda: self._create_list())  # freq -> LinkedList
+        self.min_freq = 0
+
+    def _create_list(self):
+        head, tail = Node(0, 0), Node(0, 0)
+        head.next, tail.prev = tail, head
+        return (head, tail)
+
+    def _remove_node(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _add_to_head(self, freq, node):
+        head, tail = self.freq_map[freq]
+        node.next = head.next
+        node.prev = head
+        head.next.prev = node
+        head.next = node
+
+    def _update_freq(self, node):
+        freq = node.freq
+        self._remove_node(node)
+
+        # Check if this was the only node at min_freq
+        head, tail = self.freq_map[freq]
+        if head.next == tail and freq == self.min_freq:
+            self.min_freq += 1
+
+        node.freq += 1
+        self._add_to_head(node.freq, node)
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._update_freq(node)
+        return node.value
+
+    def put(self, key, value):
+        if self.capacity == 0:
+            return
+
+        if key in self.cache:
+            node = self.cache[key]
+            node.value = value
+            self._update_freq(node)
+        else:
+            if len(self.cache) >= self.capacity:
+                # Evict LFU (or LRU if tie)
+                head, tail = self.freq_map[self.min_freq]
+                lfu_node = tail.prev
+                self._remove_node(lfu_node)
+                del self.cache[lfu_node.key]
+
+            node = Node(key, value)
+            self.cache[key] = node
+            self._add_to_head(1, node)
+            self.min_freq = 1
+
+# Complexity: All operations O(1)!
+\`\`\`
+
+**LRU vs LFU - When to use which:**
+- **LRU**: General-purpose caching (web browsers, file systems, database buffers)
+  - Assumption: Recently accessed items likely accessed again (temporal locality)
+  - Simpler implementation
+- **LFU**: Frequency matters more than recency (trending content, popular queries)
+  - Assumption: Frequently accessed items stay popular
+  - More complex implementation
+
+MIN STACK - O(1) MINIMUM TRACKING
+
+**Problem**: Design a stack with push, pop, top, and getMin—all in O(1).
+
+**Naive approach**: \`min(stack)\` is O(n)—too slow!
+
+**Insight**: Track minimum alongside each element. Store \`(value, current_min)\` where current_min is the minimum of all elements at or below this position.
 
 \`\`\`python
 class MinStack:
     def __init__(self):
-        self.stack = []  # Store (value, current_min) pairs
+        self.stack = []  # Store (value, current_min) tuples
 
     def push(self, val):
         if not self.stack:
@@ -451,13 +647,286 @@ class MinStack:
 
     def getMin(self):
         return self.stack[-1][1]  # O(1) min!
+
+# Time: O(1) all operations
+# Space: O(n) for tuples
 \`\`\`
 
-ITERATOR PROTOCOL: Python's iteration protocol uses __iter__() (returns iterator) and __next__() (yields next value, raises StopIteration when done). Design problems often ask for custom iterators—flattening nested lists, peeking iterators, zigzag iterators. The pattern: store state in __init__, return self from __iter__, update and yield in __next__, raise StopIteration when exhausted.
+**Variant: Max Stack** - Same pattern, just track max instead of min.
 
-RATE LIMITER - SYSTEM DESIGN: Limit requests to N per time window. Three approaches: Fixed Window (reset counter every window—simple but allows bursts), Sliding Window (track timestamps, drop old ones—accurate but higher space), Token Bucket (refill tokens at rate—smooth rate limiting). Sliding window with deque is most common in interviews: store timestamps, add new timestamp, remove timestamps older than window, check if count exceeds limit.
+QUEUE USING TWO STACKS
 
-COMMON DESIGN PATTERNS: Min/Max Stack (track extreme with tuples), Queue using Two Stacks (amortized O(1)), Insert/Delete/GetRandom (HashMap + Array), Browser History (two stacks for back/forward), Circular Queue (array with wraparound), MedianFinder (two heaps). Each combines basic structures to achieve required complexities.`
+**Problem**: Implement queue (FIFO) using only two stacks (LIFO).
+
+**Insight**: Use one stack for enqueue, one for dequeue. Reverse when needed.
+
+\`\`\`python
+class QueueWithStacks:
+    def __init__(self):
+        self.in_stack = []   # For enqueue
+        self.out_stack = []  # For dequeue
+
+    def enqueue(self, x):
+        self.in_stack.append(x)  # O(1)
+
+    def dequeue(self):
+        if not self.out_stack:
+            # Transfer all from in_stack to out_stack (reverses order)
+            while self.in_stack:
+                self.out_stack.append(self.in_stack.pop())
+
+        if not self.out_stack:
+            raise IndexError("Queue is empty")
+
+        return self.out_stack.pop()
+
+    def peek(self):
+        if not self.out_stack:
+            while self.in_stack:
+                self.out_stack.append(self.in_stack.pop())
+        return self.out_stack[-1]
+
+# Time: Amortized O(1) for all operations
+# Each element moved at most twice (in→out, out→return)
+\`\`\`
+
+INSERT DELETE GETRANDOM O(1)
+
+**Problem**: Design a data structure supporting:
+- \`insert(val)\`: Add element—O(1)
+- \`remove(val)\`: Remove element—O(1)
+- \`getRandom()\`: Return random element with equal probability—O(1)
+
+**Insight**: HashMap + Array combination
+- Array: Enables O(1) random access for getRandom
+- HashMap: Maps value → index for O(1) insert/remove
+
+\`\`\`python
+import random
+
+class RandomizedSet:
+    def __init__(self):
+        self.vals = []  # Array for random access
+        self.pos = {}   # value -> index in array
+
+    def insert(self, val):
+        if val in self.pos:
+            return False
+        self.pos[val] = len(self.vals)
+        self.vals.append(val)
+        return True
+
+    def remove(self, val):
+        if val not in self.pos:
+            return False
+
+        # Swap with last element, then pop
+        idx = self.pos[val]
+        last_val = self.vals[-1]
+
+        self.vals[idx] = last_val
+        self.pos[last_val] = idx
+
+        self.vals.pop()
+        del self.pos[val]
+        return True
+
+    def getRandom(self):
+        return random.choice(self.vals)  # O(1) random access
+
+# All operations O(1)!
+\`\`\`
+
+RATE LIMITER - SYSTEM DESIGN CLASSIC
+
+**Problem**: Limit requests to N per time window (e.g., 100 requests per minute).
+
+**Approach 1: Fixed Window** (simplest, but allows bursts)
+\`\`\`python
+import time
+
+class FixedWindowLimiter:
+    def __init__(self, max_requests, window_seconds):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.count = 0
+        self.window_start = time.time()
+
+    def allow_request(self):
+        now = time.time()
+
+        # Reset window if expired
+        if now - self.window_start >= self.window_seconds:
+            self.count = 0
+            self.window_start = now
+
+        if self.count < self.max_requests:
+            self.count += 1
+            return True
+        return False
+
+# Problem: Allows 2N requests at window boundary!
+# Example: 100 requests at 0:59, 100 more at 1:00
+\`\`\`
+
+**Approach 2: Sliding Window** (accurate, higher space)
+\`\`\`python
+from collections import deque
+import time
+
+class SlidingWindowLimiter:
+    def __init__(self, max_requests, window_seconds):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.timestamps = deque()
+
+    def allow_request(self):
+        now = time.time()
+
+        # Remove timestamps outside window
+        while self.timestamps and now - self.timestamps[0] >= self.window_seconds:
+            self.timestamps.popleft()
+
+        if len(self.timestamps) < self.max_requests:
+            self.timestamps.append(now)
+            return True
+        return False
+
+# Accurate rate limiting, O(1) amortized
+\`\`\`
+
+**Approach 3: Token Bucket** (smooth rate limiting)
+\`\`\`python
+import time
+
+class TokenBucketLimiter:
+    def __init__(self, capacity, refill_rate):
+        self.capacity = capacity
+        self.tokens = capacity
+        self.refill_rate = refill_rate  # tokens per second
+        self.last_refill = time.time()
+
+    def allow_request(self):
+        now = time.time()
+
+        # Refill tokens based on elapsed time
+        elapsed = now - self.last_refill
+        self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
+        self.last_refill = now
+
+        if self.tokens >= 1:
+            self.tokens -= 1
+            return True
+        return False
+
+# Smooth rate limiting, allows bursts up to capacity
+\`\`\`
+
+ITERATOR PROTOCOL - CUSTOM ITERATION
+
+**Pattern**: Implement \`__iter__()\` and \`__next__()\` for custom iteration.
+
+\`\`\`python
+class FlattenIterator:
+    """Flatten nested list iterator"""
+    def __init__(self, nested_list):
+        self.stack = [[nested_list, 0]]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while self.stack:
+            curr_list, idx = self.stack[-1]
+
+            if idx >= len(curr_list):
+                self.stack.pop()
+                continue
+
+            elem = curr_list[idx]
+            self.stack[-1][1] += 1
+
+            if isinstance(elem, list):
+                self.stack.append([elem, 0])
+            else:
+                return elem
+
+        raise StopIteration
+
+# Usage
+nested = [1, [2, [3, 4]], 5]
+for num in FlattenIterator(nested):
+    print(num)  # 1, 2, 3, 4, 5
+\`\`\`
+
+MEDIAN FINDER - TWO HEAPS PATTERN
+
+**Problem**: Design a data structure for finding median from a stream.
+- \`addNum(num)\`: Add number to stream—O(log n)
+- \`findMedian()\`: Return median—O(1)
+
+**Insight**: Two heaps—max-heap for smaller half, min-heap for larger half.
+
+\`\`\`python
+import heapq
+
+class MedianFinder:
+    def __init__(self):
+        self.small = []  # Max-heap (negate values)
+        self.large = []  # Min-heap
+
+    def addNum(self, num):
+        # Add to max-heap (small half)
+        heapq.heappush(self.small, -num)
+
+        # Balance: move largest from small to large
+        heapq.heappush(self.large, -heapq.heappop(self.small))
+
+        # Ensure small has equal or one more element
+        if len(self.small) < len(self.large):
+            heapq.heappush(self.small, -heapq.heappop(self.large))
+
+    def findMedian(self):
+        if len(self.small) > len(self.large):
+            return -self.small[0]
+        return (-self.small[0] + self.large[0]) / 2
+
+# Time: addNum O(log n), findMedian O(1)
+\`\`\`
+
+COMMON DESIGN PATTERNS SUMMARY
+
+| Pattern | Building Blocks | Use Case | Time |
+|---------|----------------|----------|------|
+| LRU Cache | HashMap + Doubly Linked List | General caching | O(1) |
+| LFU Cache | HashMap + Freq Map + Lists | Frequency-based caching | O(1) |
+| Min/Max Stack | Stack + Tuples | Track extreme with stack | O(1) |
+| Queue with Stacks | Two Stacks | FIFO with LIFO primitives | O(1) amortized |
+| Insert/Delete/Random | HashMap + Array | Random access + fast ops | O(1) |
+| Rate Limiter | Deque (timestamps) | API rate limiting | O(1) amortized |
+| Median Finder | Two Heaps | Stream median | O(log n) add, O(1) find |
+| Custom Iterator | State + __next__ | Flatten, peek, filter | O(1) per item |
+
+WHEN TO USE EACH PATTERN
+
+- **Need O(1) lookup + ordering?** HashMap + Linked List (LRU)
+- **Need to track extremes (min/max)?** Tuples or separate stack
+- **Need FIFO with LIFO primitives?** Two stacks (queue)
+- **Need random access + fast insert/delete?** HashMap + Array
+- **Need to limit rate?** Sliding window with deque
+- **Need median from stream?** Two heaps (max + min)
+- **Need custom iteration logic?** Iterator protocol
+
+BEST PRACTICES FOR DESIGN INTERVIEWS
+
+1. **Clarify requirements**: What operations? Time complexity? Space constraints?
+2. **Start simple**: Naive solution first, then optimize
+3. **Draw diagrams**: Visual representation helps with linked lists, heaps
+4. **Explain trade-offs**: "HashMap gives O(1) lookup, but I need ordering too, so..."
+5. **Code incrementally**: Implement one method at a time, test each
+6. **Handle edge cases**: Empty structures, capacity limits, invalid inputs
+7. **Analyze complexity**: State time/space for each operation
+8. **Consider alternatives**: "Could use OrderedDict instead of manual doubly linked list"`
 
 const generatorsIntro = `Generators enable lazy evaluation—producing values one at a time instead of building entire sequences in memory. The key insight: process infinite sequences, handle huge files, and build data pipelines with constant memory. The yield keyword transforms functions into generators, unlocking memory-efficient iteration patterns impossible with lists.
 
@@ -1932,8 +2401,10 @@ export function DesignPatternsPage() {
       tip={`LRU Cache? OrderedDict + move_to_end() for O(1) get/put - cleanest Python approach (~20 lines)
 LFU vs LRU? LRU evicts by recency (recent access), LFU evicts by frequency (access count)
 Min Stack with O(1) getMin? Store (value, current_min) tuples - min always available
-Iterator protocol? __iter__ returns self, __next__ yields values, raise StopIteration when done
-Rate limiter (N requests per window)? Sliding window with deque - track timestamps, drop old ones`}
+Queue with two stacks? in_stack for enqueue, out_stack for dequeue - amortized O(1), reverse when needed
+Insert/Delete/GetRandom O(1)? HashMap + Array - array enables random.choice(), map tracks indices
+Rate limiter (N requests per window)? Sliding window with deque - track timestamps, drop old ones
+Median from stream? Two heaps - max-heap for smaller half, min-heap for larger half, O(log n) add, O(1) find`}
       methods={designPatternsMethods}
     />
   )
