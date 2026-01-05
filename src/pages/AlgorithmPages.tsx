@@ -450,59 +450,531 @@ Timsort always? YES for 99% cases — optimized C, stable, adaptive, O(n log n) 
   )
 }
 
-const binarySearchIntro = `Binary search is the fundamental O(log n) algorithm for searching sorted data. Instead of checking every element, it repeatedly divides the search space in half. The key insight: if you can eliminate half the possibilities with one comparison, you get logarithmic time.
+const binarySearchIntro = `Binary search is the fundamental O(log n) algorithm for searching sorted data. Instead of checking every element linearly, it repeatedly divides the search space in half. The key insight: if you can eliminate half the possibilities with one comparison, you achieve logarithmic time—searching 1 billion elements takes only 30 comparisons.
 
-THREE VARIANTS: The exact variant finds a target value. The left-most variant finds the first position where you could insert target (smallest index ≥ target). The right-most variant finds the position after the last occurrence (smallest index > target). Most interview problems need left-most or right-most, not exact.
+WHY BINARY SEARCH IS POWERFUL: The dramatic efficiency comes from exponential reduction. Each comparison cuts the problem size in half: n → n/2 → n/4 → n/8... After k steps, we have n/(2^k) elements left. When does this reach 1? When k = log₂(n). This is why 1M elements needs only 20 comparisons, and 1B elements needs only 30. Linear search would take 1 billion comparisons.
 
-TEMPLATE - EXACT MATCH: Standard binary search to find if target exists. Returns index if found, -1 otherwise. Use \`while left <= right\` because we need to check when \`left == right\`.
+**Real-world impact:**
+- Searching 1,000 elements: Linear = 1,000 ops, Binary = 10 ops (100x faster)
+- Searching 1,000,000 elements: Linear = 1M ops, Binary = 20 ops (50,000x faster)
+- Searching 1,000,000,000 elements: Linear = 1B ops, Binary = 30 ops (33M times faster!)
+
+THE THREE VARIANTS: WHEN TO USE WHICH
+
+Most binary search problems are NOT "find exact value." They're about finding boundaries:
+
+**1. Exact Match** (Rare in Interviews)
+Find if target exists, return index or -1.
+Use case: Dictionary lookup, "does this value exist?"
+
+**2. Left-Most / Lower Bound** (Very Common)
+Find first position where \`arr[i] >= target\`.
+Use case: First occurrence, insert position, "count elements < target"
+Python: \`bisect_left(arr, target)\`
+
+**3. Right-Most / Upper Bound** (Very Common)
+Find first position where \`arr[i] > target\`.
+Use case: Last occurrence, "count elements <= target"
+Python: \`bisect_right(arr, target)\`
+
+**Interview reality:** 80% of binary search problems use left-most or right-most, NOT exact match.
+
+TEMPLATE 1: EXACT MATCH
+
+The classic "find target or return -1" search:
 
 \`\`\`python
-def binary_search(arr, target):
+def binary_search_exact(arr, target):
     left, right = 0, len(arr) - 1
-    while left <= right:
+
+    while left <= right:  # CRITICAL: <= not <
         mid = (left + right) // 2
+
         if arr[mid] == target:
-            return mid
+            return mid  # Found!
         elif arr[mid] < target:
-            left = mid + 1
+            left = mid + 1  # Search right half
         else:
-            right = mid - 1
-    return -1
+            right = mid - 1  # Search left half
+
+    return -1  # Not found
+
+# Time: O(log n)
+# Space: O(1)
+# Invariant: if target exists, it's in [left, right]
 \`\`\`
 
-TEMPLATE - LEFT-MOST (LOWER BOUND): Find first position ≥ target. Use \`while left < right\` (no equals!) because we're finding a boundary. When \`arr[mid] >= target\`, target could be at mid or earlier, so \`right = mid\` (not mid-1). Python's \`bisect_left\` does this.
+**Critical details:**
+- \`while left <= right\`: Must use \`<=\` because when \`left == right\`, there's still one element to check
+- \`right = mid - 1\`: We EXCLUDE mid because we checked it (\`arr[mid] != target\`)
+- Loop terminates when \`left > right\` (search space exhausted)
+
+**Visualization:**
+\`\`\`
+arr = [1, 3, 5, 7, 9, 11, 13], target = 7
+
+Step 1: left=0, right=6, mid=3, arr[3]=7 ✓ Found!
+\`\`\`
+
+TEMPLATE 2: LEFT-MOST (LOWER BOUND)
+
+Find the first position where you could insert target to maintain sorted order (smallest index where \`arr[i] >= target\`):
 
 \`\`\`python
 def bisect_left(arr, target):
-    left, right = 0, len(arr)
-    while left < right:
+    left, right = 0, len(arr)  # CRITICAL: right = len(arr), not len(arr) - 1
+
+    while left < right:  # CRITICAL: < not <=
         mid = (left + right) // 2
+
         if arr[mid] < target:
-            left = mid + 1
+            left = mid + 1  # target is in right half
         else:
-            right = mid  # Could be at mid
-    return left
+            right = mid  # CRITICAL: mid, not mid - 1 (could be at mid!)
+
+    return left  # left == right, this is the answer
+
+# Time: O(log n)
+# Space: O(1)
+# Invariant: arr[0:left] < target, arr[right:] >= target
 \`\`\`
 
-TEMPLATE - RIGHT-MOST (UPPER BOUND): Find first position > target. Same pattern, different condition. When \`arr[mid] <= target\`, we need to search right, so \`left = mid + 1\`. Python's \`bisect_right\` does this.
+**Critical details:**
+- \`right = len(arr)\`: Not \`len(arr) - 1\`! We need to return \`len(arr)\` if all elements < target
+- \`while left < right\`: NOT \`<=\`! With \`<=\`, infinite loop when \`left == right\`
+- \`right = mid\`: NOT \`mid - 1\`! We haven't confirmed \`arr[mid] < target\`, so mid could be the answer
+- Returns: \`left == right\`, guaranteed valid insert position [0, len(arr)]
+
+**Why this works:**
+We maintain the invariant: everything before \`left\` is < target, everything from \`right\` onward is >= target. When \`left == right\`, we've found the boundary.
+
+**Visualization:**
+\`\`\`
+arr = [1, 3, 3, 3, 5, 7], target = 3
+
+Step 1: left=0, right=6, mid=3, arr[3]=3 >= 3 → right = 3
+Step 2: left=0, right=3, mid=1, arr[1]=3 >= 3 → right = 1
+Step 3: left=0, right=1, mid=0, arr[0]=1 < 3 → left = 1
+Step 4: left=1, right=1 → STOP, return 1 (first 3)
+
+arr = [1, 2, 4, 5], target = 3
+Returns 2 (insert position, arr[2]=4 >= 3)
+\`\`\`
+
+TEMPLATE 3: RIGHT-MOST (UPPER BOUND)
+
+Find the first position where \`arr[i] > target\` (position AFTER last occurrence):
 
 \`\`\`python
 def bisect_right(arr, target):
     left, right = 0, len(arr)
+
     while left < right:
         mid = (left + right) // 2
-        if arr[mid] <= target:
+
+        if arr[mid] <= target:  # CRITICAL: <= not <
+            left = mid + 1
+        else:
+            right = mid
+
+    return left  # left == right, this is the answer
+
+# Time: O(log n)
+# Space: O(1)
+# Invariant: arr[0:left] <= target, arr[right:] > target
+\`\`\`
+
+**Critical details:**
+- \`arr[mid] <= target\`: Use \`<=\` (not just \`<\`) to continue right when equal
+- Returns position AFTER last occurrence (not the last occurrence itself)
+- To get last occurrence: \`bisect_right(arr, target) - 1\` (if it exists)
+
+**Visualization:**
+\`\`\`
+arr = [1, 3, 3, 3, 5, 7], target = 3
+
+Step 1: left=0, right=6, mid=3, arr[3]=3 <= 3 → left = 4
+Step 2: left=4, right=6, mid=5, arr[5]=7 > 3 → right = 5
+Step 3: left=4, right=5, mid=4, arr[4]=5 > 3 → right = 4
+Step 4: left=4, right=4 → STOP, return 4 (position after last 3)
+\`\`\`
+
+**LEFT vs RIGHT comparison:**
+
+\`\`\`python
+arr = [1, 3, 3, 3, 5, 7]
+
+bisect_left(arr, 3)   # → 1 (first 3)
+bisect_right(arr, 3)  # → 4 (after last 3)
+
+# Count occurrences:
+count = bisect_right(arr, 3) - bisect_left(arr, 3)  # 4 - 1 = 3
+
+# First occurrence:
+first = bisect_left(arr, 3)  # 1
+
+# Last occurrence (if exists):
+last = bisect_right(arr, 3) - 1  # 3
+# Check: arr[last] == 3
+
+# Elements < target:
+count_less = bisect_left(arr, 3)  # 1
+
+# Elements <= target:
+count_less_equal = bisect_right(arr, 3)  # 4
+\`\`\`
+
+SEARCH ON THE ANSWER: THE BREAKTHROUGH PATTERN
+
+Many problems don't give you a sorted array—they ask "find minimum/maximum X where condition is satisfied." The key insight: **binary search on the answer space**.
+
+**Pattern recognition signals:**
+- "Minimum speed to finish in time"
+- "Minimum capacity to ship packages"
+- "Maximum weight without breaking"
+- "Smallest divisor resulting in sum <= threshold"
+- "Kth smallest element in multiplication table"
+
+**Template:**
+
+\`\`\`python
+def search_on_answer(condition_func, low, high):
+    """
+    Find minimum value in [low, high] where condition_func(value) is True.
+    Assumes: if condition(x) is True, then condition(x+1) is also True (monotonic)
+    """
+    left, right = low, high + 1  # right is exclusive
+
+    while left < right:
+        mid = (left + right) // 2
+
+        if condition_func(mid):
+            right = mid  # mid works, try smaller
+        else:
+            left = mid + 1  # mid doesn't work, need larger
+
+    return left  # Minimum value where condition is True
+
+# Time: O(log(high - low) * T) where T = time for condition check
+\`\`\`
+
+**Example 1: Koko Eating Bananas**
+
+*Problem:* Koko has n piles of bananas. She can eat at most k bananas per hour. Find minimum k to finish all piles in h hours.
+
+\`\`\`python
+def min_eating_speed(piles, h):
+    def can_finish(speed):
+        # Can Koko finish all piles in h hours at this speed?
+        hours = sum((pile + speed - 1) // speed for pile in piles)  # Ceiling division
+        return hours <= h
+
+    # Binary search on answer: speed in [1, max(piles)]
+    return search_on_answer(can_finish, 1, max(piles))
+
+# Time: O(n log m) where m = max(piles)
+# n iterations to check condition, log m binary search steps
+\`\`\`
+
+**Example 2: Capacity To Ship Packages Within D Days**
+
+*Problem:* Ship packages in order within d days. Find minimum ship capacity.
+
+\`\`\`python
+def ship_within_days(weights, days):
+    def can_ship(capacity):
+        # Can we ship all packages in 'days' days with this capacity?
+        current_load = 0
+        days_needed = 1
+
+        for weight in weights:
+            if weight > capacity:  # Can't ship this package
+                return False
+
+            if current_load + weight > capacity:
+                days_needed += 1  # Need new day
+                current_load = weight
+            else:
+                current_load += weight
+
+        return days_needed <= days
+
+    # Binary search on capacity: [max(weights), sum(weights)]
+    return search_on_answer(can_ship, max(weights), sum(weights))
+
+# Time: O(n log S) where S = sum(weights)
+\`\`\`
+
+**Why this works:**
+If capacity C works, capacity C+1 also works (monotonic property). We're finding the minimum C where the condition is satisfied—exactly what left-most binary search does!
+
+COMMON PATTERNS & PROBLEMS:
+
+**Pattern 1: Rotated Sorted Array**
+
+\`\`\`python
+def search_rotated(arr, target):
+    """
+    [4,5,6,7,0,1,2] rotated at pivot. Find target.
+    """
+    left, right = 0, len(arr) - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        if arr[mid] == target:
+            return mid
+
+        # Determine which half is sorted
+        if arr[left] <= arr[mid]:  # Left half is sorted
+            if arr[left] <= target < arr[mid]:
+                right = mid - 1  # target in left half
+            else:
+                left = mid + 1  # target in right half
+        else:  # Right half is sorted
+            if arr[mid] < target <= arr[right]:
+                left = mid + 1  # target in right half
+            else:
+                right = mid - 1  # target in left half
+
+    return -1
+
+# Key insight: At least one half is always sorted
+# Use sorted half to decide which direction to search
+\`\`\`
+
+**Pattern 2: Find Peak Element**
+
+\`\`\`python
+def find_peak_element(arr):
+    """
+    Peak: arr[i] > arr[i-1] and arr[i] > arr[i+1]
+    """
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        mid = (left + right) // 2
+
+        if arr[mid] < arr[mid + 1]:
+            left = mid + 1  # Peak is to the right
+        else:
+            right = mid  # Peak is at mid or to the left
+
+    return left  # left == right, this is a peak
+
+# Works because: if arr[mid] < arr[mid+1], peak must be in right half
+# (going upward guarantees peak ahead)
+\`\`\`
+
+**Pattern 3: Search in 2D Matrix**
+
+\`\`\`python
+def search_matrix(matrix, target):
+    """
+    Sorted rows and columns. Treat as 1D sorted array.
+    """
+    if not matrix or not matrix[0]:
+        return False
+
+    rows, cols = len(matrix), len(matrix[0])
+    left, right = 0, rows * cols - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+        row, col = mid // cols, mid % cols  # Convert 1D index to 2D
+        value = matrix[row][col]
+
+        if value == target:
+            return True
+        elif value < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return False
+
+# Time: O(log(m*n))
+# Treat m×n matrix as 1D array of length m*n
+\`\`\`
+
+**Pattern 4: Sqrt(x) / Integer Square Root**
+
+\`\`\`python
+def my_sqrt(x):
+    """
+    Find floor(sqrt(x)) without using sqrt().
+    """
+    if x < 2:
+        return x
+
+    left, right = 1, x // 2  # sqrt(x) <= x/2 for x >= 4
+
+    while left <= right:
+        mid = (left + right) // 2
+        square = mid * mid
+
+        if square == x:
+            return mid
+        elif square < x:
+            left = mid + 1
+        else:
+            right = mid - 1
+
+    return right  # Floor of sqrt (right ends up being the answer)
+
+# Time: O(log n)
+# Alternative: Newton's method, but binary search is cleaner
+\`\`\`
+
+GOTCHAS AND EDGE CASES:
+
+**1. Off-by-one errors (most common bug)**
+
+\`\`\`python
+# ❌ WRONG: Infinite loop
+def bisect_wrong(arr, target):
+    left, right = 0, len(arr)
+    while left <= right:  # BUG: should be <
+        mid = (left + right) // 2
+        if arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid  # BUG: when left == right, right stays same
+    return left
+
+# ✅ CORRECT: Use < for boundary search
+def bisect_correct(arr, target):
+    left, right = 0, len(arr)
+    while left < right:  # < not <=
+        mid = (left + right) // 2
+        if arr[mid] < target:
             left = mid + 1
         else:
             right = mid
     return left
 \`\`\`
 
-SEARCH ON THE ANSWER: The breakthrough pattern for "minimum X where condition works" problems. Instead of searching in an array, binary search on the answer space. Example: "Minimum speed to finish in H hours" → binary search speeds [1...max], check if each speed works. The key insight: if speed X works, speed X+1 also works (monotonic). Find the minimum that satisfies the condition.
+**2. Forgetting to validate returned index**
 
-WHEN TO USE WHICH: Need to find if value exists → exact. Need first/last occurrence → left/right-most. "Minimum X where..." → search on answer with left-most template. "Maximum X where..." → search on answer, reverse the condition. Insert position → left-most gives you where to insert to maintain sorted order.
+\`\`\`python
+# ❌ WRONG: Doesn't check if target exists
+idx = bisect_left(arr, target)
+value = arr[idx]  # IndexError if idx == len(arr)!
 
-COMMON MISTAKES: Using \`left <= right\` for boundary problems (infinite loop risk). Forgetting that right-most returns position AFTER last occurrence. Not checking if returned index is valid (\`bisect_left\` can return \`len(arr)\`). Integer overflow in \`mid = (left + right) // 2\` (use \`left + (right - left) // 2\` for very large arrays, though Python handles big ints).`
+# ✅ CORRECT: Validate index
+idx = bisect_left(arr, target)
+if idx < len(arr) and arr[idx] == target:
+    print(f"Found at {idx}")
+else:
+    print("Not found")
+\`\`\`
+
+**3. Using exact match template for boundary problems**
+
+\`\`\`python
+# ❌ WRONG: Finding first occurrence with exact match
+def first_occurrence_wrong(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid  # BUG: might not be first!
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+# ✅ CORRECT: Use left-most template
+def first_occurrence_correct(arr, target):
+    idx = bisect_left(arr, target)
+    if idx < len(arr) and arr[idx] == target:
+        return idx
+    return -1
+\`\`\`
+
+**4. Integer overflow (rare in Python, common in C++/Java)**
+
+\`\`\`python
+# In languages with fixed-size integers:
+# ❌ WRONG: Overflow when left + right > MAX_INT
+mid = (left + right) // 2
+
+# ✅ CORRECT: Avoids overflow
+mid = left + (right - left) // 2
+
+# Python handles arbitrary precision integers, so not an issue
+# But good to know for other languages
+\`\`\`
+
+**5. Condition function not monotonic**
+
+\`\`\`python
+# ❌ WRONG: Binary search on answer when condition is not monotonic
+# If condition(5) = True but condition(6) = False, binary search fails!
+
+# ✅ CORRECT: Verify monotonicity
+# For "minimum X where condition(X) is True":
+# Must guarantee: condition(X) True → condition(X+1) True
+# For "maximum X where condition(X) is True":
+# Must guarantee: condition(X) True → condition(X-1) True
+\`\`\`
+
+WHEN TO USE BINARY SEARCH:
+
+**Strong signals:**
+- ✅ Data is sorted (or rotated sorted)
+- ✅ "Find minimum/maximum X where..."
+- ✅ "In O(log n) time"
+- ✅ Can check a condition in O(n) or less
+- ✅ Condition has monotonic property
+
+**When NOT to use:**
+- ❌ Data is completely unsorted (sort first if possible)
+- ❌ Need to find ALL occurrences (two binary searches for first + last)
+- ❌ Small dataset (n < 100): linear search is simpler and comparable
+- ❌ Condition is not monotonic
+
+BEST PRACTICES:
+
+1. **Use Python's bisect module**: Don't reinvent the wheel
+   \`\`\`python
+   from bisect import bisect_left, bisect_right
+   # bisect_left: first position >= target
+   # bisect_right: first position > target
+   \`\`\`
+
+2. **Know the invariants**:
+   - Exact: if target exists, it's in [left, right]
+   - Left-most: arr[0:left] < target, arr[right:] >= target
+   - Right-most: arr[0:left] <= target, arr[right:] > target
+
+3. **Match template to problem**:
+   - "Find value" → exact (\`left <= right\`)
+   - "Find boundary" → left/right-most (\`left < right\`)
+   - "Minimum where..." → search on answer (left-most pattern)
+
+4. **Validate results**:
+   - Check \`idx < len(arr)\` before accessing \`arr[idx]\`
+   - Check \`arr[idx] == target\` if you need exact match
+
+5. **Handle empty arrays**:
+   \`\`\`python
+   if not arr:
+       return -1  # or appropriate default
+   \`\`\`
+
+6. **Test edge cases**:
+   - Empty array: \`[]\`
+   - Single element: \`[1]\`
+   - Target not found
+   - Target at boundaries: first or last element
+   - All elements equal: \`[5, 5, 5, 5]\`
+   - Target smaller/larger than all elements
+
+7. **Visualize with small examples**: Draw the array, track left/mid/right through iterations
+
+8. **Remember the math**: log₂(1,000,000) ≈ 20 steps. If you're doing more, something's wrong.`
 
 export function BinarySearchPage() {
   return (
@@ -510,10 +982,13 @@ export function BinarySearchPage() {
       type="Binary Search" badge="log" color="var(--accent-binary-search)"
       description="O(log n) search in sorted data. Master the three variants: exact, left-most, right-most."
       intro={binarySearchIntro}
-      tip={`Sorted data? Binary search
-"Minimum speed/capacity where condition works"? Binary search on answer
-Find boundary? while left < right, not left <= right
-Python has it! bisect_left for ≥ target, bisect_right for > target`}
+      tip={`Sorted data O(log n)? Binary search — 1M elements = 20 comparisons, 1B = 30 comparisons
+Find first/last occurrence? bisect_left (≥ target), bisect_right (> target) — NOT exact match!
+"Minimum X where condition works"? Search on answer (condition must be monotonic)
+Boundary search? while left < right, right = mid — exact match? while left <= right, right = mid - 1
+Off-by-one? Use < for boundaries (not <=), or infinite loop when left == right
+Validate index! bisect_left can return len(arr) — check idx < len(arr) and arr[idx] == target
+Count occurrences? bisect_right(arr, x) - bisect_left(arr, x) — both O(log n)`}
       methods={binarySearchMethods}
       tabs={<DSCategoryTabs basePath="/binary-search" problemCount={getProblemCount('binarySearch')} />}
     />
