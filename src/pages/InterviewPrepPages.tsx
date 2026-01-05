@@ -1875,13 +1875,6 @@ export function GreedyPage() {
       type="Greedy Algorithms" badge="grdy" color="var(--accent-greedy)"
       description="Make locally optimal choices hoping for global optimum. Works when greedy choice property + optimal substructure exist."
       intro={greedyIntro}
-      tip={`Greedy choice property + optimal substructure? Greedy works! But MUST prove correctness (exchange argument)
-Interval scheduling? Sort by END time (not start!) — earliest end leaves max room for future
-Prove greedy? Exchange argument: if optimal differs, swap to match greedy without worsening → greedy optimal
-Greedy FAILS? 0/1 Knapsack (coins=[1,3,4], amt=6: greedy 4+1+1=3 coins, optimal 3+3=2) → use DP
-Greedy vs DP decision? Can prove local→global? Greedy O(n log n). Overlapping subproblems? DP O(n²)
-Jump game? Track max_reach = max(max_reach, i + nums[i]) — if i > max_reach, unreachable
-Common mistake? Sorting by wrong key (start vs end) or no proof — "seems greedy" fails on edge cases!`}
       methods={greedyMethods}
       tabs={<DSCategoryTabs basePath="/greedy" problemCount={getProblemCount('greedy')} />}
     />
@@ -2361,13 +2354,6 @@ export function IntervalsPage() {
       type="Intervals Pattern" badge="[ ]" color="var(--accent-intervals)"
       description="Interval problems: merge, insert, schedule. Key techniques: sort by start/end, sweep line, event processing."
       intro={intervalsIntro}
-      tip={`Merge overlapping? Sort by START, extend with max(last_end, end) — NOT just end! Fails on [[1,5],[2,3]]
-Max non-overlapping? Sort by END (greedy) — earliest end leaves most room, exchange argument
-Min meeting rooms? Sweep line O(n log n) or heap O(n log n) — both work, heap tracks which intervals
-Insert interval? Three-phase: before, merge overlapping, after — O(n) since presorted
-Touching intervals? start <= last_end (not <) — [[1,2],[2,3]] usually merges to [1,3]
-Sweep line tie-break? End before start at same time — room frees before next meeting starts
-Summary table? START for merge/insert/gaps, END for greedy max — wrong sort = impossible problem`}
       methods={intervalMethods}
       tabs={<DSCategoryTabs basePath="/intervals" problemCount={getProblemCount('intervals')} />}
     />
@@ -2380,13 +2366,6 @@ export function StdlibPage() {
       type="Python Standard Library" badge="py" color="var(--accent-stdlib)"
       description="Essential functools, itertools, and collections for interviews. @lru_cache is interview gold for DP memoization."
       intro={stdlibIntro}
-      tip={`DP with recursion? @lru_cache decorator - converts O(2^n) to O(n) with one line
-Top-k frequent elements? Counter(arr).most_common(k) - beats manual dict counting
-BFS or queue operations? collections.deque - NEVER use list.pop(0), it's O(n)! Use deque.popleft() O(1)
-Group by key without KeyError? defaultdict(list) - auto-creates empty list for new keys
-All permutations/combinations? itertools.permutations(arr), combinations(arr, k) - one-liners vs complex backtracking
-Top k elements from unsorted? heapq.nlargest(k, arr) O(n log k) - or heapify O(n), push/pop O(log n)
-Binary search in sorted? bisect.bisect_left/right(arr, x) O(log n) - find insertion point, use for range queries`}
       methods={stdlibMethods}
     />
   )
@@ -2398,13 +2377,6 @@ export function DesignPatternsPage() {
       type="Design Patterns" badge="LRU" color="var(--accent-design)"
       description="LRU/LFU Cache, Min Stack, Rate Limiter, and other frequently asked design problems."
       intro={designPatternsIntro}
-      tip={`LRU Cache? OrderedDict + move_to_end() for O(1) get/put - cleanest Python approach (~20 lines)
-LFU vs LRU? LRU evicts by recency (recent access), LFU evicts by frequency (access count)
-Min Stack with O(1) getMin? Store (value, current_min) tuples - min always available
-Queue with two stacks? in_stack for enqueue, out_stack for dequeue - amortized O(1), reverse when needed
-Insert/Delete/GetRandom O(1)? HashMap + Array - array enables random.choice(), map tracks indices
-Rate limiter (N requests per window)? Sliding window with deque - track timestamps, drop old ones
-Median from stream? Two heaps - max-heap for smaller half, min-heap for larger half, O(log n) add, O(1) find`}
       methods={designPatternsMethods}
     />
   )
@@ -2931,13 +2903,6 @@ export function MathPage() {
       type="Math Algorithms" badge="∑" color="var(--accent-math)"
       description="GCD/LCM, primes, modular arithmetic, combinatorics. Foundation for many interview problems."
       intro={mathIntro}
-      tip={`Check ONE prime? Trial division O(√n) up to 10¹² — Find ALL primes ≤N? Sieve O(n log log n)
-GCD/LCM pattern? math.gcd(a,b) O(log n) — LCM = a*b // gcd(a,b) (avoid overflow!)
-"Return mod 10⁹+7"? Apply mod at EACH step (fact * i) % MOD — not at end! Prevents overflow
-Modular division? (a/b) % m = (a * pow(b, m-2, m)) % m when m prime (Fermat's little theorem)
-Permutations vs Combinations? P(n,r) = n!/(n-r)! order matters — C(n,r) = n!/(r!(n-r)!) order doesn't
-Combinatorics with mod? Precompute factorials, use modular inverse for division — can't divide directly!
-Fast power? pow(base, exp, MOD) uses binary exp O(log exp) — 2^1000 takes 10 iterations not 1000!`}
       methods={mathMethods}
     />
   )
@@ -2949,13 +2914,6 @@ export function GeneratorsPage() {
       type="Generators & Iterators" badge="yield" color="var(--accent-generators)"
       description="Memory-efficient iteration with yield. Process huge files with constant memory. Build data pipelines."
       intro={generatorsIntro}
-      tip={`Process huge file or infinite sequence? Generator with yield - O(1) memory vs O(n) for list
-Generator expression vs list comprehension? (x**2 for x in arr) lazy vs [x**2 for x in arr] eager
-Build data pipeline? Chain generators (read → filter → transform → aggregate) - O(1) memory for entire pipeline
-Flatten or chain generators? yield from other_gen - cleaner than "for item in other_gen: yield item"
-Need len() or indexing? Use list not generator - generators don't support len() or gen[i]
-Two-way communication? gen.send(value) for coroutines - generator receives values via yield expression
-Gotcha: Generators EXHAUST after one pass! Convert to list or use itertools.tee(gen, 2) for multiple iterations`}
       methods={generatorMethods}
     />
   )
@@ -3417,13 +3375,6 @@ export function SegmentTreePage() {
       type="Segment Tree / BIT" badge="tree" color="var(--accent-segment-tree)"
       description="O(log n) range queries + point updates. Segment Tree for sum/min/max, BIT (Fenwick) for simpler prefix sums."
       intro={segmentTreeIntro}
-      tip={`Range sum + updates? BIT (Fenwick) ~20 lines vs Segment Tree ~100 lines — BIT simpler for sum only
-Range min/max/GCD + updates? Segment Tree supports ANY associative operation — BIT can't do min/max directly
-Static array (no updates)? Prefix sum O(1) query vs Segment Tree O(log n) — don't build tree if no updates
-Segment Tree size? tree = [0] * (4*n) NOT 2*n — prevents overflow in worst case
-BIT indexing? 1-indexed! i+=1 when calling ops, tree[0] unused — common off-by-one error
-Range updates? Segment Tree with lazy propagation O(log n) — BIT needs tricks for range updates
-Overkill check? n < 1000 or Q < 10 queries → brute force simpler — ask constraints before building tree`}
       methods={segmentTreeMethods}
     />
   )
