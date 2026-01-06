@@ -24,7 +24,7 @@ z = x + y    # TypeError! No automatic conversion
 
 # vs JavaScript (weak typing):
 # "1" + 1 = "11" (silent coercion to string)
-\`\`\`python
+\`\`\`
 ---
 Dynamic Typing with Strong Type Checking
 Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
@@ -50,7 +50,7 @@ print(a)      # [1, 2, 3, 4] — same object!
 # CHECK TYPE AT RUNTIME
 type(42)        # <class 'int'>
 isinstance(42, int)  # True
-\`\`\`python
+\`\`\`
 ---
 Reference Semantics and Common Pitfalls
 Assignment creates references, NOT copies. Multiple names can reference same object. Use \`is\` for identity (same object), \`==\` for equality (same value). Mutable default arguments are shared across calls—use None instead.
@@ -93,7 +93,7 @@ print(original)  # [[1, 2, 99], [3, 4]] — nested lists shared!
 
 deep[0].append(99)
 print(original)  # [[1, 2], [3, 4]] — independent
-\`\`\`python
+\`\`\`
 `
 export function FundamentalsPage() {
   return (
