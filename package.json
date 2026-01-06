@@ -11,6 +11,8 @@
     "deploy": "npm run build && gh-pages -d docs"
   },
   "dependencies": {
+    "@types/prismjs": "^1.26.5",
+    "prismjs": "^1.30.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.11.0"

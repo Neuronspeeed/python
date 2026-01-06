@@ -374,368 +374,167 @@ export function ConditionalsPage() {
   )
 }
 
-const conditionalPatternsIntro = `Performance and design patterns for Python conditional logic. Understanding when to use if-elif vs dict dispatch vs match, how to apply short-circuit evaluation, and advanced patterns like Strategy and State Machines can dramatically improve code quality, performance, and maintainability. The key insight: choose the right tool based on complexity and performance needs—O(1) dict dispatch beats O(n) if-elif for value mapping, Strategy pattern beats if-elif explosion for behavior selection.
-
-COMPLEXITY DRIVES CHOICE. Simple condition? if/elif. 5+ value mappings? Dict dispatch. Patterns + destructuring? match (3.10+). Multiple behaviors? Strategy pattern. State transitions? State machine. The decision isn't about syntax preference—it's about algorithmic complexity and maintainability.
-
-DICTIONARY DISPATCH DEEP DIVE: Replace O(n) if-elif chains with O(1) hash table lookups when you have simple value-to-value or value-to-function mappings.
+const conditionalPatternsIntro = `Dictionary Dispatch for O(1) Lookups
+Replace O(n) if-elif chains with O(1) dictionary lookups when mapping values to values or functions. Dict dispatch is faster for 5+ branches and cleaner than long if-elif chains. Use \`.get()\` for safe lookups with defaults. The key insight: algorithmic complexity matters—O(1) hash lookup beats O(n) linear search.
 
 \`\`\`python
-# ANTI-PATTERN: O(n) if-elif chain for value mapping
-def get_http_message(status_code):
-    if status_code == 200:
+# ANTI-PATTERN: O(n) if-elif chain
+def get_status(code):
+    if code == 200:
         return "OK"
-    elif status_code == 201:
+    elif code == 201:
         return "Created"
-    elif status_code == 400:
+    elif code == 400:
         return "Bad Request"
-    elif status_code == 401:
-        return "Unauthorized"
-    elif status_code == 403:
-        return "Forbidden"
-    elif status_code == 404:
+    elif code == 404:
         return "Not Found"
-    elif status_code == 500:
-        return "Internal Server Error"
+    elif code == 500:
+        return "Server Error"
     else:
         return "Unknown"
-    # Worst case: 8 comparisons for status 500
+    # Worst case: 6 comparisons
 
 # BETTER: O(1) dict dispatch
-HTTP_MESSAGES = {
+STATUS_MESSAGES = {
     200: "OK",
     201: "Created",
     400: "Bad Request",
-    401: "Unauthorized",
-    403: "Forbidden",
     404: "Not Found",
-    500: "Internal Server Error",
+    500: "Server Error",
 }
+def get_status(code):
+    return STATUS_MESSAGES.get(code, "Unknown")  # Always 1 lookup!
 
-def get_http_message(status_code):
-    return HTTP_MESSAGES.get(status_code, "Unknown")  # Always 1 lookup!
-\`\`\`python
-
-Function Dispatch Pattern: Map values to functions for behavior selection.
-
-\`\`\`python
-# Calculator with function dispatch
+# FUNCTION DISPATCH - Map to behaviors
 def add(x, y): return x + y
-def subtract(x, y): return x - y
-def multiply(x, y): return x * y
-def divide(x, y): return x / y if y != 0 else float('inf')
+def sub(x, y): return x - y
+def mul(x, y): return x * y
 
-OPERATIONS = {
-    '+': add,
-    '-': subtract,
-    '*': multiply,
-    '/': divide,
-}
+OPERATIONS = {'+': add, '-': sub, '*': mul}
 
-def calculate(x, operator, y):
-    operation = OPERATIONS.get(operator)
-    if operation is None:
-        raise ValueError(f"Unknown operator: {operator}")
+def calculate(x, op, y):
+    operation = OPERATIONS.get(op)
+    if not operation:
+        raise ValueError(f"Unknown: {op}")
     return operation(x, y)
 
-# Usage: O(1) dispatch
-result = calculate(10, '+', 5)  # → 15
-result = calculate(10, '/', 2)  # → 5.0
-\`\`\`python
-
-Lazy Evaluation with Lambdas:
-
-\`\`\`python
-# Problem: All functions executed upfront
-def process(action):
-    handlers = {
-        'save': expensive_save(),      # WRONG: Called immediately!
-        'load': expensive_load(),      # WRONG: Called immediately!
-        'delete': expensive_delete(),  # WRONG: Called immediately!
-    }
-    return handlers.get(action, lambda: None)
-
-# Solution: Lambdas defer execution
-def process(action):
-    handlers = {
-        'save': lambda: expensive_save(),      # Lazy: called only if selected
-        'load': lambda: expensive_load(),      # Lazy: called only if selected
-        'delete': lambda: expensive_delete(),  # Lazy: called only if selected
-    }
-    handler = handlers.get(action, lambda: None)
-    return handler()  # Execute the selected function
-\`\`\`python
-
-When to Use Dict Dispatch:
-- - 5+ simple equality branches (value == constant)
-- - Value-to-value or value-to-function mapping
-- - Static/known mapping (HTTP codes, months, operations)
-- - O(1) performance critical
-- - Complex conditions (ranges, boolean logic)
-- - Different variables in conditions
-- - Pattern matching (use match instead)
-
-SHORT-CIRCUIT EVALUATION PATTERNS: Put cheap/likely-false conditions first to maximize short-circuit benefits. This is both a performance optimization AND a safety pattern.
+calculate(10, '+', 5)  # 15 (O(1) dispatch)
+\`\`\`
+---
+Strategy Pattern for Behavior Selection
+Strategy pattern replaces if-elif explosion with polymorphism—define multiple algorithms as classes, select at runtime. Better than long if-elif for complex behaviors with shared interface. Each strategy is a separate class implementing the same method. Use when behaviors are complex and might grow.
 
 \`\`\`python
-# PERFORMANCE: Cheap check first
-# 99% of users are NOT admins, check age first
-if user.age >= 18 and expensive_admin_check(user):
-    grant_access()
-
-# WRONG: Expensive check first
-if expensive_admin_check(user) and user.age >= 18:
-    grant_access()  # Wastes time checking admin status for minors
-
-# SAFETY: Null check first
-if user and user.is_authenticated():  # Safe: short-circuits if user is None
-    show_dashboard()
-
-# NULL POINTER PREVENTION
-if collection and len(collection) > 0:
-    process(collection[0])
-
-# DIVISION BY ZERO PREVENTION
-if denominator != 0 and numerator / denominator > threshold:
-    proceed()
-\`\`\`python
-
-Ordering Strategy for AND chains:
-1. Null/existence checks first
-2. Cheap attribute/field checks
-3. Expensive function calls last
-4. Put likely-to-fail conditions first
-
-\`\`\`python
-# OPTIMIZED ORDER
-if (cache_available and           # 1. Cheap field check
-    key in cache and              # 2. O(1) membership
-    validate_cache_entry(key) and # 3. Expensive validation
-    decrypt_entry(key)):          # 4. Most expensive
-    use_cached(key)
-\`\`\`python
-
-STRATEGY PATTERN: Eliminate if-elif explosion by mapping conditions to behavior objects. Use when you have multiple algorithms/behaviors that vary by some condition.
-
-\`\`\`python
-# ANTI-PATTERN: if-elif explosion for behaviors
-class PaymentProcessor:
-    def process(self, payment_type, amount):
-        if payment_type == "credit_card":
-            # 20 lines of credit card logic
-            validate_card()
-            charge_card()
-            send_receipt()
-        elif payment_type == "paypal":
-            # 20 lines of PayPal logic
-            validate_paypal()
-            charge_paypal()
-            send_receipt()
-        elif payment_type == "bitcoin":
-            # 20 lines of Bitcoin logic
-            validate_bitcoin()
-            charge_bitcoin()
-            send_receipt()
-        # Adding new payment type = modify this function!
-
-# BETTER: Strategy Pattern with dict dispatch
-class CreditCardStrategy:
-    def process(self, amount):
+# ANTI-PATTERN: if-elif explosion
+def process_payment(method, amount):
+    if method == "credit_card":
+        # 20 lines of credit card logic
         validate_card()
-        charge_card()
+        charge_card(amount)
         send_receipt()
-
-class PayPalStrategy:
-    def process(self, amount):
+    elif method == "paypal":
+        # 20 lines of PayPal logic
         validate_paypal()
-        charge_paypal()
+        charge_paypal(amount)
+        send_receipt()
+    elif method == "bitcoin":
+        # 20 lines of Bitcoin logic
+        validate_wallet()
+        charge_bitcoin(amount)
+        send_receipt()
+    # Function grows with each payment method!
+
+# BETTER: Strategy pattern
+class PaymentStrategy:
+    def pay(self, amount):
+        raise NotImplementedError
+
+class CreditCardPayment(PaymentStrategy):
+    def pay(self, amount):
+        validate_card()
+        charge_card(amount)
         send_receipt()
 
-class BitcoinStrategy:
-    def process(self, amount):
-        validate_bitcoin()
-        charge_bitcoin()
+class PayPalPayment(PaymentStrategy):
+    def pay(self, amount):
+        validate_paypal()
+        charge_paypal(amount)
         send_receipt()
 
+class BitcoinPayment(PaymentStrategy):
+    def pay(self, amount):
+        validate_wallet()
+        charge_bitcoin(amount)
+        send_receipt()
+
+# Dispatch with dict
 PAYMENT_STRATEGIES = {
-    "credit_card": CreditCardStrategy(),
-    "paypal": PayPalStrategy(),
-    "bitcoin": BitcoinStrategy(),
+    "credit_card": CreditCardPayment(),
+    "paypal": PayPalPayment(),
+    "bitcoin": BitcoinPayment(),
 }
 
-class PaymentProcessor:
-    def process(self, payment_type, amount):
-        strategy = PAYMENT_STRATEGIES.get(payment_type)
-        if strategy is None:
-            raise ValueError(f"Unknown payment type: {payment_type}")
-        return strategy.process(amount)
-        # Adding new payment type = add new strategy class + dict entry!
-\`\`\`python
+def process_payment(method, amount):
+    strategy = PAYMENT_STRATEGIES.get(method)
+    if not strategy:
+        raise ValueError(f"Unknown payment: {method}")
+    strategy.pay(amount)
 
-Strategy Pattern Benefits:
-- Each strategy is isolated (easier to test)
-- Adding new strategy doesn't modify existing code (Open/Closed Principle)
-- O(1) dispatch instead of O(n) if-elif
-- Clear separation of concerns
-- Easy to add new behaviors
-
-STATE MACHINE PATTERN: Use nested dictionaries to represent state transitions cleanly. Better than if-elif spaghetti for complex state management.
+# Easy to extend: just add new strategy class + dict entry
+\`\`\`
+---
+When to Use Each Pattern
+Choose based on complexity and performance needs. Simple conditions (1-4 branches) use if-elif. Value mappings (5+ branches) use dict dispatch for O(1) speed. Complex behaviors use Strategy pattern for maintainability. State transitions use State Machine. Match (3.10+) for structural patterns with destructuring.
 
 \`\`\`python
-# ANTI-PATTERN: if-elif spaghetti for state management
+# SIMPLE CONDITIONS: if-elif (1-4 branches)
+if age < 13:
+    return "child"
+elif age < 20:
+    return "teen"
+else:
+    return "adult"
+
+# VALUE MAPPING: Dict dispatch (5+ branches, O(1))
+DAYS = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 
+        4: "Fri", 5: "Sat", 6: "Sun"}
+day_name = DAYS.get(day_num, "Invalid")
+
+# COMPLEX BEHAVIORS: Strategy pattern
+# Use when each branch has 10+ lines of distinct logic
+
+# STATE TRANSITIONS: State machine
 class TrafficLight:
     def __init__(self):
-        self.state = "RED"
-
+        self.state = "red"
+    
     def change(self):
-        if self.state == "RED":
-            self.state = "GREEN"
-        elif self.state == "GREEN":
-            self.state = "YELLOW"
-        elif self.state == "YELLOW":
-            self.state = "RED"
+        transitions = {
+            "red": "green",
+            "green": "yellow",
+            "yellow": "red"
+        }
+        self.state = transitions[self.state]
 
-# BETTER: State machine with transition table
-class TrafficLight:
-    TRANSITIONS = {
-        "RED": "GREEN",
-        "GREEN": "YELLOW",
-        "YELLOW": "RED",
-    }
+# STRUCTURAL PATTERNS: match (Python 3.10+)
+match point:
+    case (0, 0):
+        return "origin"
+    case (x, 0):
+        return f"x-axis at {x}"
+    case (0, y):
+        return f"y-axis at {y}"
+    case (x, y):
+        return f"point at ({x}, {y})"
 
-    def __init__(self):
-        self.state = "RED"
-
-    def change(self):
-        self.state = self.TRANSITIONS[self.state]
-
-# ADVANCED: Event-driven state machine
-class Document:
-    TRANSITIONS = {
-        "draft": {
-            "submit": "pending_review",
-            "delete": "deleted",
-        },
-        "pending_review": {
-            "approve": "published",
-            "reject": "draft",
-            "delete": "deleted",
-        },
-        "published": {
-            "unpublish": "draft",
-            "archive": "archived",
-        },
-        "archived": {
-            "restore": "published",
-        },
-        "deleted": {},  # Terminal state
-    }
-
-    def __init__(self):
-        self.state = "draft"
-
-    def transition(self, event):
-        if event not in self.TRANSITIONS[self.state]:
-            raise ValueError(f"Invalid transition: {event} from {self.state}")
-        self.state = self.TRANSITIONS[self.state][event]
-        return self.state
-
-# Usage
-doc = Document()
-doc.transition("submit")      # draft → pending_review
-doc.transition("approve")     # pending_review → published
-doc.transition("archive")     # published → archived
-# doc.transition("delete")    # ValueError! Can't delete from archived
-\`\`\`python
-
-State Machine Benefits:
-- All transitions visible in one place
-- Impossible transitions explicitly prevented
-- Easy to visualize state diagram
-- Adding states/transitions is straightforward
-- No nested if statements
-
-PERFORMANCE BENCHMARKS: Real numbers show when each pattern wins.
-
-If-elif Performance (worst case):
-- 2 branches: ~10ns per call
-- 5 branches: ~25ns per call
-- 10 branches: ~50ns per call
-- 20 branches: ~100ns per call
-- O(n) linear: doubles with branches
-
-Dict Dispatch Performance:
-- Any number of branches: ~20ns per call
-- O(1) constant: doesn't scale with branches
-- 10x faster than 20-branch if-elif
-
-Match Performance (3.10+):
-- Literal patterns: ~15ns (O(1) jump table)
-- Sequence patterns: ~30-50ns (O(n) in pattern size)
-- With guards: Sequential O(n) pattern evaluation
-
-Practical Threshold:
-- < 3 branches: if-elif is fine (clearest)
-- 3-4 branches: if-elif still okay
-- 5+ branches: dict dispatch wins
-- Patterns + destructuring: match (3.10+)
-- Complex behaviors: Strategy pattern
-
-LOOKUP TABLE PATTERN: Precompute complex calculations and store in dict/list for O(1) retrieval.
-
-\`\`\`python
-# SLOW: Calculate every time
-def is_prime_slow(n):
-    if n < 2:
-        return False
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
-
-# FAST: Precompute lookup table
-PRIMES_UNDER_1000 = {2, 3, 5, 7, 11, 13, ...}  # Precomputed set
-
-def is_prime_fast(n):
-    if n >= 1000:
-        return is_prime_slow(n)
-    return n in PRIMES_UNDER_1000  # O(1) lookup!
-
-# Month names lookup
-MONTHS = {
-    1: "January", 2: "February", 3: "March",
-    4: "April", 5: "May", 6: "June",
-    7: "July", 8: "August", 9: "September",
-    10: "October", 11: "November", 12: "December"
-}
-
-def month_name(month_num):
-    return MONTHS.get(month_num, "Invalid")  # O(1) vs if-elif O(n)
-\`\`\`python
-
-DECISION MATRIX FOR INTERVIEWS: When the interviewer asks "how would you implement X?" choose the right pattern.
-
-| Scenario | Best Pattern | Why |
-|----------|--------------|-----|
-| HTTP status → message | Dict dispatch | Value mapping, O(1) |
-| Calculator (+, -, *, /) | Dict of functions | Behavior mapping |
-| Traffic light states | State machine | Clear transitions |
-| Multiple payment types | Strategy pattern | Isolate behaviors |
-| 2-3 simple conditions | if-elif | Simplest, clearest |
-| Data validation | Guard clauses | Fail fast, flat code |
-| Command parser | match (3.10+) | Pattern + destructure |
-| Null safety checks | Short-circuit | Prevent errors |
-
-BEST PRACTICES SUMMARY:
-
-1. Use dict dispatch for 5+ simple value mappings (O(1) vs O(n))
-2. Use Strategy pattern when if-elif exceeds ~50 lines
-3. Use State machines for complex state transitions
-4. Use match for structural patterns (3.10+ only)
-5. Use guard clauses to reduce nesting
-6. Put cheap/likely-false conditions first in AND chains
-7. Precompute lookup tables for repeated calculations
-8. Choose simplest pattern that solves the problem—don't over-engineer!`
+# DECISION MATRIX:
+# Branches 1-4 + simple → if-elif
+# Branches 5+ + value mapping → dict dispatch
+# Complex behaviors + growth → Strategy pattern
+# State transitions → State machine
+# Pattern matching → match (3.10+)
+\`\`\`
+`
 
 export function ConditionalPatternsPage() {
   return (
@@ -748,96 +547,73 @@ export function ConditionalPatternsPage() {
   )
 }
 
-const matchIntro = `Pattern Matching (Python 3.10+) brings structural pattern matching to Python—more powerful than switch statements. Match combines destructuring, type dispatch, and guards in one elegant syntax. The key insight: use match when you're checking ONE value against multiple structural patterns, use if/elif when you're checking DIFFERENT conditions.
-
-MATCH FOR PATTERNS, IF FOR CONDITIONS. Match excels at destructuring and structural matching (sequences, dicts, classes). If/elif excels at boolean logic with different variables. The decision: same value + patterns → match, different conditions → if/elif.
+const matchIntro = `Pattern Matching for Structural Destructuring
+Match (Python 3.10+) brings structural pattern matching—more powerful than switch. Use match when checking ONE value against multiple structural patterns. Use if/elif for DIFFERENT conditions with boolean logic. Match excels at destructuring sequences, dicts, and objects. Requires Python 3.10+, raises SyntaxError on 3.9 or earlier.
 
 \`\`\`python
-# MATCH: same value, structural patterns
+# MATCH: One value, multiple structural patterns
 match response:
     case {"status": "ok", "data": d}:
         return d
     case {"status": "error", "message": msg}:
         raise Exception(msg)
+    case _:  # Wildcard (default)
+        return None
 
-# IF/ELIF: different conditions, boolean logic
+# IF/ELIF: Different conditions, boolean logic
 if user.is_admin() and user.is_active():
     grant_access()
 elif user.is_guest():
     limited_access()
-\`\`\`python
 
-PYTHON 3.10+ ONLY REQUIREMENT: Match statements are a Python 3.10+ feature. Code using match will raise SyntaxError on Python 3.9 or earlier. Check version with \`python --version\` or use if/elif fallback for backwards compatibility.
-
-\`\`\`python
-import sys
-if sys.version_info < (3, 10):
-    # Fallback to if/elif for older Python
-    if status == 200:
-        handle_ok()
-    elif status == 404:
-        handle_not_found()
-else:
-    # Use match on 3.10+
-    match status:
-        case 200: handle_ok()
-        case 404: handle_not_found()
-\`\`\`python
-
-PATTERN TYPES COMPREHENSIVE: Match supports multiple pattern types, each with different semantics and performance characteristics.
-
-Literal Patterns: Match exact values (numbers, strings, booleans, None). Optimized to O(1) hash lookup for simple literals.
-
-\`\`\`python
-match status:
+# LITERAL PATTERNS
+match status_code:
     case 200:
         return "OK"
     case 404:
         return "Not Found"
     case 500:
-        return "Internal Error"
-    case _:                # Wildcard (default)
+        return "Server Error"
+    case _:
         return "Unknown"
-\`\`\`python
 
-Sequence Patterns: Match sequences (lists, tuples) and destructure elements. Length must match exactly unless using \`*rest\`.
-
-\`\`\`python
+# SEQUENCE PATTERNS - Destructure tuples/lists
 match point:
     case (0, 0):
-        print("Origin")
-    case (0, y):
-        print(f"Y-axis at {y}")
+        return "origin"
     case (x, 0):
-        print(f"X-axis at {x}")
+        return f"x-axis at {x}"
+    case (0, y):
+        return f"y-axis at {y}"
     case (x, y):
-        print(f"Point at ({x}, {y})")
+        return f"point ({x}, {y})"
 
-# With rest pattern
+# REST PATTERN
 match items:
     case []:
         print("Empty")
     case [first]:
-        print(f"One item: {first}")
+        print(f"One: {first}")
     case [first, *rest]:
         print(f"First: {first}, Rest: {rest}")
-\`\`\`python
+\`\`\`
+---
+Pattern Types: Mapping, Class, and OR Patterns
+Mapping patterns match dicts with PARTIAL matching—extra keys ignored. Class patterns destructure objects by attributes. OR patterns (|) match multiple alternatives. Guards add conditional filters with if clauses. Use capture patterns (_) to bind values or ignore them.
 
-Mapping Patterns: Match dictionaries with PARTIAL matching—extra keys are ignored! Only specified keys need to match.
-
 \`\`\`python
+# MAPPING PATTERNS - Partial dict matching
 match user:
-    case {"name": n, "age": a}:
-        print(f"{n} is {a} years old")
-        # Works even if user has extra keys like "email"
+    case {"name": n, "role": "admin"}:
+        print(f"Admin: {n}")
+    case {"name": n}:  # Extra keys OK!
+        print(f"User: {n}")
 
-    case {"type": "admin", **rest}:
-        print(f"Admin with extra data: {rest}")
-\`\`\`python
+# Real dict can have extra keys:
+user = {"name": "Alice", "role": "admin", "email": "alice@example.com"}
+# Still matches first case!
 
-Class Patterns: Match objects by type and attributes. Requires \`__match_args__\` for positional matching.
-
-\`\`\`python
+# CLASS PATTERNS - Destructure objects
 from dataclasses import dataclass
 
 @dataclass
@@ -845,20 +621,24 @@ class Point:
     x: int
     y: int
 
-match shape:
-    case Point(0, 0):
-        print("Origin point")
-    case Point(x, y) if x == y:
-        print(f"Diagonal point ({x}, {y})")
-    case Point(x, y):
-        print(f"Point ({x}, {y})")
-\`\`\`python
+match point:
+    case Point(x=0, y=0):
+        print("Origin")
+    case Point(x=0, y=y):
+        print(f"Y-axis: {y}")
+    case Point(x=x, y=0):
+        print(f"X-axis: {x}")
 
-ADVANCED FEATURES: Guards, OR patterns, AS patterns give match even more power.
+# OR PATTERNS - Multiple alternatives
+match status:
+    case 200 | 201 | 204:  # Match any
+        return "success"
+    case 400 | 401 | 403:
+        return "client_error"
+    case 500 | 502 | 503:
+        return "server_error"
 
-Guards (if clauses): Add conditions to patterns. Pattern must match FIRST, THEN guard is evaluated. Guard failures move to next case.
-
-\`\`\`python
+# GUARDS - Add conditionals
 match point:
     case (x, y) if x == y:
         print("Diagonal")
@@ -867,218 +647,73 @@ match point:
     case (x, y):
         print("Below diagonal")
 
-# Guard evaluation order matters!
-match value:
-    case x if x > 100:       # Pattern matches any value, then checks guard
-        print("Large")
-\`\`\`python
-
-OR Patterns (|): Match any of several alternatives—like multiple conditions in one case.
-
-\`\`\`python
-match status_code:
-    case 200 | 201 | 204:
-        print("Success")
-    case 400 | 404 | 403:
-        print("Client error")
-    case 500 | 502 | 503:
-        print("Server error")
-
-# Works with any pattern type
-match shape:
-    case ("circle", r) | ("sphere", r):
-        return 3.14159 * r * r
-\`\`\`python
-
-AS Patterns: Capture matched value while also matching pattern—useful for nested structures.
-
-\`\`\`python
-match event:
-    case ("click", (x, y) as point):
-        print(f"Clicked at point: {point}")
-        print(f"Coordinates: x={x}, y={y}")
-
-# Capture while matching complex pattern
+# CAPTURE vs WILDCARD
 match data:
-    case {"items": [first, *rest] as all_items}:
-        print(f"First: {first}, All: {all_items}")
+    case ["error", msg]:  # msg captures the value
+        print(f"Error: {msg}")
+    case ["ok", _]:  # _ ignores the value
+        print("Success")
+\`\`\`
+---
+Match vs If-Elif vs Dict Dispatch
+Choose based on problem structure. Match for structural patterns with destructuring (3.10+ only). If-elif for complex boolean conditions with different variables. Dict dispatch for simple value mappings (O(1), works on all Python versions). Match is most readable for pattern matching but requires Python 3.10+.
+
 \`\`\`python
+# WHEN TO USE MATCH
+# ✓ Destructuring sequences/dicts
+# ✓ Type-based dispatch with patterns
+# ✓ Multiple alternatives (OR patterns)
+# ✓ Guards with conditionals
+# ✗ Requires Python 3.10+
 
-WHEN TO USE MATCH VS ALTERNATIVES: Choose the right tool based on your pattern complexity and performance needs.
-
-Match vs If/Elif Decision:
-- Use MATCH when: Same value checked against multiple patterns, destructuring needed, structural matching required
-- Use IF/ELIF when: Different variables in conditions, complex boolean logic (and/or/not), conditions involve different values
-
-\`\`\`python
-# MATCH: same value, structural patterns
-match command.split():
+match command:
+    case ["quit"] | ["exit"]:
+        sys.exit()
     case ["load", filename]:
         load_file(filename)
-    case ["save", filename]:
-        save_file(filename)
-    case ["quit"]:
-        return
-
-# IF/ELIF: different conditions
-if not user.is_authenticated():
-    redirect_to_login()
-elif user.has_permission("admin"):
-    show_admin_panel()
-elif time_is_weekend():
-    show_weekend_mode()
-\`\`\`python
-
-Match vs Dict Dispatch Decision:
-- Use DICT when: Simple value→value mapping, O(1) lookup critical, no destructuring needed
-- Use MATCH when: Need destructuring, guards, type matching, or pattern complexity
-
-\`\`\`python
-# DICT: simple mapping
-ops = {"+": add, "-": sub, "*": mul, "/": div}
-result = ops[operator](x, y)
-
-# MATCH: complex patterns
-match expression:
-    case ("add", x, y):
-        return x + y
-    case ("mul", x, y) if y != 0:
-        return x * y
-    case ("div", x, 0):
-        raise ValueError("Division by zero")
-\`\`\`python
-
-PERFORMANCE CHARACTERISTICS: Match performance varies by pattern complexity.
-
-Literal Patterns O(1): Simple literals (numbers, strings) are optimized with jump tables—constant time like dict lookup.
-
-Sequence Patterns O(n): Must check length and match each element—linear in sequence length.
-
-Guards O(n): Evaluated sequentially—worst case checks all cases if guards keep failing.
-
-Optimization Strategy: Put most common cases first. Compiler can't reorder cases, so order matters for performance.
-
-\`\`\`python
-# GOOD: common case first
-match status:
-    case 200:              # Most common → check first
-        handle_ok()
-    case 404:              # Less common
-        handle_not_found()
-    case _:                # Rare → check last
-        handle_other()
-\`\`\`python
-
-COMMON INTERVIEW PATTERNS: These patterns appear frequently in coding problems.
-
-Command Pattern: Parse and dispatch commands with match.
-
-\`\`\`python
-def handle_command(cmd):
-    match cmd.split():
-        case ["quit"] | ["exit"]:
-            return "Goodbye"
-        case ["load", filename]:
-            return load_file(filename)
-        case ["save", filename]:
-            return save_file(filename)
-        case ["delete", *files]:
-            return delete_files(files)
-        case _:
-            return "Unknown command"
-\`\`\`python
-
-Parser Pattern: Validate and extract structured data.
-
-\`\`\`python
-def parse_expression(expr):
-    match expr:
-        case ("num", n):
-            return n
-        case ("add", left, right):
-            return parse_expression(left) + parse_expression(right)
-        case ("mul", left, right):
-            return parse_expression(left) * parse_expression(right)
-        case _:
-            raise ValueError(f"Invalid expression: {expr}")
-\`\`\`python
-
-Validation Pattern: Check data structure with guards.
-
-\`\`\`python
-def validate_user(data):
-    match data:
-        case {"username": str(u), "age": int(a)} if 0 <= a <= 120:
-            return User(username=u, age=a)
-        case {"username": str(u)}:
-            return User(username=u, age=None)
-        case _:
-            raise ValueError("Invalid user data")
-\`\`\`python
-
-HTTP Status Handler: Real-world API response handling.
-
-\`\`\`python
-match response.status_code:
-    case 200 | 201 | 204:
-        return response.json()
-    case 404:
-        raise NotFoundError()
-    case 400 | 422:
-        raise ValidationError(response.json())
-    case 500 | 502 | 503:
-        raise ServerError("Service unavailable")
+    case ["save", filename, *options]:
+        save_file(filename, options)
     case _:
-        raise UnknownError(f"Status {response.status_code}")
-\`\`\`python
+        print("Unknown command")
 
-COMMON GOTCHAS AND PITFALLS: These mistakes trip up beginners and appear in interviews.
+# WHEN TO USE IF-ELIF
+# ✓ Complex boolean conditions
+# ✓ Different variables per condition
+# ✓ Works on all Python versions
+# ✗ Can't destructure patterns
 
-Wildcard \`_\` Doesn't Bind: The underscore pattern matches everything but DOESN'T create a variable. Use a named pattern to capture.
+if user.is_admin() and user.has_permission("write"):
+    allow_write()
+elif user.is_guest() and not user.is_banned():
+    allow_read()
+else:
+    deny_access()
 
-\`\`\`python
-match value:
-    case _:
-        print(_)         # NameError! _ doesn't bind
+# WHEN TO USE DICT DISPATCH
+# ✓ Simple value → value/function mapping
+# ✓ O(1) performance
+# ✓ Works on all Python versions
+# ✗ Can't handle complex patterns
 
-match value:
-    case x:              # x captures the value
-        print(x)         # Works!
-\`\`\`python
+STATUS_HANDLERS = {
+    200: handle_ok,
+    404: handle_not_found,
+    500: handle_server_error,
+}
+handler = STATUS_HANDLERS.get(status, handle_unknown)
+handler()
 
-Dict Patterns Are Partial: Extra keys don't prevent matching—only specified keys must be present.
-
-\`\`\`python
-user = {"name": "Alice", "age": 30, "email": "alice@example.com"}
-
-match user:
-    case {"name": n, "age": a}:
-        print(f"{n}, {a}")   # MATCHES even with extra "email" key!
-\`\`\`python
-
-Guard Evaluation Order: Pattern must match BEFORE guard runs. Guard failure tries next case.
-
-\`\`\`python
-match x:
-    case int(n) if n > 0:    # Matches int, THEN checks guard
-        print("Positive")
-    case int(n):             # Catches non-positive ints
-        print("Non-positive")
-\`\`\`python
-
-OR Patterns Can't Mix Capture Names: All alternatives in an OR must capture the same variables.
-
-\`\`\`python
-# WRONG: different captures
-match shape:
-    case ("circle", r) | ("square", s):  # Error! r vs s
-        pass
-
-# CORRECT: same captures
-match shape:
-    case ("circle", r) | ("sphere", r):  # Both capture 'r'
-        return 3.14 * r * r
-\`\`\``
+# VERSION CHECK for backwards compatibility
+import sys
+if sys.version_info >= (3, 10):
+    # Use match
+    match value:
+        case pattern: ...
+else:
+    # Fallback to if-elif
+    if value == pattern: ...
+\`\`\`
+`
 
 export function MatchPage() {
   return (
@@ -1091,414 +726,167 @@ export function MatchPage() {
   )
 }
 
-const loopsIntro = `Loops are Python's fundamental iteration construct. The for loop is preferred over while—it's simpler, safer (no infinite loops!), and more Pythonic. Python's iteration protocol makes for loops work with any iterable: lists, strings, dicts, files, generators. The key insight: NEVER use range(len()) pattern—use enumerate() instead for cleaner, more Pythonic code.
-
-FOR > WHILE IN PYTHON. Unlike C/Java where while and for are equally common, Python strongly favors for loops. For loops are safer (can't go infinite), simpler (no manual counter updates), and more expressive (work with any iterable). Use while ONLY when iterations are unknown—user input loops, two-pointer algorithms, binary search convergence. Otherwise, default to for.
+const loopsIntro = `For Loops: Python's Preferred Iteration
+For loops are Python's primary iteration construct—safer, simpler, and more Pythonic than while. For works with ANY iterable: lists, strings, dicts, files, generators. The key insight: NEVER use \`range(len())\` pattern—use \`enumerate()\` for index+value. Use for by default, while only when iterations unknown (user input, two-pointer algorithms, convergence).
 
 \`\`\`python
-# ANTI-PATTERN: C-style iteration (NEVER do this!)
+# ANTI-PATTERN: C-style iteration (NEVER!)
 i = 0
 while i < len(arr):
     process(arr[i])
     i += 1
 
-# BETTER: Pythonic for loop
+# PYTHONIC: For loop
 for item in arr:
     process(item)
 
 # NEED INDEX? Use enumerate(), NOT range(len())
-# WRONG: range(len()) pattern
+# WRONG:
 for i in range(len(arr)):
-    print(f"Index {i}: {arr[i]}")
+    print(f"{i}: {arr[i]}")
 
-# RIGHT: enumerate()
+# RIGHT:
 for i, item in enumerate(arr):
-    print(f"Index {i}: {item}")
-\`\`\`python
+    print(f"{i}: {item}")
 
-FOR LOOP MASTERY: Python's for loop iterates over ANY iterable—not just lists!
+# ITERATE DICT
+for key in mydict:  # Keys by default
+    print(key)
 
-\`\`\`python
-# LISTS
-for item in [1, 2, 3]:
+for key, value in mydict.items():  # Key-value pairs
+    print(f"{key}: {value}")
+
+# ITERATE MULTIPLE SEQUENCES
+names = ["Alice", "Bob"]
+ages = [25, 30]
+
+for name, age in zip(names, ages):
+    print(f"{name} is {age}")
+
+# REVERSE ITERATION
+for item in reversed(mylist):
     print(item)
 
-# STRINGS (iterate characters)
-for char in "hello":
-    print(char)  # h, e, l, l, o
-
-# DICTS (iterate keys by default)
-for key in {"a": 1, "b": 2}:
-    print(key)  # a, b
-
-# Dict items (key-value pairs)
-for key, value in {"a": 1, "b": 2}.items():
-    print(f"{key} = {value}")
-
-# FILES (iterate lines)
-for line in open("file.txt"):
-    print(line)
-
-# GENERATORS
-for x in (i**2 for i in range(5)):
-    print(x)  # 0, 1, 4, 9, 16
-\`\`\`python
-
-The iteration protocol: Any object with \`__iter__\` method is iterable.
-
-WHILE LOOP PATTERNS: Use while ONLY when iteration count is unknown.
+# SORTED ITERATION (doesn't modify original)
+for item in sorted(mylist):
+    print(item)
+\`\`\`
+---
+While Loops and Loop Control
+While loops iterate until condition becomes false—use when iteration count unknown. Break exits loop immediately. Continue skips to next iteration. Else clause runs if loop completes without break (rare but useful for search patterns). Avoid infinite loops—ensure condition eventually becomes false.
 
 \`\`\`python
-# VALID USE: User input (unknown iterations)
+# WHILE for unknown iterations
 while True:
-    user_input = input("Enter command (or 'quit'): ")
+    user_input = input("Enter command (quit to exit): ")
     if user_input == "quit":
         break
-    process_command(user_input)
+    process(user_input)
 
-# VALID USE: Walrus operator for input (3.8+)
-while (line := input("Enter text: ")) != "quit":
-    process(line)
-
-# VALID USE: Two-pointer algorithm
+# TWO-POINTER algorithm (while is appropriate)
 left, right = 0, len(arr) - 1
 while left < right:
     if arr[left] + arr[right] == target:
-        return (left, right)
+        return [left, right]
     elif arr[left] + arr[right] < target:
         left += 1
     else:
         right -= 1
 
-# VALID USE: Binary search convergence
-while left <= right:
-    mid = (left + right) // 2
-    if arr[mid] == target:
-        return mid
-    elif arr[mid] < target:
-        left = mid + 1
-    else:
-        right = mid - 1
-\`\`\`python
+# BREAK - Exit loop early
+for item in items:
+    if item.is_target():
+        found = item
+        break  # Stop searching
+else:
+    # Runs only if loop completes WITHOUT break
+    found = None
 
-ITERATION TOOLS: Python provides powerful built-in tools for common iteration patterns.
+# CONTINUE - Skip to next iteration
+for item in items:
+    if not item.is_valid():
+        continue  # Skip invalid items
+    process(item)
 
-\`\`\`python
-# RANGE: Generate integer sequence (lazy iterator!)
-for i in range(5):        # 0, 1, 2, 3, 4
-    print(i)
+# LOOP-ELSE pattern for search
+for user in users:
+    if user.name == search_name:
+        print(f"Found: {user}")
+        break
+else:
+    print(f"{search_name} not found")
 
-for i in range(2, 7):     # 2, 3, 4, 5, 6 (start, stop)
-    print(i)
-
-for i in range(0, 10, 2): # 0, 2, 4, 6, 8 (start, stop, step)
-    print(i)
-
-# GOTCHA: range is lazy, NOT a list!
-r = range(5)
-print(r)  # range(0, 5), not [0, 1, 2, 3, 4]
-list(r)   # [0, 1, 2, 3, 4] (convert to list)
-
-# ENUMERATE: Get index + value (NEVER use range(len())!)
-names = ["Alice", "Bob", "Charlie"]
-for i, name in enumerate(names):
-    print(f"{i}: {name}")
-# 0: Alice
-# 1: Bob
-# 2: Charlie
-
-# Start index from custom value
-for i, name in enumerate(names, start=1):
-    print(f"{i}: {name}")
-# 1: Alice
-# 2: Bob
-# 3: Charlie
-
-# ZIP: Iterate multiple sequences in parallel
-names = ["Alice", "Bob"]
-ages = [25, 30]
-for name, age in zip(names, ages):
-    print(f"{name} is {age}")
-# Alice is 25
-# Bob is 30
-
-# CRITICAL: zip stops at shortest sequence!
-a = [1, 2, 3]
-b = [10, 20]
-list(zip(a, b))  # [(1, 10), (2, 20)] — 3 is dropped!
-
-# Use zip_longest for all elements
-from itertools import zip_longest
-list(zip_longest(a, b, fillvalue=0))
-# [(1, 10), (2, 20), (3, 0)]
-
-# REVERSED: Iterate backward (lazy, no copy!)
-for i in reversed([1, 2, 3]):
-    print(i)  # 3, 2, 1
-
-# vs slicing (creates copy!)
-for i in [1, 2, 3][::-1]:
-    print(i)  # Same output but wastes memory
-
-# SORTED: Iterate sorted sequence (doesn't modify original)
-nums = [3, 1, 2]
-for x in sorted(nums):
-    print(x)  # 1, 2, 3
-print(nums)  # [3, 1, 2] — original unchanged!
-
-# With key function
-words = ["apple", "pie", "zoo"]
-for w in sorted(words, key=len):
-    print(w)  # pie, zoo, apple (sorted by length)
-\`\`\`python
-
-LOOP ELSE CLAUSE: Runs if loop completes WITHOUT hitting break. Perfect for search patterns!
+# CONVERGENCE with while
+x = initial_value
+while abs(x - prev_x) > tolerance:
+    prev_x = x
+    x = improve(x)  # Binary search, Newton's method, etc.
+\`\`\`
+---
+Iterator Protocol and Lazy Evaluation
+Python's iteration protocol: objects with \`__iter__\` (returns iterator) and \`__next__\` (returns next item or raises StopIteration). Generators are lazy iterators—compute values on demand, not all at once. Use generators for large datasets or infinite sequences. Range is lazy in Python 3, lists are eager. Lazy = memory efficient.
 
 \`\`\`python
-# PATTERN: Search with "not found" handling
-def find_item(items, target):
-    for item in items:
-        if item == target:
-            print(f"Found: {item}")
-            break
-    else:
-        # Runs ONLY if break never executed
-        print("Not found")
+# ITERATOR PROTOCOL
+class Countdown:
+    def __init__(self, start):
+        self.current = start
 
-# PATTERN: Prime number check
-def is_prime(n):
-    if n < 2:
-        return False
-    for i in range(2, int(n**0.5) + 1):
-        if n % i == 0:
-            break  # Found divisor, not prime
-    else:
-        # Loop completed without break—no divisors found
-        return True
-    return False
+    def __iter__(self):
+        return self  # Self is iterator
 
-# WITHOUT else (needs flag variable—uglier!)
-def find_item_ugly(items, target):
-    found = False
-    for item in items:
-        if item == target:
-            print(f"Found: {item}")
-            found = True
-            break
-    if not found:
-        print("Not found")
-\`\`\`python
+    def __next__(self):
+        if self.current <= 0:
+            raise StopIteration
+        self.current -= 1
+        return self.current + 1
 
-Loop else benefits:
-- No flag variable needed
-- Clearer intent: "if search succeeded" vs "if search failed"
-- Common in Python idioms
+for n in Countdown(5):
+    print(n)  # 5, 4, 3, 2, 1
 
-BREAK, CONTINUE, PASS:
+# GENERATOR - Lazy evaluation with yield
+def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a  # Pause and return value
+        a, b = b, a + b
 
-\`\`\`python
-# BREAK: Exit loop immediately
-for i in range(10):
-    if i == 5:
-        break  # Stop at 5
-    print(i)  # Prints 0, 1, 2, 3, 4
+# Only computes when requested
+for num in fibonacci(10):
+    print(num)  # 0, 1, 1, 2, 3, 5, 8...
 
-# CONTINUE: Skip to next iteration
-for i in range(5):
-    if i == 2:
-        continue  # Skip 2
-    print(i)  # Prints 0, 1, 3, 4
+# EAGER (all at once) - Uses memory for all items
+eager_list = [x**2 for x in range(1000000)]  # 1M items in memory
 
-# PASS: No-op placeholder
-for i in range(5):
-    if i % 2 == 0:
-        pass  # TODO: implement even handling
-    else:
-        print(f"Odd: {i}")
-\`\`\`python
+# LAZY (on demand) - One item at a time
+lazy_gen = (x**2 for x in range(1000000))  # Generator expression
+for item in lazy_gen:
+    if item > 100:
+        break  # Only computed ~10 items, not 1M!
 
-PERFORMANCE PATTERNS AND OPTIMIZATION:
+# RANGE is LAZY in Python 3
+for i in range(10**9):  # Doesn't create billion ints!
+    if i > 10:
+        break
 
-1. Avoid Repeated Attribute Lookups:
-\`\`\`python
-# SLOW: Repeated attribute lookup
-for item in data:
-    results.append(item)  # Looks up .append every iteration
+# INFINITE ITERATORS
+def infinite_counter():
+    n = 0
+    while True:
+        yield n
+        n += 1
 
-# FAST: Cache attribute reference
-append = results.append
-for item in data:
-    append(item)  # Direct call, no lookup
+counter = infinite_counter()
+print(next(counter))  # 0
+print(next(counter))  # 1
+# Can run forever if you keep calling next()
 
-# Benchmark: 10-15% faster for tight loops!
-\`\`\`python
-
-2. Membership Testing: Use Sets, Not Lists
-\`\`\`python
-# SLOW: O(n) membership in list
-valid = [1, 2, 3, 4, 5]  # List
-for item in data:
-    if item in valid:  # O(n) for each check!
-        process(item)
-
-# FAST: O(1) membership in set
-valid = {1, 2, 3, 4, 5}  # Set
-for item in data:
-    if item in valid:  # O(1) for each check!
-        process(item)
-
-# For 10K items: 1000x faster with set!
-\`\`\`python
-
-3. List Comprehensions vs Append Loops:
-\`\`\`python
-# APPEND LOOP: ~65ms for 1M items
-result = []
-for x in range(1000000):
-    result.append(x**2)
-
-# LIST COMP: ~50ms for 1M items (20-30% faster!)
-result = [x**2 for x in range(1000000)]
-
-# Use comprehensions for simple transforms!
-\`\`\`python
-
-4. Generator Expressions for One-Time Use:
-\`\`\`python
-# BAD: Build list just for sum (wastes memory)
-total = sum([x**2 for x in range(1000000)])  # ~8MB!
-
-# GOOD: Generator for one-time sum (O(1) memory)
-total = sum(x**2 for x in range(1000000))  # ~100 bytes!
-\`\`\`python
-
-TWO-POINTER PATTERNS IN LOOPS: Common interview pattern using while loops.
-
-\`\`\`python
-# PATTERN: Two Sum (sorted array)
-def two_sum_sorted(nums, target):
-    left, right = 0, len(nums) - 1
-    while left < right:
-        current = nums[left] + nums[right]
-        if current == target:
-            return (left, right)
-        elif current < target:
-            left += 1  # Need larger sum
-        else:
-            right -= 1  # Need smaller sum
-    return None
-
-# PATTERN: Remove duplicates in-place
-def remove_duplicates(nums):
-    if not nums:
-        return 0
-    write = 1  # Write position
-    for read in range(1, len(nums)):
-        if nums[read] != nums[read - 1]:
-            nums[write] = nums[read]
-            write += 1
-    return write
-
-# PATTERN: Reverse array in-place
-def reverse(arr):
-    left, right = 0, len(arr) - 1
-    while left < right:
-        arr[left], arr[right] = arr[right], arr[left]
-        left += 1
-        right -= 1
-\`\`\`python
-
-COMMON GOTCHAS AND MISTAKES:
-
-1. Modifying List While Iterating:
-\`\`\`python
-# WRONG: Modifying list during iteration
-nums = [1, 2, 3, 4, 5]
-for x in nums:
-    if x % 2 == 0:
-        nums.remove(x)  # BUG! Skips elements!
-
-# RIGHT: Create new list
-nums = [1, 2, 3, 4, 5]
-nums = [x for x in nums if x % 2 != 0]
-
-# OR: Iterate over copy
-for x in nums[:]:  # [:] creates copy
-    if x % 2 == 0:
-        nums.remove(x)
-\`\`\`python
-
-2. Iterator Exhaustion:
-\`\`\`python
-# GOTCHA: Generators are one-time use!
-gen = (x for x in range(5))
-list(gen)  # [0, 1, 2, 3, 4]
-list(gen)  # [] — Exhausted!
-
-# FIX: Convert to list once
-data = list(x for x in range(5))
-\`\`\`python
-
-3. Range Oddities:
-\`\`\`python
-# GOTCHA: range(10, 0) is EMPTY!
-list(range(10, 0))  # [] — needs step=-1!
-list(range(10, 0, -1))  # [10, 9, 8, ..., 1]
-
-# GOTCHA: range is lazy
-r = range(1000000)  # Instant, O(1) memory
-l = list(range(1000000))  # Slow, O(n) memory
-\`\`\`python
-
-4. Variable Scope in Loops:
-\`\`\`python
-# Loop variable persists after loop!
-for i in range(5):
-    pass
-print(i)  # 4 (last value!)
-
-# In list comp: variable is local (Python 3+)
-[x for x in range(5)]
-# print(x)  # NameError! (x not defined)
-\`\`\`python
-
-ADVANCED ITERTOOLS PATTERNS:
-
-\`\`\`python
-from itertools import islice, cycle, chain, combinations
-
-# ISLICE: Slice iterator without loading all
-for x in islice(range(1000000), 5):  # First 5 items
-    print(x)  # 0, 1, 2, 3, 4
-
-# CYCLE: Infinite repetition
-counter = cycle([1, 2, 3])
-for _ in range(7):
-    print(next(counter))  # 1, 2, 3, 1, 2, 3, 1
-
-# CHAIN: Concatenate iterables
-for x in chain([1, 2], [3, 4]):
-    print(x)  # 1, 2, 3, 4
-
-# COMBINATIONS: All k-element combinations
-for combo in combinations([1, 2, 3], 2):
-    print(combo)  # (1, 2), (1, 3), (2, 3)
-\`\`\`python
-
-BEST PRACTICES SUMMARY:
-
-- Prefer for over while (safer, simpler, more Pythonic)
-- Use enumerate() instead of range(len())
-- Use zip() for parallel iteration
-- Use reversed() instead of [::-1] for large sequences
-- Use loop else for search "not found" patterns
-- Cache attribute lookups in tight loops (10-15% faster)
-- Use sets for membership testing (1000x faster than lists)
-- Use comprehensions for simple transforms (20-30% faster)
-- Use generators for one-time iteration (80,000x less memory)
-- NEVER modify list while iterating over it
-- NEVER use range(len()) — use enumerate() instead!
-- NEVER use while for known iterations — use for instead!`
+# FILE ITERATION - Memory efficient
+with open("huge_file.txt") as f:
+    for line in f:  # Reads one line at a time
+        process(line)  # Not loading entire file into memory!
+\`\`\`
+`
 
 export function LoopsPage() {
   return (
@@ -1511,218 +899,102 @@ export function LoopsPage() {
   )
 }
 
-const comprehensionsIntro = `Comprehensions provide Python's concise, declarative syntax for creating collections in a single expression. They combine mapping and filtering from functional programming with Python's readable syntax. The key insight: comprehensions are faster and more Pythonic for simple transformations, but regular loops are clearer for complex logic—readability always wins.
-
-LIST vs GENERATOR MEMORY TRADE-OFF. List comprehensions \`[x for x in data]\` build the ENTIRE result in memory immediately—great for small data (<100K items) or multiple iterations. Generator expressions \`(x for x in data)\` yield items ONE AT A TIME—O(1) memory, perfect for 100K+ items or one-time iteration. CRITICAL GOTCHA: Generators exhaust after one pass—\`list(gen)\` works ONCE, then \`gen\` is empty forever!
+const comprehensionsIntro = `List vs Generator: The Memory Trade-Off
+List comprehensions \`[x for x in data]\` build ENTIRE result in memory—fast for small data (<100K) or multiple iterations. Generator expressions \`(x for x in data)\` yield ONE item at a time—O(1) memory, perfect for 100K+ items or one-time use. CRITICAL: Generators exhaust after one pass—\`list(gen)\` works ONCE, then empty forever.
 
 \`\`\`python
-# LIST: Builds all items immediately
+# LIST: Eager evaluation
 squares_list = [x**2 for x in range(1000000)]  # ~8MB memory
 len(squares_list)  # Works
-len(squares_list)  # Works again (list persists)
+len(squares_list)  # Works again (persists)
 
-# GENERATOR: Yields items lazily
+# GENERATOR: Lazy evaluation
 squares_gen = (x**2 for x in range(1000000))  # ~100 bytes memory!
 sum(squares_gen)   # Works: consumes generator
-sum(squares_gen)   # → 0 GOTCHA! Generator exhausted!
+sum(squares_gen)   # → 0 GOTCHA! Exhausted!
 
-# FIX: Convert to list for multiple iterations
+# FIX: Convert to list for multiple passes
 squares_gen = (x**2 for x in range(1000000))
-squares_list = list(squares_gen)  # One-time conversion
-sum(squares_list)  # Works
-sum(squares_list)  # Still works!
-\`\`\`python
+squares_list = list(squares_gen)
+sum(squares_list)  # Works multiple times
 
-ALL COMPREHENSION TYPES: Python has four comprehension types—all share the same syntax structure but produce different collections.
+# WHEN TO USE LIST []
+# ✓ Small data (<100K items)
+# ✓ Need multiple iterations
+# ✓ Need len(), indexing, slicing
+# ✓ Debugging (can inspect)
 
-\`\`\`python
-# STRUCTURE: [EXPR for VAR in ITERABLE if CONDITION]
-# All types follow this pattern!
+# WHEN TO USE GENERATOR ()
+# ✓ Large data (100K+ items)
+# ✓ One-time iteration
+# ✓ Memory constrained
+# ✓ Pipeline chaining: sum(x**2 for x in filter(pred, data))
 
-# LIST COMPREHENSION: [] builds list
-squares = [x**2 for x in range(10)]
-# → [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
-
-# SET COMPREHENSION: {} builds set (unique, unordered)
-unique_squares = {x**2 for x in [-2, -1, 0, 1, 2]}
-# → {0, 1, 4}  (duplicates removed, order not guaranteed)
-
-# DICT COMPREHENSION: {key: value} builds dictionary
-square_map = {x: x**2 for x in range(5)}
-# → {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
-
-# GENERATOR EXPRESSION: () yields items lazily
-squares_lazy = (x**2 for x in range(10))
-# → <generator object> (not computed yet!)
-\`\`\`python
-
-Note: Tuple comprehension DOESN'T exist! \`()\` creates a generator, not a tuple.
-
-\`\`\`python
-# NOT a tuple comprehension!
-gen = (x for x in range(5))  # Generator!
-
-# To make tuple: convert generator
-tup = tuple(x for x in range(5))  # → (0, 1, 2, 3, 4)
-# OR use tuple() on list comprehension
-tup = tuple([x for x in range(5)])
-\`\`\`python
-
-LIST VS GENERATOR: MEMORY AND PERFORMANCE TRADE-OFFS.
-
-Memory Usage (1 million items):
-- List comprehension: ~8MB (stores all items)
-- Generator expression: ~100 bytes (stores only current item)
-- Memory ratio: 80,000x more efficient for generators!
-
-\`\`\`python
-import sys
-
-# List: Stores all 1M items
-list_comp = [x**2 for x in range(1000000)]
-sys.getsizeof(list_comp)  # ~8,000,000 bytes (8MB)
-
-# Generator: Stores only state
-gen_expr = (x**2 for x in range(1000000))
-sys.getsizeof(gen_expr)  # ~100 bytes (constant!)
-\`\`\`python
-
-When to Use List vs Generator:
-
-Use LIST \`[]\` when:
-- - Small data (<100K items)
-- - Need multiple iterations
-- - Need len(), indexing, slicing
-- - Need to check membership multiple times
-- - Debugging (can inspect contents)
-
-Use GENERATOR \`()\` when:
-- - Large data (100K+ items)
-- - One-time iteration
-- - Pipeline chaining: \`sum(x**2 for x in filter(pred, data))\`
-- - Memory constrained
-- - Infinite sequences: \`(x for x in itertools.count())\`
-
-\`\`\`python
 # GOOD: Generator for large one-time sum
-total = sum(x**2 for x in range(10000000))  # O(1) memory!
-
-# GOOD: List for multiple operations
-squares = [x**2 for x in range(100)]  # Small, need multiple uses
-print(len(squares))
-print(max(squares))
-print(squares[50])
+total = sum(x**2 for x in range(10000000))  # O(1) memory
 
 # BAD: List for huge one-time use
-total = sum([x**2 for x in range(10000000)])  # Wastes ~80MB!
-
-# BAD: Generator for multiple iterations
-gen = (x**2 for x in range(100))
-print(list(gen))  # Works
-print(list(gen))  # [] Empty! Generator exhausted
-\`\`\`python
-
-NESTED COMPREHENSIONS: Comprehensions can be nested, but readability degrades quickly. Use regular loops beyond 2 levels of nesting.
+total = sum([x**2 for x in range(10000000)])  # Wastes ~80MB
+\`\`\`
+---
+Comprehension Syntax and Common Patterns
+Python has 4 comprehension types: list \`[]\`, set \`{}\`, dict \`{k:v}\`, generator \`()\`. Structure: \`[EXPR for VAR in ITERABLE if CONDITION]\`. Filter with \`if\`, nest for Cartesian products, use walrus \`:=\` to cache expensive calls. Comprehensions are 20-30% faster than loops for simple transforms.
 
 \`\`\`python
-# FLAT: Cartesian product (reads left-to-right!)
+# FOUR TYPES
+squares = [x**2 for x in range(10)]  # List
+unique = {x**2 for x in [-2, -1, 0, 1, 2]}  # Set (no duplicates)
+mapping = {x: x**2 for x in range(5)}  # Dict
+lazy = (x**2 for x in range(10))  # Generator
+
+# NO TUPLE COMPREHENSION! Use tuple()
+tup = tuple(x for x in range(5))  # → (0, 1, 2, 3, 4)
+
+# FILTERING: if clause
+evens = [x for x in range(10) if x % 2 == 0]  # [0, 2, 4, 6, 8]
+even_squares = [x**2 for x in range(10) if x % 2 == 0]
+
+# MULTIPLE IFS (AND logic)
+result = [x for x in range(20) if x % 2 == 0 if x % 3 == 0]
+# → [0, 6, 12, 18]  (divisible by 2 AND 3)
+
+# WALRUS := to cache expensive calls (3.8+)
+filtered = [y for x in data if (y := expensive(x)) > 0]
+# Calls expensive() ONCE per item, uses result y
+
+# NESTED: Cartesian product (reads left-to-right)
 pairs = [(x, y) for x in [1, 2, 3] for y in ['a', 'b']]
 # → [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'), (3, 'a'), (3, 'b')]
 # EQUIVALENT LOOP:
-# for x in [1, 2, 3]:
-#     for y in ['a', 'b']:
-#         pairs.append((x, y))
+# for x in [1, 2, 3]:  # Left = outer
+#     for y in ['a', 'b']:  # Right = inner
 
-# NESTED: Matrix (list of lists)
-matrix = [[x*y for y in range(3)] for x in range(4)]
-# → [[0, 0, 0], [0, 1, 2], [0, 2, 4], [0, 3, 6]]
-# Outer comp creates rows, inner comp creates columns
-
-# FLATTEN: Extract all items from nested lists
+# FLATTEN nested lists
 nested = [[1, 2], [3, 4], [5]]
 flat = [item for sublist in nested for item in sublist]
 # → [1, 2, 3, 4, 5]
-# EQUIVALENT LOOP:
-# for sublist in nested:      # Outer loop reads left
-#     for item in sublist:    # Inner loop reads right
-#         flat.append(item)
 
-# TRANSPOSE: Swap rows and columns
+# TERNARY in output (simple only!)
+result = ["even" if x % 2 == 0 else "odd" for x in range(5)]
+
+# DICT FROM TWO LISTS
+keys = ['a', 'b', 'c']
+values = [1, 2, 3]
+mapping = {k: v for k, v in zip(keys, values)}
+
+# TRANSPOSE matrix
 matrix = [[1, 2, 3], [4, 5, 6]]
-transposed = [[row[i] for row in matrix] for i in range(3)]
-# → [[1, 4], [2, 5], [3, 6]]
-# OR use zip:
-transposed = list(zip(*matrix))  # Clearer for transpose!
-\`\`\`python
-
-CRITICAL: Nested comp order reads LEFT-TO-RIGHT!
+transposed = list(zip(*matrix))  # → [(1, 4), (2, 5), (3, 6)]
+\`\`\`
+---
+When NOT to Use Comprehensions
+Use regular loops for: complex logic (if/elif/else, try/except), side effects (print, logging), triple+ nesting, exception handling. Rule: if >3 clauses or doesn't fit one readable line, use a loop. Comprehensions for simple map/filter only—readability always wins.
 
 \`\`\`python
-# This reads: for x in A, for y in B
-result = [x*y for x in A for y in B]
+# DON'T: Complex ternary (unreadable!)
+result = [x if x > 0 else -x if x < 0 else 0 for x in data]
 
-# SAME AS:
-for x in A:          # Left part = outer loop
-    for y in B:      # Right part = inner loop
-        result.append(x*y)
-\`\`\`python
-
-FILTERING AND MAPPING: Combine transformation (mapping) and filtering in one expression.
-
-\`\`\`python
-# FILTER: if clause at end
-evens = [x for x in range(10) if x % 2 == 0]
-# → [0, 2, 4, 6, 8]
-
-# MAP + FILTER: transform AND filter
-even_squares = [x**2 for x in range(10) if x % 2 == 0]
-# → [0, 4, 16, 36, 64]
-
-# MULTIPLE IFS: Multiple ifs = AND logic
-result = [x for x in range(20) if x % 2 == 0 if x % 3 == 0]
-# → [0, 6, 12, 18]  (divisible by 2 AND 3)
-# SAME AS: if x % 2 == 0 and x % 3 == 0
-
-# WALRUS := in filter (3.8+)
-# Compute expensive function ONCE per item
-filtered = [y for x in data if (y := expensive(x)) > 0]
-# Calls expensive() once, uses result y in output AND condition
-
-# WRONG: Calling expensive twice
-filtered = [expensive(x) for x in data if expensive(x) > 0]
-# Calls expensive() TWICE per passing item! (once in if, once in expr)
-\`\`\`python
-
-COMPREHENSIONS VS MAP/FILTER: Comprehensions are more Pythonic and flexible.
-
-\`\`\`python
-# map() equivalent
-squares_map = list(map(lambda x: x**2, range(10)))
-squares_comp = [x**2 for x in range(10)]  # Clearer!
-
-# filter() equivalent
-evens_filter = list(filter(lambda x: x % 2 == 0, range(10)))
-evens_comp = [x for x in range(10) if x % 2 == 0]  # Clearer!
-
-# map() + filter() combined
-result = list(map(lambda x: x**2, filter(lambda x: x % 2 == 0, range(10))))
-result = [x**2 for x in range(10) if x % 2 == 0]  # Much clearer!
-\`\`\`python
-
-Use map/filter ONLY when:
-- You already have a named function: \`list(map(str.upper, words))\`
-- Chaining many operations (functional style)
-
-WHEN NOT TO USE COMPREHENSIONS: Comprehensions are powerful but not always the right choice. Use regular loops when comprehensions hurt readability.
-
-DON'T use comprehensions for:
-
-1. Complex logic (if/elif/else, try/except):
-\`\`\`python
-# BAD: Complex ternary
-result = [x if x > 0 else -x if x < 0 else 0 for x in data]  # Unreadable!
-
-# GOOD: Regular loop
+# DO: Regular loop
 result = []
 for x in data:
     if x > 0:
@@ -1731,178 +1003,58 @@ for x in data:
         result.append(-x)
     else:
         result.append(0)
-\`\`\`python
 
-2. Side effects (print, logging, mutation):
-\`\`\`python
-# BAD: Side effects in comprehension
+# DON'T: Side effects
 [print(x) for x in data]  # Creates useless list of None!
 
-# GOOD: Regular loop
+# DO: Regular loop
 for x in data:
     print(x)
-\`\`\`python
 
-3. Triple nesting or more:
-\`\`\`python
-# BAD: Deeply nested (unreadable!)
-result = [[[x*y*z for z in C] for y in B] for x in A]
-
-# GOOD: Regular loops
-result = []
-for x in A:
-    row = []
-    for y in B:
-        col = []
-        for z in C:
-            col.append(x*y*z)
-        row.append(col)
-    result.append(row)
-\`\`\`python
-
-4. Exception handling:
-\`\`\`python
-# BAD: Can't use try/except in comprehension
+# DON'T: Exception handling
 # result = [int(x) for x in data]  # Crashes on non-numeric!
 
-# GOOD: Regular loop with try/except
+# DO: Regular loop with try/except
 result = []
 for x in data:
     try:
         result.append(int(x))
     except ValueError:
-        pass  # Skip invalid items
-\`\`\`python
+        pass  # Skip invalid
 
-Rule of Thumb: If your comprehension has >3 clauses or doesn't fit cleanly on one readable line, use a loop!
+# DON'T: Triple nesting
+result = [[[x*y*z for z in C] for y in B] for x in A]  # Unreadable!
 
-COMMON PATTERNS FOR INTERVIEWS:
+# DO: Regular loops (clearer)
+result = []
+for x in A:
+    row = []
+    for y in B:
+        col = [x*y*z for z in C]
+        row.append(col)
+    result.append(row)
 
-Unique Ordered Elements (remove duplicates, preserve order):
-\`\`\`python
-items = [1, 2, 1, 3, 2, 4]
-unique = list(dict.fromkeys(items))  # → [1, 2, 3, 4]
-# dict.fromkeys() maintains insertion order (3.7+)
-\`\`\`python
-
-Flatten Nested Lists:
-\`\`\`python
-nested = [[1, 2], [3, 4], [5]]
-flat = [item for sublist in nested for item in sublist]
-# → [1, 2, 3, 4, 5]
-\`\`\`python
-
-Transpose Matrix:
-\`\`\`python
-matrix = [[1, 2, 3], [4, 5, 6]]
-transposed = list(zip(*matrix))  # → [(1, 4), (2, 5), (3, 6)]
-# OR: [[row[i] for row in matrix] for i in range(len(matrix[0]))]
-\`\`\`python
-
-Conditional Expression in Output:
-\`\`\`python
-# Simple ternary OK
-result = ["even" if x % 2 == 0 else "odd" for x in range(5)]
-# → ["even", "odd", "even", "odd", "even"]
-\`\`\`python
-
-Dict from Two Lists:
-\`\`\`python
-keys = ['a', 'b', 'c']
-values = [1, 2, 3]
-mapping = {k: v for k, v in zip(keys, values)}
-# → {'a': 1, 'b': 2, 'c': 3}
-\`\`\`python
-
-PERFORMANCE COMPARISON: Real benchmarks for 1M items.
-
-List Comprehension vs Loop:
-\`\`\`python
-# List comp: ~50ms for 1M items
-squares = [x**2 for x in range(1000000)]
-
-# Append loop: ~65ms for 1M items (30% slower)
-squares = []
-for x in range(1000000):
-    squares.append(x**2)
-
-# Comprehensions are 20-30% faster for simple operations!
-\`\`\`python
-
-List Comprehension vs map():
-\`\`\`python
-# List comp: ~50ms
-squares = [x**2 for x in range(1000000)]
-
-# map with lambda: ~60ms (slower due to lambda overhead)
-squares = list(map(lambda x: x**2, range(1000000)))
-
-# map with function: ~45ms (slightly faster if function is pre-defined)
-def square(x): return x**2
-squares = list(map(square, range(1000000)))
-\`\`\`python
-
-Generator vs List for sum():
-\`\`\`python
-# Generator: ~70ms, O(1) memory
-total = sum(x**2 for x in range(1000000))
-
-# List: ~50ms, O(n) memory (~8MB)
-total = sum([x**2 for x in range(1000000)])
-
-# Generator slower but 80,000x less memory!
-\`\`\`python
-
-COMMON GOTCHAS:
-
-1. Generator Exhaustion (CRITICAL!):
-\`\`\`python
+# GOTCHA: Generator exhaustion
 gen = (x for x in range(5))
-list(gen)  # → [0, 1, 2, 3, 4]
-list(gen)  # → [] GOTCHA! Empty!
+list(gen)  # [0, 1, 2, 3, 4]
+list(gen)  # [] EMPTY! Generator exhausted!
 
-# FIX: Convert once
-data = list(x for x in range(5))
-\`\`\`python
+# GOTCHA: Nested loop order (left-to-right!)
+[(x, y) for x in A for y in B]
+# SAME AS:
+# for x in A:     # Left part = outer
+#     for y in B: # Right part = inner
 
-2. Variable Leakage (Python 2 only, fixed in Python 3):
-\`\`\`python
-# Python 3: Comprehension variables are local
-[x for x in range(5)]
-# x is NOT defined outside! (NameError)
-\`\`\`python
-
-3. Nested Loop Order:
-\`\`\`python
-# WRONG mental model
-[(x, y) for x in A for y in B]  # NOT "for y, for x"!
-
-# CORRECT: Reads left-to-right
-for x in A:     # Left part
-    for y in B: # Right part
-\`\`\`python
-
-4. Set/Dict Need {}, Not ():
-\`\`\`python
-# WRONG: () is generator, not set!
-gen = (x for x in range(5))  # Generator!
-
-# RIGHT: {} for set
-my_set = {x for x in range(5)}  # Set!
-\`\`\`python
-
-BEST PRACTICES SUMMARY:
-
-- Use comprehensions for simple map/filter operations
-- Use generators for 100K+ items or one-time iteration
-- Use lists for <100K items or multiple iterations
-- Keep comprehensions to 1-2 levels of nesting max
-- Put complex logic in regular loops
-- Convert generators to lists if you need multiple passes
-- Prefer comprehensions over map/filter for readability
-- NEVER use comprehensions for side effects
-- NEVER nest 3+ levels
-- NEVER use if/elif/else or try/except in comprehensions`
+# BEST PRACTICES
+# ✓ Use for simple map/filter operations
+# ✓ Use generators for 100K+ items
+# ✓ Keep to 1-2 nesting levels max
+# ✓ Prefer comprehensions over map/filter
+# ✗ NEVER use for side effects
+# ✗ NEVER nest 3+ levels
+# ✗ NEVER use if/elif/else or try/except
+\`\`\`
+`
 
 export function ComprehensionsPage() {
   return (
