@@ -21,7 +21,6 @@ function createPage(config: DataTypePageConfig, methods: Method[]) {
         intro={config.intro}
         tip={config.tip}
         methods={methods}
-        collapsible={true}
       />
     )
   }

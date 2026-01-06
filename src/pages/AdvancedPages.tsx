@@ -497,7 +497,6 @@ export function DocumentationPage() {
       description="Tools for documenting Python code: comments, docstrings, dir(), help(), and external tools."
       intro={documentationIntro}
       methods={documentationMethods}
-      collapsible={true}
     />
   )
 }
@@ -907,7 +906,6 @@ export function ModulesPage() {
       description="Import mechanics, bytecode, packages, and program architecture."
       intro={modulesIntro}
       methods={modulesMethods}
-      collapsible={true}
     />
   )
 }
@@ -1435,7 +1433,6 @@ export function ExceptionsPage() {
       description="Exception handling in Python. Try/except for graceful error handling, raise for signaling errors."
       intro={exceptionsIntro}
       methods={exceptionsMethods}
-      collapsible={true}
     />
   )
 }
@@ -1788,7 +1785,6 @@ export function LoggingPage() {
       description="Logging, debugging, and profiling in Python. Better than print for production code."
       intro={loggingIntro}
       methods={loggingMethods}
-      collapsible={true}
     />
   )
 }
@@ -2111,7 +2107,6 @@ export function ConcurrencyPage() {
       description="Concurrent and parallel programming in Python. Threading, multiprocessing, and async/await."
       intro={concurrencyIntro}
       methods={concurrencyMethods}
-      collapsible={true}
     />
   )
 }
@@ -2521,7 +2516,6 @@ export function FileIOPage() {
       description="Reading and writing files. Cross-platform path handling with pathlib."
       intro={fileioIntro}
       methods={fileioMethods}
-      collapsible={true}
     />
   )
 }

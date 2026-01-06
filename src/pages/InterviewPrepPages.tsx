@@ -1876,7 +1876,6 @@ export function GreedyPage() {
       description="Make locally optimal choices hoping for global optimum. Works when greedy choice property + optimal substructure exist."
       intro={greedyIntro}
       methods={greedyMethods}
-      collapsible={true}
       tabs={<DSCategoryTabs basePath="/greedy" problemCount={getProblemCount('greedy')} />}
     />
   )
@@ -2356,7 +2355,6 @@ export function IntervalsPage() {
       description="Interval problems: merge, insert, schedule. Key techniques: sort by start/end, sweep line, event processing."
       intro={intervalsIntro}
       methods={intervalMethods}
-      collapsible={true}
       tabs={<DSCategoryTabs basePath="/intervals" problemCount={getProblemCount('intervals')} />}
     />
   )
@@ -2369,7 +2367,6 @@ export function StdlibPage() {
       description="Essential functools, itertools, and collections for interviews. @lru_cache is interview gold for DP memoization."
       intro={stdlibIntro}
       methods={stdlibMethods}
-      collapsible={true}
     />
   )
 }
@@ -2381,7 +2378,6 @@ export function DesignPatternsPage() {
       description="LRU/LFU Cache, Min Stack, Rate Limiter, and other frequently asked design problems."
       intro={designPatternsIntro}
       methods={designPatternsMethods}
-      collapsible={true}
     />
   )
 }
@@ -2908,7 +2904,6 @@ export function MathPage() {
       description="GCD/LCM, primes, modular arithmetic, combinatorics. Foundation for many interview problems."
       intro={mathIntro}
       methods={mathMethods}
-      collapsible={true}
     />
   )
 }
@@ -2920,7 +2915,6 @@ export function GeneratorsPage() {
       description="Memory-efficient iteration with yield. Process huge files with constant memory. Build data pipelines."
       intro={generatorsIntro}
       methods={generatorMethods}
-      collapsible={true}
     />
   )
 }
@@ -3382,7 +3376,6 @@ export function SegmentTreePage() {
       description="O(log n) range queries + point updates. Segment Tree for sum/min/max, BIT (Fenwick) for simpler prefix sums."
       intro={segmentTreeIntro}
       methods={segmentTreeMethods}
-      collapsible={true}
     />
   )
 }

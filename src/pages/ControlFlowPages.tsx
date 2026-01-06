@@ -401,7 +401,6 @@ export function FundamentalsPage() {
       description="Core concepts: dynamic typing, strong typing, polymorphism. Understanding Python's object model and type categories."
       intro={fundamentalsIntro}
       methods={fundamentalsMethods}
-      collapsible={true}
     />
   )
 }
@@ -724,7 +723,6 @@ export function StatementsPage() {
       description="Assignment forms, variable naming, expression statements, and print operations. The building blocks of Python programs."
       intro={statementsIntro}
       methods={statementsMethods}
-      collapsible={true}
     />
   )
 }
@@ -1102,7 +1100,6 @@ export function ConditionalsPage() {
       description="Selection and branching with if, ternary expressions, and boolean logic. Dictionary dispatch for cleaner multi-way branching."
       intro={conditionalsIntro}
       methods={conditionalsMethods}
-      collapsible={true}
     />
   )
 }
@@ -1477,7 +1474,6 @@ export function ConditionalPatternsPage() {
       description="Performance comparisons and best practices: if-elif vs dict vs match, short-circuit evaluation, when to use ternary."
       intro={conditionalPatternsIntro}
       methods={conditionalPatternsMethods}
-      collapsible={true}
     />
   )
 }
@@ -1821,7 +1817,6 @@ export function MatchPage() {
       description="Structural pattern matching (Python 3.10+). Destructure sequences, match types, bind variables, use guards. More powerful than switch."
       intro={matchIntro}
       methods={matchMethods}
-      collapsible={true}
     />
   )
 }
@@ -2242,7 +2237,6 @@ export function LoopsPage() {
       description="Python loops: for iterates over sequences, while repeats until condition is false. Includes iteration tools and loop control."
       intro={loopsIntro}
       methods={loopsMethods}
-      collapsible={true}
     />
   )
 }
@@ -2647,7 +2641,6 @@ export function ComprehensionsPage() {
       description="Concise syntax for creating collections: list, dict, set, generator. Transform and filter iterables in one readable expression."
       intro={comprehensionsIntro}
       methods={comprehensionsMethods}
-      collapsible={true}
     />
   )
 }
@@ -2704,7 +2697,6 @@ export function FunctionsPage() {
       description="Functions are first-class objects in Python. Use def for named functions, lambda for anonymous functions."
       intro={functionsIntro}
       methods={functionsMethods}
-      collapsible={true}
     />
   )
 }
@@ -2736,7 +2728,6 @@ export function OOPPage() {
       description="Object-Oriented Programming in Python. Classes bundle data + behavior. Use when you have state + multiple operations on that state."
       intro={oopIntro}
       methods={oopMethods}
-      collapsible={true}
     />
   )
 }

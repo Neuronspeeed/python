@@ -6,7 +6,6 @@ import { SectionNav } from './SectionNav'
 import { MethodCard } from './CodeDisplay'
 import { Footer } from './Footer'
 import { PageHeader } from './PageHeader'
-import { CollapsibleIntroBox } from './CollapsibleIntroBox'
 
 // Parse Q&A format: "Question? Answer" per line
 function parseQA(tip: string): { question: string; answer: string }[] {
@@ -176,10 +175,9 @@ export interface TypePageProps {
   tip?: string
   methods: Method[]
   tabs?: React.ReactNode
-  collapsible?: boolean
 }
 
-export function TypePage({ type, badge, color, description, intro, tip, methods, tabs, collapsible = false }: TypePageProps) {
+export function TypePage({ type, badge, color, description, intro, tip, methods, tabs }: TypePageProps) {
   const sections = useMemo(() => computeSections(methods), [methods])
   const sectionTitles = sections.map(s => s.title)
   const { activeSection, sectionNavItems, registerSection } = useSectionScroll(sectionTitles)
@@ -188,13 +186,7 @@ export function TypePage({ type, badge, color, description, intro, tip, methods,
     <>
       <PageHeader badge={badge} badgeColor={color} title={type} description={description} />
 
-      {intro && (
-        collapsible ? (
-          <CollapsibleIntroBox intro={intro} />
-        ) : (
-          <IntroBox intro={intro} />
-        )
-      )}
+      {intro && <IntroBox intro={intro} />}
 
       {tip && <TipBox tip={tip} />}
 
