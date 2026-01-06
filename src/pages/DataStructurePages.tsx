@@ -401,6 +401,7 @@ export function ArraysPage() {
       intro={arraysIntro}
       methods={arrayMethods}
       tabs={<DSCategoryTabs basePath="/arrays" problemCount={getProblemCount('slidingWindow', 'prefixSum')} />}
+      collapsible={true}
     />
   )
 }
@@ -413,6 +414,7 @@ export function LinkedListPage() {
       intro={linkedListIntro}
       methods={linkedListMethods}
       tabs={<DSCategoryTabs basePath="/linked-list" problemCount={getProblemCount('linkedList')} />}
+      collapsible={true}
     />
   )
 }
@@ -425,6 +427,7 @@ export function StackQueuePage() {
       intro={stackQueueIntro}
       methods={stackQueueMethods}
       tabs={<DSCategoryTabs basePath="/stack-queue" problemCount={getProblemCount('stack')} />}
+      collapsible={true}
     />
   )
 }
@@ -437,6 +440,7 @@ export function BinaryTreePage() {
       intro={binaryTreeIntro}
       methods={binaryTreeMethods}
       tabs={<DSCategoryTabs basePath="/binary-tree" problemCount={getProblemCount('dfs', 'bfs')} />}
+      collapsible={true}
     />
   )
 }
@@ -449,6 +453,7 @@ export function HeapPage() {
       intro={heapIntro}
       methods={heapMethods}
       tabs={<DSCategoryTabs basePath="/heap" problemCount={getProblemCount('heap')} />}
+      collapsible={true}
     />
   )
 }
@@ -461,6 +466,7 @@ export function TriePage() {
       intro={trieIntro}
       methods={trieMethods}
       tabs={<DSCategoryTabs basePath="/trie" problemCount={getProblemCount('trie')} />}
+      collapsible={true}
     />
   )
 }
@@ -472,6 +478,7 @@ export function UnionFindPage() {
       description="Track disjoint sets efficiently. Near O(1) union and find with path compression and union by rank."
       intro={unionFindIntro}
       methods={unionFindMethods}
+      collapsible={true}
     />
   )
 }
@@ -484,6 +491,7 @@ export function MatrixPage() {
       intro={matrixIntro}
       methods={matrixMethods}
       tabs={<DSCategoryTabs basePath="/matrix" problemCount={getProblemCount('matrices')} />}
+      collapsible={true}
     />
   )
 }
@@ -495,6 +503,7 @@ export function BitManipulationPage() {
       description="Extremely fast O(1) operations. Essential for flags, subsets, and optimization problems."
       intro={bitManipulationIntro}
       methods={bitManipulationMethods}
+      collapsible={true}
     />
   )
 }

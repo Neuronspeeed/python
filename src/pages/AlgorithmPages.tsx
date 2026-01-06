@@ -439,6 +439,7 @@ export function SortingPage() {
       description="Master sorting algorithms. Know when to use each. Python's Timsort is usually best."
       intro={sortingIntro}
       methods={sortingMethods}
+      collapsible={true}
     />
   )
 }
@@ -977,6 +978,7 @@ export function BinarySearchPage() {
       intro={binarySearchIntro}
       methods={binarySearchMethods}
       tabs={<DSCategoryTabs basePath="/binary-search" problemCount={getProblemCount('binarySearch')} />}
+      collapsible={true}
     />
   )
 }
@@ -1409,6 +1411,7 @@ export function TwoPointersPage() {
       intro={twoPointersIntro}
       methods={twoPointersMethods}
       tabs={<DSCategoryTabs basePath="/two-pointers" problemCount={getProblemCount('twoPointers')} />}
+      collapsible={true}
     />
   )
 }
@@ -1853,6 +1856,7 @@ export function BacktrackingPage() {
       intro={backtrackingIntro}
       methods={backtrackingMethods}
       tabs={<DSCategoryTabs basePath="/backtracking" problemCount={getProblemCount('backtracking')} />}
+      collapsible={true}
     />
   )
 }
@@ -2317,6 +2321,7 @@ export function DynamicProgrammingPage() {
       intro={dpIntro}
       methods={dpMethods}
       tabs={<DSCategoryTabs basePath="/dynamic-programming" problemCount={getProblemCount('dynamicProgramming')} />}
+      collapsible={true}
     />
   )
 }
@@ -2976,6 +2981,7 @@ export function GraphPage() {
       intro={graphIntro}
       methods={graphMethods}
       tabs={<DSCategoryTabs basePath="/graph" problemCount={getProblemCount('graphs')} />}
+      collapsible={true}
     />
   )
 }
