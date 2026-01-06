@@ -11,113 +11,965 @@ import { bitManipulationMethods } from '../data/bitManipulation'
 import { DSCategoryTabs } from '../components/DSCategoryTabs'
 import { getProblemCount } from '../data/learn'
 
-const arraysIntro = `Arrays are contiguous blocks of memory that provide O(1) random access to elements by index. They're the foundation of nearly all data structures—strings, stacks, queues, heaps, and hash tables all build on arrays. The key insight: trading off insertion/deletion cost (O(n) for shifts) for blazing fast access and iteration (cache-friendly).
+const arraysIntro = `Use Arrays When...
+You need O(1) random access by index. Arrays excel when iteration and lookup dominate—cache locality makes them blazing fast. Python lists are dynamic arrays that resize automatically (1.5-2x when capacity exceeded), making \`append()\` O(1) amortized. Choose arrays when size is predictable or grows slowly.
 
-PYTHON LISTS ARE DYNAMIC ARRAYS: Unlike traditional fixed-size arrays, Python lists automatically resize when needed. When capacity is exceeded, Python allocates a new array (typically 1.5-2x larger), copies elements, and frees the old array. This makes append() O(1) amortized—most appends are instant, occasional ones trigger resize. Understanding this explains why building a list with repeated append() is O(n) total, not O(n²).
+\`\`\`python
+# WHEN ARRAYS SHINE
+nums = [1, 2, 3, 4, 5]
+value = nums[2]           # O(1) - Direct memory access
+for num in nums:          # Cache-friendly iteration
+    process(num)
 
-ARRAY VS LINKED LIST: This is the fundamental data structure trade-off. Arrays: O(1) access by index, O(n) insert/delete (must shift elements). Linked Lists: O(n) access (must traverse), O(1) insert/delete at known position (just pointer changes). Cache locality also matters—arrays store elements contiguously, so iterating is fast. Linked lists scatter nodes in memory, causing cache misses. Choose arrays when: you need random access, iteration is common, size is predictable. Choose linked lists when: frequent insertions/deletions at arbitrary positions, size varies wildly.
+# Building with append() is O(n) total, not O(n²)
+result = []
+for i in range(n):
+    result.append(i)      # O(1) amortized per append
 
-WHEN TO SORT FIRST: A sorted array unlocks powerful algorithms. Binary search becomes possible (O(log n) vs O(n)). Two pointers pattern works for many problems (find pairs summing to target). Greedy algorithms often require sorting (interval scheduling). Detecting duplicates becomes trivial (just check consecutive elements). Trade-off: sorting costs O(n log n), so only sort if it simplifies the problem enough. For one-time searches, O(n) scan might be better than O(n log n) sort + O(log n) search.
+# WHEN TO AVOID
+# AVOID: Frequent insertions in middle (O(n) shifts)
+nums.insert(0, 99)        # Shifts entire array
+# BETTER: Use deque for O(1) insertions at both ends
+from collections import deque
+dq = deque([1, 2, 3])
+dq.appendleft(99)         # O(1) - No shifts
+\`\`\`python
+---
+Master These Patterns
+Three essential array patterns solve 80% of problems. **Sliding Window** for subarray problems (max sum, longest substring). **Two Pointers** for palindrome/pair finding in sorted arrays. **Prefix Sum** for range queries on static arrays. Each reduces O(n²) brute force to O(n) with clever traversal.
 
-PREFIX SUM PATTERN: For range sum queries on static arrays, preprocessing with prefix sums converts O(n) queries to O(1). Build prefix[i] = sum of arr[0..i-1], then sum(arr[left:right]) = prefix[right] - prefix[left]. This pattern extends to 2D arrays for rectangle sum queries. Essential for problems with many range queries—preprocessing once (O(n)) enables unlimited O(1) queries.
+\`\`\`python
+# SLIDING WINDOW - Max sum subarray of size k
+def max_sum_window(arr, k):
+    window_sum = sum(arr[:k])
+    max_sum = window_sum
+    for i in range(k, len(arr)):
+        window_sum = window_sum - arr[i-k] + arr[i]  # Slide: remove left, add right
+        max_sum = max(max_sum, window_sum)
+    return max_sum  # O(n) vs O(n*k) brute force
 
-SLIDING WINDOW PATTERN: For subarray problems with size constraint, the sliding window maintains a fixed or variable-sized range while iterating. Instead of recalculating from scratch (O(n) per position), slide the window by removing left element and adding right element (O(1) per position). Reduces O(n²) to O(n). Variants: fixed window size, variable window with condition, two pointers for sorted arrays.`
+# TWO POINTERS - Pair sum in sorted array
+def two_sum_sorted(arr, target):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        current = arr[left] + arr[right]
+        if current == target:
+            return [left, right]
+        elif current < target:
+            left += 1       # Need larger sum
+        else:
+            right -= 1      # Need smaller sum
+    return []  # O(n) vs O(n²) nested loops
 
-const linkedListIntro = `Linked lists are sequences of nodes connected by pointers, where each node contains data and a reference to the next node. Unlike arrays with contiguous memory, linked list nodes scatter throughout memory. The key insight: O(1) insertion/deletion at known positions (just update pointers) vs arrays' O(n) shifts—but you pay with O(n) access time and poor cache performance.
+# PREFIX SUM - Range sum queries
+def build_prefix(arr):
+    prefix = [0]
+    for num in arr:
+        prefix.append(prefix[-1] + num)
+    return prefix  # O(n) preprocessing
 
-SINGLY VS DOUBLY LINKED: Singly linked lists have one pointer (next), making them memory-efficient but one-directional. Doubly linked lists add a prev pointer, enabling bidirectional traversal and O(1) deletion when you have a node reference (no need to find predecessor). Python's collections.deque uses a doubly linked list for O(1) operations at both ends. Most interview problems use singly linked lists to test pointer manipulation skills.
+# Query sum(arr[left:right]) in O(1)
+prefix = build_prefix([1, 2, 3, 4, 5])
+range_sum = prefix[4] - prefix[1]  # sum([2, 3, 4]) = 9
+\`\`\`python
+---
+Arrays vs Linked Lists: The Fundamental Trade-off
+Arrays give O(1) access but O(n) insertion/deletion (must shift elements). Linked Lists give O(1) insertion/deletion at known position but O(n) access (must traverse). Cache locality matters too—arrays are contiguous (fast iteration), linked lists scatter nodes (cache misses). The decision: does your workload need random access or frequent middle insertions?
 
-FAST/SLOW POINTER PATTERN: Two pointers moving at different speeds solve many linked list problems. For finding the middle: slow moves 1 step, fast moves 2 steps—when fast reaches end, slow is at middle. For cycle detection: if there's a cycle, fast will eventually lap slow and they'll meet (Floyd's algorithm). For finding nth from end: start fast with n-step lead, then move both until fast reaches end.
+\`\`\`python
+# ARRAY: Fast access, slow middle insertion
+arr = [1, 2, 3, 4, 5]
+value = arr[2]            # O(1) - Direct index calculation
+arr.insert(2, 99)         # O(n) - Must shift arr[2:] right
 
-DUMMY HEAD TECHNIQUE: Many linked list operations become simpler with a dummy node before the real head. This eliminates special cases for operations at the head (insertion, deletion). Instead of checking "if this is the head", just treat all nodes uniformly. Common pattern: \`dummy = ListNode(0, head)\`, do operations, return \`dummy.next\` as new head.
+# LINKED LIST: Slow access, fast middle insertion
+class Node:
+    def __init__(self, val, next=None):
+        self.val = val
+        self.next = next
 
-WHEN LINKED LIST BEATS ARRAY: Use linked lists when: implementing queue/deque (O(1) at both ends), frequent insertions/deletions in the middle (if you maintain references), implementing LRU cache (doubly linked list + hash map), unknown or wildly varying size. Don't use linked lists when: you need random access, iteration dominates (cache misses hurt), memory overhead matters (each node has pointer overhead).
+# Access requires traversal
+node = head
+for _ in range(index):    # O(n) - Must walk the chain
+    node = node.next
 
-EDGE CASES TO ALWAYS CONSIDER: Empty list (head is None), single node, operations at head/tail, cycles (if possible), modifying list while traversing. The dummy head technique handles most head-related edge cases automatically.`
+# Insertion at known position is just pointer update
+new_node.next = node.next  # O(1) - No shifts needed
+node.next = new_node
 
-const stackQueueIntro = `Stacks and queues are abstract data types that restrict access to elements, enforcing specific ordering. Stack is LIFO (Last In, First Out)—like a stack of plates. Queue is FIFO (First In, First Out)—like a line at a store. The key insight: restrictions enable elegant solutions to problems involving matching, ordering, and traversal.
+# DECISION MATRIX
+# Choose ARRAYS when:
+#   • Random access needed (indexing, binary search)
+#   • Iteration dominates (cache locality wins)
+#   • Size is predictable or slowly growing
 
-STACK IMPLEMENTATION: Python lists work perfectly as stacks. \`append()\` pushes (O(1)), \`pop()\` pops (O(1)), \`[-1]\` peeks at top (O(1)). These operations are fast because they work at the end of the array, requiring no shifts. Stacks power recursion (call stack), DFS traversal, expression evaluation, and undo mechanisms.
+# Choose LINKED LISTS when:
+#   • Frequent middle insertions/deletions (if you maintain references)
+#   • Implementing queue/deque (O(1) at both ends with doubly linked)
+#   • Size varies wildly or unknown upfront
+\`\`\`python
+`
 
-QUEUE IMPLEMENTATION: NEVER use Python lists as queues! \`list.pop(0)\` is O(n) because it shifts all remaining elements. Always use \`collections.deque\`—it's a doubly linked list with O(1) operations at both ends. \`append()\` enqueues right, \`popleft()\` dequeues left, \`[0]\` peeks front.
+const linkedListIntro = `When Linked Lists Beat Arrays
+O(1) insertion/deletion at known positions (just pointer updates) vs arrays O(n) shifts. Use when implementing queue/deque, LRU cache (doubly linked list + hash map), or frequent middle insertions. Trade-off: O(n) access time and poor cache performance (nodes scattered in memory). Arrays win for random access and iteration.
 
-MONOTONIC STACK PATTERN: A stack that maintains elements in increasing or decreasing order. When a new element violates the order, pop until order is restored, then push. This pattern solves "next greater element" problems in O(n). Example: for each element, find the next larger element to the right. Monotonic decreasing stack: pop smaller elements when you see a larger one—the larger one is the "next greater" for all popped elements.
+\`\`\`python
+# LINKED LIST STRUCTURE
+class Node:
+    def __init__(self, val, next=None):
+        self.val = val
+        self.next = next
 
-STACK FOR DFS, QUEUE FOR BFS: Stack (or recursion, which uses call stack) gives depth-first traversal—go deep before backtracking. Queue gives breadth-first traversal—process level by level. Stack for: finding paths (backtracking), topological sort, maze solving. Queue for: shortest path (unweighted), level-order tree traversal, finding closest node.
+# O(1) INSERTION at known position (just pointer update)
+new_node.next = node.next
+node.next = new_node
+# vs ARRAY O(n): arr.insert(i, val) - must shift elements
 
-WHEN TO USE STACK VS QUEUE: Stack when order needs to be reversed (last processed first), when you're backtracking, when matching pairs. Queue when processing in order received, when level-by-level traversal matters, when fairness/FIFO scheduling needed.`
+# O(n) ACCESS (must traverse)
+node = head
+for _ in range(index):
+    node = node.next
+# vs ARRAY O(1): arr[index] - direct memory calculation
 
-const binaryTreeIntro = `Binary trees are hierarchical data structures where each node has at most two children (left and right). The key insight: recursion is natural for trees—most tree operations follow the pattern "process node, recurse left, recurse right". Trees enable O(log n) operations when balanced (BST), but degrade to O(n) when unbalanced.
+# WHEN TO USE:
+# • Queue/Deque - O(1) at both ends with doubly linked
+# • LRU Cache - doubly linked list + hash map
+# • Frequent middle insertions if you maintain node references
+# • Unknown/wildly varying size
 
-TREE TERMINOLOGY: Root is the top node with no parent. Leaf nodes have no children. Height is the longest path from a node to a leaf. Depth is the distance from root to a node. A complete binary tree has all levels filled except possibly the last, which fills left-to-right. A full binary tree has every node with 0 or 2 children (no node has exactly 1 child).
+# WHEN TO AVOID:
+# • Random access needed - arrays win O(1) vs O(n)
+# • Iteration dominates - cache misses hurt performance
+# • Memory overhead matters - each node has pointer overhead
+\`\`\`python
+---
+Master These Patterns: Fast/Slow Pointers and Dummy Head
+Two pointers moving at different speeds solve cycle detection, finding middle, nth from end. Dummy head eliminates special cases for head operations. These two techniques solve most linked list interview problems.
 
-TRAVERSAL ORDERS: The order you visit nodes defines the traversal. Preorder (root, left, right): use for copying tree, serialization. Inorder (left, root, right): BST gives sorted order—this is THE way to get sorted elements from BST. Postorder (left, right, root): use when children must be processed before parent (deletion, calculating size/height). Level-order (BFS): process level by level using queue—use for shortest path, printing by level.
+\`\`\`python
+# FAST/SLOW POINTER: Find middle
+def find_middle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next      # Move 1 step
+        fast = fast.next.next # Move 2 steps
+    return slow  # When fast reaches end, slow is at middle
 
-DFS VS BFS: DFS (depth-first search) uses recursion or stack, going deep before backtracking. BFS (breadth-first search) uses queue, processing level by level. DFS for: finding paths, checking subtree properties, using less memory (recursion stack vs explicit queue). BFS for: shortest path in unweighted tree, level-order processing, finding closest node to root.
+# FAST/SLOW POINTER: Cycle detection (Floyd's algorithm)
+def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:  # Fast caught up - cycle exists
+            return True
+    return False
 
-BINARY SEARCH TREE (BST): A binary tree where left.val < node.val < right.val for all nodes. This property enables O(log n) search, insert, delete when balanced. Inorder traversal of BST gives sorted order. BST operations degrade to O(n) on unbalanced trees (essentially a linked list). Self-balancing BSTs (AVL, Red-Black) maintain O(log n) by rebalancing on operations.
+# FAST/SLOW POINTER: Find nth from end
+def nth_from_end(head, n):
+    fast = slow = head
+    # Give fast n-step lead
+    for _ in range(n):
+        fast = fast.next
+    # Move both until fast reaches end
+    while fast:
+        slow = slow.next
+        fast = fast.next
+    return slow  # Slow is now n steps from end
 
-COMMON PATTERNS: Path sum (DFS tracking current sum), lowest common ancestor (recursive: if p and q in different subtrees, current node is LCA), diameter (longest path—recurse to get height of each subtree), validate BST (track valid range as you recurse), tree to linked list (morris traversal for O(1) space).`
+# DUMMY HEAD: Simplifies head operations
+def remove_elements(head, val):
+    dummy = Node(0, head)  # Dummy before head
+    prev = dummy
+    curr = head
+    while curr:
+        if curr.val == val:
+            prev.next = curr.next  # Remove node
+        else:
+            prev = curr
+        curr = curr.next
+    return dummy.next  # New head (might have changed)
+# No special case for removing head - treated like any node
+\`\`\`python
+---
+Singly vs Doubly Linked Lists
+Singly linked has one pointer (next) - memory efficient, one-directional. Doubly linked adds prev pointer - bidirectional traversal, O(1) deletion with node reference (no need to find predecessor). Python collections.deque uses doubly linked for O(1) operations at both ends.
 
-const heapIntro = `A heap is a complete binary tree that maintains the heap property: in a min-heap, parent ≤ children (root is minimum); in a max-heap, parent ≥ children (root is maximum). The key insight: get min/max in O(1), insert/remove in O(log n)—perfect for priority queues and "top-k" problems.
+\`\`\`python
+# SINGLY LINKED LIST
+class SinglyNode:
+    def __init__(self, val, next=None):
+        self.val = val
+        self.next = next
 
-WHY HEAPS ARE FAST: The complete binary tree structure means height is always O(log n) for n elements. Operations move elements up (bubble up on insert) or down (bubble down on delete) the tree, taking at most O(log n) steps. Building a heap from an array is O(n), not O(n log n)—this enables heapsort and efficient initialization. Python's heapq implements min-heap only—use negative values for max-heap behavior.
+# Deletion requires finding predecessor - O(n)
+def delete_node_singly(head, target):
+    if head.val == target:
+        return head.next
+    prev = head
+    while prev.next and prev.next.val != target:
+        prev = prev.next
+    if prev.next:
+        prev.next = prev.next.next
+    return head
 
-TOP-K PATTERN: To find K largest elements, use a min-heap of size K. As you process elements, if new element > heap[0], pop smallest and push new element. The heap maintains the K largest seen so far. For K smallest, use max-heap. This avoids full sorting (O(n log n))—heap solution is O(n log k).
+# DOUBLY LINKED LIST
+class DoublyNode:
+    def __init__(self, val, prev=None, next=None):
+        self.val = val
+        self.prev = prev
+        self.next = next
 
-HEAP VS SORTED ARRAY: Both give O(1) peek at min/max. Heap: O(log n) insert, O(log n) delete min. Sorted array: O(n) insert (must maintain sort), O(1) delete min (if allowed to modify). Use heap for dynamic data with frequent insertions. Use sorted array for static data or when you need binary search (heaps don't support efficient search).
+# Deletion with node reference - O(1)
+def delete_node_doubly(node):
+    if node.prev:
+        node.prev.next = node.next
+    if node.next:
+        node.next.prev = node.prev
+# No traversal needed - direct pointer updates
 
-MERGE K SORTED LISTS: Classic heap problem. Put first element from each list in min-heap (with list index). Pop smallest, add to result, push next element from same list. The heap always contains the K "candidates" for next smallest element. Time: O(N log K) where N is total elements, K is number of lists.
+# PYTHON DEQUE: Doubly linked list
+from collections import deque
+dq = deque([1, 2, 3])
+dq.appendleft(0)  # O(1) - add to front
+dq.append(4)      # O(1) - add to back
+dq.popleft()      # O(1) - remove from front
+dq.pop()          # O(1) - remove from back
 
-RUNNING MEDIAN: Maintain two heaps—max-heap for lower half of numbers, min-heap for upper half. Keep sizes balanced (differ by at most 1). Median is either top of larger heap, or average of both tops. Each insert is O(log n), getting median is O(1). This beats sorting each time (O(n log n) per query).`
+# WHEN TO USE EACH:
+# Singly: Memory efficient, forward-only traversal sufficient
+# Doubly: Need backward traversal, O(1) deletion at arbitrary positions
+\`\`\``
 
-const trieIntro = `A trie (prefix tree) is a tree where each node represents a character, and paths from root spell out strings. The key insight: O(L) search/insert where L is word length, independent of how many words are stored. Perfect for prefix operations—autocomplete, spell check, word games.
+const stackQueueIntro = `Stack vs Queue: LIFO vs FIFO
+Stack is LIFO (Last In First Out) - Python list works perfectly. Queue is FIFO (First In First Out) - NEVER use list, always use \`collections.deque\`. Stack for DFS/backtracking/undo. Queue for BFS/level-order/scheduling.
 
-STRUCTURE: Each node has a dictionary/map of children (character → child node) and a boolean marking if it's the end of a word. The path from root to a node represents a prefix, and all descendants share that prefix. This structure makes prefix search trivial—just follow the path. Operations are O(L) where L is word/prefix length.
+\`\`\`python
+# STACK: Use Python list (O(1) at end)
+stack = []
+stack.append(1)    # Push - O(1)
+stack.append(2)
+top = stack[-1]    # Peek - O(1)
+val = stack.pop()  # Pop - O(1)
 
-TRIE VS HASH TABLE: Hash table gives O(L) insert/search but can't do prefix operations. Finding all words with prefix P: Trie is O(P + results), hash table is O(N*L) checking every word. Autocomplete with trie: walk to prefix in O(P), then DFS to collect all words in that subtree. Tries use more memory (each node has character map) but enable operations hash tables can't do efficiently.
+# QUEUE: Use deque (NOT list!)
+from collections import deque
+queue = deque()
+queue.append(1)    # Enqueue right - O(1)
+queue.append(2)
+front = queue[0]   # Peek - O(1)
+val = queue.popleft()  # Dequeue left - O(1)
 
-WORD SEARCH II PATTERN: Given a grid and a dictionary, find all dictionary words in the grid. Naive: for each word, DFS grid (slow). Trie approach: build trie from dictionary, DFS grid while walking trie simultaneously. When path in grid doesn't match any prefix in trie, backtrack (pruning). This converts checking N words into one DFS guided by the trie.
+# NEVER DO THIS:
+# queue = []
+# queue.pop(0)  # O(n)! Shifts all elements
 
-SPACE COMPLEXITY: Worst case is O(N * L * alphabet_size) for N words of length L with alphabet_size characters. In practice, shared prefixes reduce this significantly. For lowercase English (26 chars), each node could have 26 child pointers, making tries memory-heavy. Compressed tries (radix trees) reduce nodes by merging chains.`
+# STACK for DFS (depth-first)
+def dfs(node):
+    stack = [node]
+    while stack:
+        curr = stack.pop()
+        for child in curr.children:
+            stack.append(child)  # Go deep first
 
-const unionFindIntro = `Union-Find (Disjoint Set Union) tracks which elements belong to which disjoint set, supporting near-constant-time union and find operations. The key insight: represent each set as a tree where elements point to parents, eventually reaching a root—the set representative.
+# QUEUE for BFS (breadth-first)
+def bfs(node):
+    queue = deque([node])
+    while queue:
+        curr = queue.popleft()
+        for child in curr.children:
+            queue.append(child)  # Process level by level
+\`\`\`python
+---
+Monotonic Stack Pattern
+Stack maintaining elements in sorted order. When new element violates order, pop until restored. Solves "next greater element" in O(n). Classic interview pattern.
 
-OPERATIONS: Find(x) returns the root/representative of x's set by following parent pointers. Union(x, y) merges the sets containing x and y by making one root point to the other. Connected(x, y) checks if find(x) == find(y). Without optimizations, these are O(n) worst case (linear chain). With optimizations (path compression + union by rank), they're O(α(n)) ≈ O(1) amortized, where α is the inverse Ackermann function (< 5 for all practical n).
+\`\`\`python
+# NEXT GREATER ELEMENT to the right
+def next_greater(nums):
+    result = [-1] * len(nums)
+    stack = []  # Monotonic decreasing stack (indices)
 
-PATH COMPRESSION: When finding root of x, make all nodes on path point directly to root. This flattens the tree, making future finds faster. Implementation: in find(), after recursively finding root, set \`parent[x] = find(parent[x])\`. This single line converts O(n) worst case to O(α(n)) amortized.
+    for i, num in enumerate(nums):
+        # Pop smaller elements - num is their "next greater"
+        while stack and nums[stack[-1]] < num:
+            idx = stack.pop()
+            result[idx] = num
+        stack.append(i)
 
-UNION BY RANK: When merging trees, attach shorter tree to taller tree (rank is upper bound on height). This prevents trees from becoming linear chains. Combined with path compression, this achieves O(α(n)) complexity—essentially constant time for practical purposes.
+    return result
+# [4,2,6,3] → [6,6,-1,-1]
+# O(n) - each element pushed/popped once
 
-CYCLE DETECTION: For undirected graphs, union-find detects cycles efficiently. Process edges one by one. For edge (u, v): if find(u) == find(v), they're already connected—adding this edge creates a cycle. Otherwise, union(u, v). This is the basis of Kruskal's MST algorithm.
+# MONOTONIC STACK VARIANTS:
+# • Increasing stack: pop larger elements
+# • Decreasing stack: pop smaller elements
+# • Next smaller: use increasing stack
+# • Previous greater: iterate right-to-left
 
-WHEN TO USE UNION-FIND: Dynamic connectivity (are x and y connected? add connection), connected components count (count unique roots), cycle detection in undirected graphs, Kruskal's MST, equivalence classes. Don't use when: you need actual paths between nodes (use DFS/BFS), directed graphs (union-find is for undirected), you need to disconnect elements (union-find doesn't support "split").`
+# TEMPERATURE PROBLEM: Days until warmer
+def daily_temps(temps):
+    result = [0] * len(temps)
+    stack = []
 
-const matrixIntro = `Matrices (2D arrays) represent grids, images, game boards, and graph adjacency relationships. The key insight: many matrix problems have elegant traversal patterns—mastering directions arrays, boundary checks, and transformation techniques solves most matrix challenges.
+    for i, temp in enumerate(temps):
+        while stack and temps[stack[-1]] < temp:
+            prev_i = stack.pop()
+            result[prev_i] = i - prev_i  # Days to wait
+        stack.append(i)
 
-BASIC ACCESS AND TRAVERSAL: Access element at row i, column j with \`matrix[i][j]\`. Python uses row-major order (iterate rows first). Always check bounds: \`0 <= i < rows and 0 <= j < cols\`. Common mistake: mixing up rows and columns—remember \`matrix[row][col]\`, height is rows, width is cols. Use directions array for 4-directional traversal (up, down, left, right) or 8-directional (includes diagonals).
+    return result
+\`\`\`python
+---
+Stack for Matching and Undo
+Stacks natural for matching pairs (parentheses), reversing order, and undo operations. LIFO property makes last-added element first-processed.
 
-MATRIX TRANSFORMATIONS: Rotate 90° clockwise: transpose (swap \`matrix[i][j]\` with \`matrix[j][i]\`), then reverse each row. Rotate 90° counter-clockwise: reverse each row, then transpose. Transpose: swap across main diagonal. Spiral traversal: use four pointers (top, bottom, left, right), move in spiral, shrinking boundaries.
+\`\`\`python
+# VALID PARENTHESES
+def is_valid(s):
+    stack = []
+    pairs = {'(': ')', '[': ']', '{': '}'}
 
-ISLAND PROBLEMS: Given a grid of 1s (land) and 0s (water), count islands (connected components of 1s). Pattern: iterate through grid, when you find a 1, increment count and DFS/BFS to mark all connected 1s as visited (change to 0 or use visited set). Each DFS marks one complete island.
+    for char in s:
+        if char in pairs:
+            stack.append(char)  # Opening bracket
+        elif not stack or pairs[stack.pop()] != char:
+            return False  # No match or wrong closing
 
-FLOOD FILL: Starting from a cell, change all connected cells of the same color. Same DFS/BFS pattern as island problems. Applications: paint bucket tool, region coloring, connected component analysis.
+    return len(stack) == 0  # All matched
 
-MATRIX AS GRAPH: An adjacency matrix represents graphs: \`matrix[i][j]\` = edge weight from i to j (or 1 if edge exists, 0 if not). Space: O(V²). Good for dense graphs or when you need O(1) edge lookup. For sparse graphs, adjacency list is better (O(V + E) space).`
+# UNDO SYSTEM
+class Editor:
+    def __init__(self):
+        self.text = ""
+        self.undo_stack = []
 
-const bitManipulationIntro = `Bit manipulation operates on individual bits using bitwise operators. The key insight: computers natively work with bits—bit operations are extremely fast (O(1)) and enable elegant solutions to subset generation, single element finding, and flag management.
+    def append(self, char):
+        self.undo_stack.append(self.text)  # Save state
+        self.text += char
 
-BIT BASICS: Integers are stored as binary: 13 = 1101 = 1×8 + 1×4 + 0×2 + 1×1. Bits are numbered from right (0) to left. Bit i has value 2^i. Most operations work on corresponding bits independently. Key operators: & (AND), | (OR), ^ (XOR), ~ (NOT), << (left shift), >> (right shift).
+    def undo(self):
+        if self.undo_stack:
+            self.text = self.undo_stack.pop()  # Restore
 
-XOR PROPERTIES: The magic of XOR is that \`a ^ a = 0\` and \`a ^ 0 = a\`. This means XOR-ing a number with itself cancels it out. Consequence: XOR-ing all elements where duplicates cancel leaves only the unique element. XOR is commutative and associative, so order doesn't matter. This enables finding the single non-duplicate in O(n) time, O(1) space.
+# REVERSE STRING with stack
+def reverse(s):
+    stack = list(s)
+    result = []
+    while stack:
+        result.append(stack.pop())  # LIFO reverses
+    return ''.join(result)
+# Or just: s[::-1]
+\`\`\``
 
-POWER OF TWO: A number is a power of 2 if it has exactly one bit set: 8 = 1000, 16 = 10000. Trick: powers of 2 satisfy \`n & (n-1) == 0\`. Why? n-1 flips all bits from the rightmost 1 to the right, so ANDing cancels out. Example: 8 = 1000, 7 = 0111, 8 & 7 = 0000.
+const binaryTreeIntro = `Use Binary Trees When...
+You need hierarchical organization with O(log n) operations when balanced. Binary Search Trees (BST) give O(log n) search, insert, delete with the property left.val < node.val < right.val. Recursion is natural for trees—most operations follow "process node, recurse left, recurse right". Choose BST when you need sorted data with dynamic insertions, or regular trees for hierarchical modeling.
 
-SUBSET GENERATION: To generate all subsets of n elements, iterate mask from 0 to 2^n - 1. Each bit i in mask represents whether to include element i. For n=3: 000 (empty), 001 (element 0), 010 (element 1), ..., 111 (all elements). This maps integers to subsets naturally.
+\`\`\`python
+# BST OPERATIONS - O(log n) when balanced
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
-COUNTING SET BITS: How many 1 bits in a number? Brian Kernighan's algorithm: \`n & (n-1)\` clears the rightmost set bit. Repeat until n becomes 0, counting iterations. Example: 13 = 1101 → 1100 → 1000 → 0000 (3 iterations = 3 set bits). Python shortcut: \`bin(n).count('1')\`.
+def search_bst(root, target):
+    if not root or root.val == target:
+        return root
+    if target < root.val:
+        return search_bst(root.left, target)
+    return search_bst(root.right, target)
 
-WHEN TO USE BIT MANIPULATION: Flags and permissions (pack multiple booleans into one int), subset enumeration, finding unique elements (XOR tricks), optimization problems requiring checking all combinations, space optimization (BitSet for large boolean arrays), cryptography and hashing. Don't use when: readability matters more than micro-optimization, logic is clearer with regular boolean operations.`
+# DEGENERATE CASE - O(n) when unbalanced
+# Tree: 1 -> 2 -> 3 -> 4 (essentially linked list)
+# Balanced: AVL, Red-Black trees maintain O(log n)
+\`\`\`python
+---
+Master Tree Traversals
+The traversal order determines what you can accomplish. Preorder (root, left, right) for copying or serialization. Inorder (left, root, right) gives sorted order in BST—this is THE way to extract sorted elements. Postorder (left, right, root) when children must process before parent (deletion, calculating height). Level-order (BFS) for shortest path or level-by-level processing.
+
+\`\`\`python
+# INORDER - Sorted output for BST
+def inorder(root):
+    if not root:
+        return []
+    return inorder(root.left) + [root.val] + inorder(root.right)
+
+# LEVEL-ORDER - BFS with queue
+from collections import deque
+
+def level_order(root):
+    if not root:
+        return []
+    result, queue = [], deque([root])
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result
+
+# POSTORDER - Process children first (calculate height)
+def height(root):
+    if not root:
+        return 0
+    return 1 + max(height(root.left), height(root.right))
+\`\`\`python
+---
+DFS vs BFS Trade-offs
+DFS (recursion or stack) goes deep before backtracking—use for finding paths, checking subtree properties, less memory (recursion stack < explicit queue). BFS (queue) processes level by level—use for shortest path in unweighted trees, level-order operations, finding nodes closest to root.
+
+\`\`\`python
+# DFS - Find path to target (memory efficient)
+def find_path(root, target, path=[]):
+    if not root:
+        return False
+    path.append(root.val)
+    if root.val == target:
+        return True
+    if find_path(root.left, target, path) or find_path(root.right, target, path):
+        return True
+    path.pop()
+    return False
+
+# BFS - Shortest path to target (level by level)
+def shortest_path_bfs(root, target):
+    if not root:
+        return -1
+    queue = deque([(root, 0)])
+    while queue:
+        node, depth = queue.popleft()
+        if node.val == target:
+            return depth
+        if node.left:
+            queue.append((node.left, depth + 1))
+        if node.right:
+            queue.append((node.right, depth + 1))
+    return -1
+\`\`\``
+
+const heapIntro = `Use Heaps When...
+You need O(1) access to min/max with O(log n) insert/delete—perfect for priority queues and top-k problems. Min-heap keeps smallest at root (parent ≤ children), max-heap keeps largest at root (parent ≥ children). The complete binary tree structure guarantees O(log n) height. Choose heaps when you need dynamic min/max tracking without full sorting.
+
+\`\`\`python
+import heapq
+
+# MIN-HEAP - Python's heapq default
+heap = [5, 2, 8, 1, 9]
+heapq.heapify(heap)       # O(n) - not O(n log n)!
+print(heap[0])            # O(1) - peek min: 1
+heapq.heappush(heap, 3)   # O(log n) - insert
+heapq.heappop(heap)       # O(log n) - remove min
+
+# MAX-HEAP - Use negative values
+max_heap = [-x for x in [5, 2, 8, 1, 9]]
+heapq.heapify(max_heap)
+print(-max_heap[0])       # O(1) - peek max: 9
+heapq.heappush(max_heap, -10)
+largest = -heapq.heappop(max_heap)
+\`\`\`python
+---
+Top-K Pattern
+To find K largest elements, use min-heap of size K. Process elements: if new element > heap[0], pop smallest and push new. The heap maintains K largest seen. For K smallest, use max-heap. This avoids full sort—O(n log k) vs O(n log n).
+
+\`\`\`python
+def k_largest(nums, k):
+    # Min-heap of size k keeps k largest
+    heap = nums[:k]
+    heapq.heapify(heap)     # O(k)
+
+    for num in nums[k:]:    # O((n-k) log k)
+        if num > heap[0]:   # Bigger than smallest in heap
+            heapq.heapreplace(heap, num)  # Pop & push in one
+
+    return heap  # k largest elements
+
+# EXAMPLE: Find 3 largest in [3, 1, 5, 12, 2, 11]
+# After heapify: [1, 3, 5]
+# Process 12: 12 > 1, replace: [3, 5, 12]
+# Process 2:  2 < 3, skip
+# Process 11: 11 > 3, replace: [5, 11, 12]
+# Result: [5, 11, 12] in O(n log k)
+\`\`\`python
+---
+Heap vs Sorted Array
+Both give O(1) min/max peek. Heap: O(log n) insert, O(log n) delete. Sorted array: O(n) insert (maintain sort), O(1) delete if mutable. Use heap for dynamic data with frequent insertions. Use sorted array for static data or when you need binary search (heaps don't support efficient search).
+
+\`\`\`python
+# HEAP - Dynamic priority queue
+import heapq
+pq = []
+heapq.heappush(pq, (priority, task))  # O(log n) insert
+next_task = heapq.heappop(pq)         # O(log n) remove
+# Can't search efficiently - O(n) to find element
+
+# SORTED ARRAY - Static with search
+import bisect
+arr = [1, 3, 5, 7, 9]
+bisect.insort(arr, 4)   # O(n) - shift elements
+min_val = arr[0]        # O(1) - peek min
+idx = bisect.bisect_left(arr, 5)  # O(log n) - binary search
+
+# RUNNING MEDIAN - Two heaps trick
+max_heap = []  # Lower half (negated for max)
+min_heap = []  # Upper half
+
+def add_num(num):
+    heapq.heappush(max_heap, -num)
+    heapq.heappush(min_heap, -heapq.heappop(max_heap))
+    if len(min_heap) > len(max_heap):
+        heapq.heappush(max_heap, -heapq.heappop(min_heap))
+
+def get_median():
+    if len(max_heap) > len(min_heap):
+        return -max_heap[0]
+    return (-max_heap[0] + min_heap[0]) / 2.0
+\`\`\``
+
+const trieIntro = `Use Tries When...
+You need prefix-based operations that hash tables can't handle efficiently. Trie gives O(L) insert/search where L is word length, independent of dictionary size. Perfect for autocomplete (find all words with prefix P in O(P + results)), spell checking, and word games. Choose tries when prefix operations matter more than memory—each node stores character map.
+
+\`\`\`python
+class TrieNode:
+    def __init__(self):
+        self.children = {}     # char -> TrieNode
+        self.is_end = False    # Marks word ending
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):    # O(L)
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.is_end = True
+
+    def search(self, word):    # O(L)
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                return False
+            node = node.children[char]
+        return node.is_end
+\`\`\`python
+---
+Trie vs Hash Table
+Hash table gives O(L) search but can't do prefix operations. Finding all words with prefix P: Trie is O(P + results) by walking to prefix then DFS, hash table is O(N*L) checking every word. Autocomplete with trie walks to prefix in O(P), then collects subtree. Tries use more memory but enable operations impossible with hash tables.
+
+\`\`\`python
+# AUTOCOMPLETE - Trie shines
+def autocomplete(trie, prefix):
+    node = trie.root
+    # Walk to prefix - O(P)
+    for char in prefix:
+        if char not in node.children:
+            return []
+        node = node.children[char]
+
+    # Collect all words in subtree - O(results)
+    results = []
+    def dfs(node, path):
+        if node.is_end:
+            results.append(prefix + path)
+        for char, child in node.children.items():
+            dfs(child, path + char)
+
+    dfs(node, "")
+    return results
+
+# HASH TABLE - Can't do prefix efficiently
+word_set = {"apple", "app", "apricot", "banana"}
+# To find all starting with "ap": O(N) check every word
+prefix_matches = [w for w in word_set if w.startswith("ap")]
+\`\`\`python
+---
+Word Search II Pattern
+Given grid and dictionary, find all dictionary words in grid. Naive: for each word, DFS grid—O(W * 4^L) for W words. Trie approach: build trie from dictionary, DFS grid while walking trie simultaneously. When grid path doesn't match any trie prefix, prune immediately. Converts checking N words into one DFS guided by trie—O(M*N * 4^L) for M×N grid.
+
+\`\`\`python
+def find_words(board, words):
+    # Build trie from dictionary
+    trie = Trie()
+    for word in words:
+        trie.insert(word)
+
+    result = set()
+    rows, cols = len(board), len(board[0])
+
+    def dfs(r, c, node, path):
+        char = board[r][c]
+        if char not in node.children:
+            return  # Prune: no word has this prefix
+
+        node = node.children[char]
+        path += char
+        if node.is_end:
+            result.add(path)
+
+        # Mark visited
+        board[r][c] = '#'
+        for dr, dc in [(0,1), (1,0), (0,-1), (-1,0)]:
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] != '#':
+                dfs(nr, nc, node, path)
+        board[r][c] = char  # Restore
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, trie.root, "")
+
+    return list(result)
+\`\`\``
+
+const unionFindIntro = `Use Union-Find When...
+You need dynamic connectivity queries—are x and y connected? With path compression and union by rank, find and union operations run in O(α(n)) ≈ O(1) amortized, where α is inverse Ackermann function (< 5 for practical n). Perfect for connected components, cycle detection in undirected graphs, and Kruskal's MST. Each set is represented as a tree with root as representative.
+
+\`\`\`python
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))  # Each node is own parent
+        self.rank = [0] * n           # Height upper bound
+
+    def find(self, x):
+        # Path compression: make all nodes point to root
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, x, y):
+        root_x, root_y = self.find(x), self.find(y)
+        if root_x == root_y:
+            return False  # Already connected
+
+        # Union by rank: attach shorter to taller
+        if self.rank[root_x] < self.rank[root_y]:
+            self.parent[root_x] = root_y
+        elif self.rank[root_x] > self.rank[root_y]:
+            self.parent[root_y] = root_x
+        else:
+            self.parent[root_y] = root_x
+            self.rank[root_x] += 1
+        return True
+
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+\`\`\`python
+---
+Path Compression and Union by Rank
+Path compression flattens trees by making all nodes on path point directly to root during find(). Union by rank attaches shorter tree to taller tree, preventing linear chains. These two optimizations together achieve O(α(n)) ≈ O(1)—without them, operations degrade to O(n) on linear chains.
+
+\`\`\`python
+# WITHOUT OPTIMIZATIONS - O(n) worst case
+class NaiveUnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+
+    def find(self, x):
+        while self.parent[x] != x:
+            x = self.parent[x]  # Walk to root
+        return x  # O(n) on linear chain: 0->1->2->3->4
+
+    def union(self, x, y):
+        self.parent[self.find(x)] = self.find(y)
+        # Can create long chains!
+
+# WITH OPTIMIZATIONS - O(α(n)) ≈ O(1)
+# Path compression: self.parent[x] = self.find(self.parent[x])
+# Union by rank: attach shorter to taller
+
+# EXAMPLE: After path compression
+# Before: 0->1->2->3->4->root
+# After find(0): 0->root, 1->root, 2->root, 3->root, 4->root
+# Tree flattened! Future finds are O(1)
+\`\`\`python
+---
+Cycle Detection with Union-Find
+For undirected graphs, process edges one by one. For edge (u, v): if find(u) == find(v), they're already connected—adding edge creates cycle. Otherwise, union(u, v). This is basis of Kruskal's MST (process edges by weight, skip cycles).
+
+\`\`\`python
+def has_cycle(n, edges):
+    uf = UnionFind(n)
+    for u, v in edges:
+        if uf.connected(u, v):
+            return True  # Cycle detected!
+        uf.union(u, v)
+    return False
+
+# EXAMPLE: edges = [(0,1), (1,2), (2,0)]
+# Process (0,1): union(0,1) - OK
+# Process (1,2): union(1,2) - OK
+# Process (2,0): find(2)==find(0)? YES! - Cycle detected
+
+# KRUSKAL'S MST - Sort edges by weight, use union-find
+def kruskal_mst(n, edges):
+    edges.sort(key=lambda e: e[2])  # Sort by weight
+    uf = UnionFind(n)
+    mst, total_cost = [], 0
+
+    for u, v, weight in edges:
+        if uf.union(u, v):  # If not cycle
+            mst.append((u, v, weight))
+            total_cost += weight
+            if len(mst) == n - 1:  # MST complete
+                break
+
+    return mst, total_cost
+\`\`\``
+
+const matrixIntro = `Use Matrices When...
+You need 2D grid representation for grids, images, game boards, or graph adjacency. Access element at row i, column j with matrix[i][j] in O(1). Master directions arrays for traversal, boundary checks (0 <= i < rows and 0 <= j < cols), and transformations. Common mistake: mixing rows and columns—remember matrix[row][col], height is rows, width is cols.
+
+\`\`\`python
+# BASIC TRAVERSAL - 4 directions
+matrix = [[1, 2, 3],
+          [4, 5, 6],
+          [7, 8, 9]]
+
+rows, cols = len(matrix), len(matrix[0])
+directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # right, down, left, up
+
+def neighbors(r, c):
+    for dr, dc in directions:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < rows and 0 <= nc < cols:
+            yield matrix[nr][nc]
+
+# 8 DIRECTIONS - Include diagonals
+directions_8 = [(0,1), (1,0), (0,-1), (-1,0),  # cardinal
+                (1,1), (1,-1), (-1,1), (-1,-1)]  # diagonal
+
+# ROTATION - 90° clockwise
+def rotate_clockwise(matrix):
+    # Transpose then reverse rows
+    n = len(matrix)
+    for i in range(n):
+        for j in range(i+1, n):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+    for row in matrix:
+        row.reverse()
+\`\`\`python
+---
+Island Problems Pattern
+Given grid of 1s (land) and 0s (water), count islands (connected components). Pattern: iterate grid, when you find 1, increment count and DFS/BFS to mark all connected 1s as visited. Each DFS marks one complete island. Also applies to flood fill (change all connected cells of same color).
+
+\`\`\`python
+def num_islands(grid):
+    if not grid:
+        return 0
+
+    rows, cols = len(grid), len(grid[0])
+    count = 0
+
+    def dfs(r, c):
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == '0':
+            return
+        grid[r][c] = '0'  # Mark visited
+        # Explore 4 directions
+        dfs(r+1, c)
+        dfs(r-1, c)
+        dfs(r, c+1)
+        dfs(r, c-1)
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == '1':
+                count += 1
+                dfs(r, c)  # Mark entire island
+
+    return count
+
+# FLOOD FILL - Same pattern
+def flood_fill(image, sr, sc, new_color):
+    old_color = image[sr][sc]
+    if old_color == new_color:
+        return image
+
+    def dfs(r, c):
+        if (r < 0 or r >= len(image) or c < 0 or c >= len(image[0]) or
+            image[r][c] != old_color):
+            return
+        image[r][c] = new_color
+        dfs(r+1, c)
+        dfs(r-1, c)
+        dfs(r, c+1)
+        dfs(r, c-1)
+
+    dfs(sr, sc)
+    return image
+\`\`\`python
+---
+Matrix as Graph
+Adjacency matrix represents graphs: matrix[i][j] = edge weight from i to j (or 1 if exists, 0 if not). Space O(V²)—good for dense graphs or O(1) edge lookup. For sparse graphs, adjacency list is better (O(V + E) space). Matrix enables simple graph algorithms.
+
+\`\`\`python
+# ADJACENCY MATRIX - Dense graph
+n = 4  # 4 vertices
+graph = [[0] * n for _ in range(n)]
+graph[0][1] = 1  # Edge from 0 to 1
+graph[1][2] = 1
+graph[2][3] = 1
+graph[3][0] = 1
+
+# Check edge exists - O(1)
+has_edge = graph[0][1] == 1
+
+# Get all neighbors - O(V)
+neighbors = [j for j in range(n) if graph[i][j] > 0]
+
+# ADJACENCY LIST - Sparse graph (better)
+graph_list = {
+    0: [1],
+    1: [2],
+    2: [3],
+    3: [0]
+}
+# Space: O(V + E) vs O(V²) for matrix
+# Get neighbors - O(1) access to list
+
+# SPIRAL TRAVERSAL - Four pointers
+def spiral_order(matrix):
+    result = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top <= bottom and left <= right:
+        # Right
+        for col in range(left, right + 1):
+            result.append(matrix[top][col])
+        top += 1
+        # Down
+        for row in range(top, bottom + 1):
+            result.append(matrix[row][right])
+        right -= 1
+        # Left
+        if top <= bottom:
+            for col in range(right, left - 1, -1):
+                result.append(matrix[bottom][col])
+            bottom -= 1
+        # Up
+        if left <= right:
+            for row in range(bottom, top - 1, -1):
+                result.append(matrix[row][left])
+            left += 1
+
+    return result
+\`\`\``
+
+const bitManipulationIntro = `Use Bit Manipulation When...
+You need O(1) operations on individual bits for subset generation, finding unique elements, or flag management. Computers natively work with bits—bit operations are extremely fast. Key operators: & (AND), | (OR), ^ (XOR), ~ (NOT), << (left shift), >> (right shift). Choose bit manipulation for space optimization (pack booleans) or elegant solutions to specific problems.
+
+\`\`\`python
+# BIT BASICS
+# 13 = 1101 = 8 + 4 + 0 + 1
+# Bit 0 (rightmost) has value 2^0 = 1
+# Bit 1 has value 2^1 = 2
+# Bit 2 has value 2^2 = 4
+# Bit 3 has value 2^3 = 8
+
+# Check if bit i is set
+def is_bit_set(n, i):
+    return (n & (1 << i)) != 0
+
+# Set bit i
+def set_bit(n, i):
+    return n | (1 << i)
+
+# Clear bit i
+def clear_bit(n, i):
+    return n & ~(1 << i)
+
+# Toggle bit i
+def toggle_bit(n, i):
+    return n ^ (1 << i)
+
+# EXAMPLE: n = 5 = 101
+print(is_bit_set(5, 0))   # True  (rightmost bit is 1)
+print(is_bit_set(5, 1))   # False (middle bit is 0)
+print(set_bit(5, 1))      # 7 = 111
+print(clear_bit(5, 2))    # 1 = 001
+\`\`\`python
+---
+XOR Magic and Subset Generation
+XOR properties: a ^ a = 0 and a ^ 0 = a. XOR-ing duplicates cancels them, leaving unique element—O(n) time, O(1) space. For subsets, iterate mask from 0 to 2^n - 1. Each bit i in mask represents whether to include element i. This maps integers to subsets naturally.
+
+\`\`\`python
+# FIND SINGLE NON-DUPLICATE - XOR trick
+def single_number(nums):
+    result = 0
+    for num in nums:
+        result ^= num  # Duplicates cancel out
+    return result
+
+# [4, 1, 2, 1, 2] -> 4 ^ 1 ^ 2 ^ 1 ^ 2 = 4
+
+# SUBSET GENERATION - Bit masks
+def subsets(nums):
+    n = len(nums)
+    result = []
+    for mask in range(1 << n):  # 0 to 2^n - 1
+        subset = []
+        for i in range(n):
+            if mask & (1 << i):  # Check if bit i is set
+                subset.append(nums[i])
+        result.append(subset)
+    return result
+
+# nums = [1, 2, 3]
+# mask = 0 (000) -> []
+# mask = 1 (001) -> [1]
+# mask = 2 (010) -> [2]
+# mask = 3 (011) -> [1, 2]
+# mask = 4 (100) -> [3]
+# mask = 5 (101) -> [1, 3]
+# mask = 6 (110) -> [2, 3]
+# mask = 7 (111) -> [1, 2, 3]
+\`\`\`python
+---
+Power of Two and Bit Counting
+Power of 2 has exactly one bit set: 8 = 1000. Trick: n & (n-1) == 0 for powers of 2. Why? n-1 flips all bits from rightmost 1 to right, so AND cancels. For counting set bits, n & (n-1) clears rightmost set bit—repeat until n becomes 0.
+
+\`\`\`python
+# POWER OF TWO CHECK
+def is_power_of_two(n):
+    return n > 0 and (n & (n-1)) == 0
+
+# Examples:
+# 8 = 1000, 7 = 0111, 8 & 7 = 0000 -> True
+# 6 = 0110, 5 = 0101, 6 & 5 = 0100 -> False
+
+# COUNT SET BITS - Brian Kernighan's algorithm
+def count_bits(n):
+    count = 0
+    while n:
+        n &= n - 1  # Clear rightmost set bit
+        count += 1
+    return count
+
+# 13 = 1101
+# 13 & 12 = 1101 & 1100 = 1100 (count=1)
+# 12 & 11 = 1100 & 1011 = 1000 (count=2)
+# 8 & 7   = 1000 & 0111 = 0000 (count=3)
+# Result: 3 set bits
+
+# Python shortcut
+count = bin(13).count('1')  # 3
+
+# FLAGS - Pack multiple booleans
+READ = 1 << 0   # 001
+WRITE = 1 << 1  # 010
+EXEC = 1 << 2   # 100
+
+permissions = READ | WRITE  # 011
+has_read = (permissions & READ) != 0      # True
+has_exec = (permissions & EXEC) != 0      # False
+permissions |= EXEC  # Add execute: 111
+permissions &= ~WRITE  # Remove write: 101
+\`\`\``
 
 export function ArraysPage() {
   return (

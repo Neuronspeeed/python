@@ -9,9 +9,8 @@ import { comprehensionsMethods } from '../data/comprehensions'
 import { functionsMethods } from '../data/functions'
 import { oopMethods } from '../data/oop'
 
-const fundamentalsIntro = `Python's object model is the foundation for understanding EVERYTHING in the language. All data in Python is represented as objects—from simple integers to complex classes. The key insight: understanding Python's dynamic typing model, reference semantics, and garbage collection is critical for avoiding 90% of bugs and writing efficient code.
-
-DYNAMIC TYPING WITH STRONG TYPE CHECKING. Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
+const fundamentalsIntro = `Python's Object Model Foundation
+Python's object model is the foundation for understanding EVERYTHING in the language. All data in Python is represented as objects—from simple integers to complex classes. The key insight: understanding Python's dynamic typing model, reference semantics, and garbage collection is critical for avoiding 90% of bugs and writing efficient code.
 
 \`\`\`python
 # DYNAMIC: No type declarations
@@ -25,375 +24,77 @@ z = x + y    # TypeError! No automatic conversion
 
 # vs JavaScript (weak typing):
 # "1" + 1 = "11" (silent coercion to string)
-\`\`\`
-
-DYNAMIC TYPING MODEL: Python's model has three components working together.
-
-1. Variables = System table entries (namespace)
-   - Variables are NAMES that reference objects
-   - Created when first assigned
-   - No type information stored
-   - Can be reassigned to any type
-
-2. Objects = Allocated memory containing values
-   - Every object has: identity (address), type, value
-   - Type is set at creation, NEVER changes
-   - Immutable objects: int, str, tuple, frozenset, bytes
-   - Mutable objects: list, dict, set, bytearray
-
-3. References = Automatic pointers linking names to objects
-   - Assignment creates references, NOT copies
-   - Multiple names can reference same object
+\`\`\`python
+---
+Dynamic Typing with Strong Type Checking
+Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
 
 \`\`\`python
-# VISUALIZING THE MODEL:
-a = 3
-# Creates: int object with value 3
-# Variable 'a' → reference → int(3)
+# THREE COMPONENTS OF PYTHON'S MODEL:
 
-b = a
-# DOESN'T copy the int object!
-# Variable 'b' → reference → SAME int(3) object
+# 1. VARIABLES = Names in namespace (no type stored)
+x = 42        # Variable 'x' created, references int(42)
+x = "hello"   # 'x' now references str, perfectly legal
 
-# For immutables (int), reassignment creates NEW object:
-a = 4
-# NEW int(4) created
-# a → int(4)
-# b → int(3) (unchanged, still references original)
+# 2. OBJECTS = Allocated memory with identity, type, value
+# - Type NEVER changes after creation
+# - Immutable: int, str, tuple, frozenset
+# - Mutable: list, dict, set
 
-# For mutables (list), changes affect ALL references:
-L1 = [1, 2, 3]
-L2 = L1             # Both reference SAME list object
-L1.append(4)
-print(L2)           # [1, 2, 3, 4] — L2 sees the change!
-\`\`\`
+# 3. REFERENCES = Automatic pointers
+a = [1, 2, 3]
+b = a         # b references SAME list (not a copy!)
+b.append(4)
+print(a)      # [1, 2, 3, 4] — same object!
 
-OBJECT IDENTITY, TYPE, AND VALUE: Every object has three attributes.
+# CHECK TYPE AT RUNTIME
+type(42)        # <class 'int'>
+isinstance(42, int)  # True
+\`\`\`python
+---
+Reference Semantics and Common Pitfalls
+Assignment creates references, NOT copies. Multiple names can reference same object. Use \`is\` for identity (same object), \`==\` for equality (same value). Mutable default arguments are shared across calls—use None instead.
 
 \`\`\`python
-x = [1, 2, 3]
+# IS vs == - Identity vs Equality
+a = [1, 2, 3]
+b = [1, 2, 3]
+a == b        # True (same value)
+a is b        # False (different objects)
 
-# IDENTITY: Unique memory address (never changes)
-id(x)  # → 140234567890123 (varies by run)
-# id() returns unique integer identifying object
+c = a
+c is a        # True (same object)
 
-# TYPE: Object's type (never changes after creation)
-type(x)  # → <class 'list'>
-# type() returns type object
+# MUTABLE DEFAULT ARGUMENT GOTCHA
+def bad(L=[]):      # BUG! [] created ONCE
+    L.append(1)
+    return L
 
-# VALUE: Object's content (can change if mutable)
-x  # → [1, 2, 3]
-x.append(4)  # Value changes, but id and type stay same!
+bad()  # [1]
+bad()  # [1, 1] — Same list!
 
-# IMMUTABLE: Type+value determine identity
-a = 1000
-b = 1000
-id(a) != id(b)  # Usually True (different objects)
-# BUT small ints (-5 to 256) cached:
-a = 5
-b = 5
-id(a) == id(b)  # True! Python reuses small int objects
-\`\`\`
+def good(L=None):   # CORRECT
+    if L is None:
+        L = []
+    L.append(1)
+    return L
 
-OBJECT MODEL DEEP DIVE: Everything in Python is an object—including functions, classes, and types!
+good()  # [1]
+good()  # [1] — New list each time
 
-\`\`\`python
-# EVERYTHING has id, type, value
-id(5)        # int object
-id("hello")  # str object
-id(print)    # function object!
-id(list)     # class object!
-id(type)     # type object!
-
-# INTROSPECTION: Inspect object internals
-class MyClass:
-    x = 10
-    def method(self):
-        pass
-
-obj = MyClass()
-
-# __dict__: Object's attribute dictionary
-obj.__dict__  # Instance attributes (empty initially)
-MyClass.__dict__  # Class attributes {'x': 10, 'method': ...}
-
-# __class__: Object's class
-obj.__class__  # → <class '__main__.MyClass'>
-obj.__class__ is MyClass  # True
-
-# type() vs isinstance()
-type(obj)  # → <class '__main__.MyClass'>
-isinstance(obj, MyClass)  # True (preferred for type checking)
-
-# BOUND vs UNBOUND methods:
-obj.method  # → <bound method MyClass.method of <MyClass object>>
-MyClass.method  # → <function MyClass.method at ...>
-# Bound method has implicit 'self', unbound doesn't
-\`\`\`
-
-GARBAGE COLLECTION: Python automatically reclaims memory using two mechanisms.
-
-1. Reference Counting (primary):
-   - Each object has refcount tracking references to it
-   - When refcount → 0, memory immediately freed
-   - Fast and deterministic
-   - Can't handle circular references
-
-2. Cyclic Garbage Collector (backup):
-   - Periodically scans for circular reference groups
-   - Runs when allocation threshold reached
-   - Slower but handles cycles
-
-\`\`\`python
-import sys
-import gc
-
-# REFERENCE COUNTING:
-x = [1, 2, 3]
-sys.getrefcount(x)  # → 2 (x + temporary ref from getrefcount)
-
-y = x  # Share reference
-sys.getrefcount(x)  # → 3 (x + y + temporary)
-
-del y  # Remove reference
-sys.getrefcount(x)  # → 2 (back to x + temporary)
-
-# When last reference deleted:
-del x  # refcount → 0, memory IMMEDIATELY freed!
-
-# CIRCULAR REFERENCES (need cyclic GC):
-L = []
-L.append(L)  # L contains itself!
-# L → [L] → [L] → ... (infinite loop)
-# refcount never hits 0 (L references itself)
-# Cyclic GC detects and collects eventually
-
-# MANUAL CONTROL:
-gc.collect()  # Force garbage collection
-gc.disable()  # Disable automatic GC (not recommended!)
-gc.enable()   # Re-enable GC
-gc.get_count()  # Number of objects in each generation
-\`\`\`
-
-When GC Matters:
-- Large objects: Immediate cleanup with refcounting
-- Circular refs: Long-lived cycles in data structures
-- Memory pressure: Force gc.collect() before heavy allocation
-- File handles: Use \`with\` to ensure timely cleanup
-
-SHARED REFERENCES AND COPYING: Understanding shared references prevents bugs!
-
-\`\`\`python
-# IMMUTABLES: Safe to share (can't be modified)
-a = "hello"
-b = a
-b = "world"  # Creates NEW string, doesn't modify shared object
-print(a)  # "hello" — unchanged!
-
-# MUTABLES: Sharing is dangerous!
-L1 = [1, 2, 3]
-L2 = L1      # SHARED reference
-L2.append(4) # Modifies SHARED object
-print(L1)    # [1, 2, 3, 4] — L1 sees change!
-
-# COPY STRATEGIES:
-# 1. Shallow copy (top-level only)
-L1 = [1, 2, 3]
-L2 = L1[:]          # Slice creates new list
-L2 = L1.copy()      # Same as [:]
-L2 = list(L1)       # Also works
-
-L2.append(4)
-print(L1)  # [1, 2, 3] — L1 unchanged!
-
-# 2. Deep copy (recursive, for nested structures)
+# SHALLOW VS DEEP COPY
 import copy
-L1 = [[1, 2], [3, 4]]
-L2 = L1[:]           # Shallow: inner lists still shared!
-L2[0].append(99)
-print(L1)            # [[1, 2, 99], [3, 4]] — BUG!
+original = [[1, 2], [3, 4]]
+shallow = original.copy()     # Copies outer list only
+deep = copy.deepcopy(original)  # Copies everything
 
-L1 = [[1, 2], [3, 4]]
-L2 = copy.deepcopy(L1)  # Deep: all levels copied
-L2[0].append(99)
-print(L1)            # [[1, 2], [3, 4]] — L1 safe!
+shallow[0].append(99)
+print(original)  # [[1, 2, 99], [3, 4]] — nested lists shared!
 
-# DICT COPY:
-D1 = {"a": 1, "b": 2}
-D2 = D1.copy()       # Shallow copy
-\`\`\`
-
-EQUALITY VS IDENTITY: Two ways to compare objects.
-
+deep[0].append(99)
+print(original)  # [[1, 2], [3, 4]] — independent
 \`\`\`python
-# == CHECKS VALUE EQUALITY:
-a = [1, 2, 3]
-b = [1, 2, 3]  # Different object, same contents
-a == b  # True (same value)
-a is b  # False (different identity)
-
-# is CHECKS IDENTITY (same object):
-a = [1, 2, 3]
-b = a
-a is b  # True (same object)
-a == b  # True (same value too)
-
-# WHEN TO USE is:
-# - Checking for None: if x is None:
-# - Checking for True/False: if x is True:
-# - Checking for same object: if a is b:
-
-# NEVER use is for value comparison:
-a = 1000
-b = 1000
-a is b  # False! Different objects (but a == b is True)
-
-# EXCEPTION: Small int/string caching
-a = 5
-b = 5
-a is b  # True! Python caches small ints (-5 to 256)
-
-a = "hello"
-b = "hello"
-a is b  # True! String interning (implementation detail)
-\`\`\`
-
-TYPE HINTS: Optional static type annotations for documentation and tooling.
-
-\`\`\`python
-# SYNTAX:
-x: int = 1              # Variable annotation
-name: str = "Alice"
-items: list[int] = [1, 2, 3]  # Generic types (3.9+)
-
-def greet(name: str) -> str:  # Function annotations
-    return f"Hello, {name}"
-
-# GENERIC TYPES:
-from typing import List, Dict, Optional, Union
-
-names: List[str] = ["Alice", "Bob"]
-mapping: Dict[str, int] = {"a": 1, "b": 2}
-maybe: Optional[int] = None  # int or None
-value: Union[int, str] = 42  # int OR str
-
-# RUNTIME BEHAVIOR:
-x: int = "hello"  # NO ERROR! Python ignores type hints at runtime!
-# Type hints don't constrain types or affect execution
-
-# TOOLING:
-# mypy: Static type checker
-# $ mypy script.py  # Checks type consistency
-# pyright: Microsoft's type checker (faster)
-# IDE support: VSCode, PyCharm use hints for autocomplete
-
-# GRADUAL TYPING:
-# Start without types, add incrementally
-def add(a, b):  # No types
-    return a + b
-
-def add_typed(a: int, b: int) -> int:  # With types
-    return a + b
-\`\`\`
-
-Type Hints Use Cases:
-- Large codebases: Catch bugs early
-- Team projects: Document expected types
-- Library development: Help users understand API
-- Refactoring: Type checker finds inconsistencies
-
-CORE CONCEPTS SUMMARY:
-
-Dynamic Typing:
-- Python tracks types at RUNTIME
-- Variables can hold any type
-- No type declarations needed
-- Type determined by assigned object
-
-Strong Typing:
-- Operations only work on compatible types
-- No silent type coercion
-- \`"1" + 1\` raises TypeError
-- Explicit conversion required: \`int("1") + 1\`
-
-Polymorphism:
-- Same operation behaves differently by type
-- \`+\` adds numbers, concatenates strings
-- \`len()\` works on any sequence
-- "Duck typing": if it quacks like a duck...
-
-\`\`\`python
-# POLYMORPHISM EXAMPLES:
-3 + 4          # → 7 (addition)
-"hello" + " world"  # → "hello world" (concatenation)
-[1, 2] + [3, 4]     # → [1, 2, 3, 4] (concatenation)
-
-len("hello")    # → 5
-len([1, 2, 3])  # → 3
-len({"a": 1})   # → 1
-
-# DUCK TYPING: If it has __len__, len() works!
-class MyClass:
-    def __len__(self):
-        return 42
-
-obj = MyClass()
-len(obj)  # → 42 (works because __len__ defined)
-\`\`\`
-
-COMMON PITFALLS:
-
-1. Mutable Default Arguments:
-\`\`\`python
-# WRONG:
-def append_to(element, target=[]):
-    target.append(element)
-    return target
-
-append_to(1)  # [1]
-append_to(2)  # [1, 2] — BUG! Same list reused!
-
-# RIGHT:
-def append_to(element, target=None):
-    if target is None:
-        target = []
-    target.append(element)
-    return target
-\`\`\`
-
-2. Shared Nested Structures:
-\`\`\`python
-# WRONG:
-matrix = [[0] * 3] * 3  # 3 refs to SAME inner list!
-matrix[0][0] = 1
-# [[1, 0, 0], [1, 0, 0], [1, 0, 0]] — BUG!
-
-# RIGHT:
-matrix = [[0] * 3 for _ in range(3)]  # 3 separate lists
-\`\`\`
-
-3. Late Binding in Closures:
-\`\`\`python
-# WRONG:
-funcs = [lambda: i for i in range(3)]
-[f() for f in funcs]  # [2, 2, 2] — BUG! i=2 for all
-
-# RIGHT:
-funcs = [lambda i=i: i for i in range(3)]  # Bind i early
-[f() for f in funcs]  # [0, 1, 2] — Correct!
-\`\`\`
-
-BEST PRACTICES:
-- Use \`is\` for None/True/False checks
-- Use \`==\` for value comparison
-- Copy explicitly: \`L[:]\`, \`D.copy()\`, \`copy.deepcopy()\`
-- Use type hints for large projects
-- Understand mutable vs immutable
-- Avoid mutable default arguments
-- NEVER use \`is\` for number/string comparison
-- NEVER assume \`==\` means same object
-- NEVER use [[]] * 3 for nested structures`
-
+`
 export function FundamentalsPage() {
   return (
     <TypePage
@@ -421,7 +122,7 @@ a = [1, 2, 3]
 b = a[:]             # b → [1, 2, 3] (NEW object, copy)
 b.append(4)
 print(a)             # [1, 2, 3] — a unchanged
-\`\`\`
+\`\`\`python
 
 ASSIGNMENT SEMANTICS DEEP DIVE: Python's assignment statement \`=\` binds a name to an object. The right side is evaluated first, then the result is bound to names on the left. This evaluation order matters for swap operations and multiple assignments.
 
@@ -437,7 +138,7 @@ print(b, c)          # [1] [1] — all three see changes!
 x = y = z = 0        # THREE integer objects (small int caching)
 x += 1               # Creates NEW integer object
 print(y, z)          # 0 0 — y and z unchanged
-\`\`\`
+\`\`\`python
 
 Augmented Assignment Behavior: Augmented operators (\`+=\`, \`*=\`, etc.) behave differently for mutables vs immutables. For immutables, \`x += 1\` creates a new object. For mutables, \`L += [3]\` modifies in-place—this matters when you have shared references!
 
@@ -459,7 +160,7 @@ L = [1, 2]
 M = L
 L = L + [3]          # Creates NEW list, rebinds L
 print(M)             # [1, 2] — M still points to old list
-\`\`\`
+\`\`\`python
 
 String Concatenation Performance Trap: Building strings with \`+=\` in a loop is O(n²) because strings are immutable—each \`+=\` creates a new string and copies all characters. Use \`"".join()\` for O(n) performance.
 
@@ -477,7 +178,7 @@ s = "".join(chars)   # Single allocation and copy
 
 # Even better: join directly
 s = "".join("abcdefg" * 1000)
-\`\`\`
+\`\`\`python
 
 WALRUS OPERATOR MASTERY (:= Assignment Expression): Python 3.8+ adds the walrus operator \`:=\` which assigns AND returns a value in a single expression. This eliminates duplicate function calls and makes code more concise—but use sparingly for readability.
 
@@ -493,7 +194,7 @@ while line != "quit":
 # With walrus: single input() call
 while (line := input()) != "quit":
     process(line)
-\`\`\`
+\`\`\`python
 
 Walrus in If Statements: Avoid duplicate expensive function calls.
 
@@ -506,7 +207,7 @@ if expensive_func(data) > threshold:
 # With walrus: single call
 if (result := expensive_func(data)) > threshold:
     print(f"Result: {result}")
-\`\`\`
+\`\`\`python
 
 Walrus in Comprehensions: Call function once instead of twice when filtering.
 
@@ -516,7 +217,7 @@ Walrus in Comprehensions: Call function once instead of twice when filtering.
 
 # With walrus: calls func(x) ONCE per item
 [y for x in data if (y := func(x)) > 0]
-\`\`\`
+\`\`\`python
 
 When NOT to Use Walrus: Don't sacrifice readability for brevity. Walrus is powerful but can make code harder to understand. Use for clear wins (eliminating duplicates), avoid for marginal gains. Also, Python < 3.8 doesn't support it.
 
@@ -542,7 +243,7 @@ a, *b = [1]
 
 *x, y = [1]
 # x = [], y = 1
-\`\`\`
+\`\`\`python
 
 Nested Unpacking: You can unpack nested structures in one statement.
 
@@ -556,7 +257,7 @@ def get_stats(data):
     return min(data), max(data), sum(data)
 
 mn, mx, total = get_stats([1, 2, 3, 4, 5])
-\`\`\`
+\`\`\`python
 
 Ignoring Values with \`_\`: Use underscore to indicate "I don't care about this value."
 
@@ -567,7 +268,7 @@ first, _, third = (1, 2, 3)
 # Ignore multiple with *_
 first, *_, last = [1, 2, 3, 4, 5, 6, 7]
 # first = 1, last = 7 (middle values discarded)
-\`\`\`
+\`\`\`python
 
 EXPRESSION STATEMENTS: Any expression can be a statement—the result is simply discarded. This is common for function/method calls with side effects.
 
@@ -583,7 +284,7 @@ print(L)             # None — list is lost!
 L = [3, 1, 2]
 L.sort()             # Modifies L in-place
 print(L)             # [1, 2, 3]
-\`\`\`
+\`\`\`python
 
 Methods that Return \`None\` vs New Objects: Know which methods modify in-place (return None) vs return new objects.
 
@@ -601,7 +302,7 @@ sorted(L)            # Returns NEW sorted list
 reversed(L)          # Returns NEW reversed iterator
 L + [4]              # Returns NEW concatenated list
 L * 2                # Returns NEW repeated list
-\`\`\`
+\`\`\`python
 
 PRINT FUNCTION ADVANCED: \`print(*objects, sep=' ', end='\\n', file=sys.stdout, flush=False)\` is more powerful than it looks.
 
@@ -623,7 +324,7 @@ with open("log.txt", "w") as f:
 # Print to stderr
 import sys
 print("error!", file=sys.stderr)
-\`\`\`
+\`\`\`python
 
 f-string Debug Mode (3.8+): Use \`=\` specifier to print variable name and value.
 
@@ -634,7 +335,7 @@ print(f"{x=}, {y=}")             # x=10, y=20
 
 # Combines with format specs
 print(f"{x=:.2f}")               # x=10.00
-\`\`\`
+\`\`\`python
 
 VARIABLE NAMING CONVENTIONS: Python has naming conventions that signal intent.
 
@@ -657,7 +358,7 @@ for _ in range(3):               # Loop doesn't use counter
     print("hello")
 
 first, _, third = (1, 2, 3)      # Don't care about middle value
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS AND INTERVIEW TRAPS: These patterns cause bugs and appear in interviews.
 
@@ -685,7 +386,7 @@ def append_to(element, lst=None):
     lst = lst or []              # Convert None to []
     lst.append(element)
     return lst
-\`\`\`
+\`\`\`python
 
 Chained Assignment Creates Shared References: This is the multiple assignment gotcha—all names point to ONE object.
 
@@ -699,7 +400,7 @@ print(b, c)                      # [1] [1] — shared!
 a, b, c = [], [], []
 a.append(1)
 print(b, c)                      # [] [] — separate objects
-\`\`\`
+\`\`\`python
 
 Augmented Assignment on Shared References: \`+=\` modifies in-place for mutables, affecting all references.
 
@@ -755,7 +456,7 @@ def process(data):
         raise PermissionError("Permission denied")
 
     return data.process()  # Happy path at lowest indent level
-\`\`\`
+\`\`\`python
 
 TRUTHINESS DEEP DIVE: Python's truthiness system enables elegant, idiomatic code—but also introduces subtle bugs. Understanding what's truthy vs falsy is CRITICAL for interviews and production code.
 
@@ -794,7 +495,7 @@ search = ""  # Valid: search for empty string
 if search:  # WRONG: treats "" as missing
     results = find(search)
 # RIGHT: Use is not None or explicitly check != ""
-\`\`\`
+\`\`\`python
 
 Custom Truthiness with \`__bool__\` or \`__len__\`:
 
@@ -814,7 +515,7 @@ if cart:  # False, uses __bool__
 cart.items.append("item")
 if cart:  # True now
     checkout(cart)
-\`\`\`
+\`\`\`python
 
 SHORT-CIRCUIT EVALUATION MASTERY: Understanding short-circuit logic is essential for writing safe, performant Python code. \`and\` and \`or\` don't just return True/False—they return the actual values that determined the result.
 
@@ -849,7 +550,7 @@ timeout = config.get("timeout") or 30  # BUG if timeout=0 is valid!
 timeout = 30 if config.get("timeout") is None else config.get("timeout")
 # OR: Use dict.get() default parameter
 timeout = config.get("timeout", 30)  # Better!
-\`\`\`
+\`\`\`python
 
 Short-Circuit for Safety and Performance:
 
@@ -871,7 +572,7 @@ if is_cached(key) and expensive_validation(key):
 if user.age < 13 and slow_database_check(user):
     # Most users age >= 13, avoid DB call
     restrict_content()
-\`\`\`
+\`\`\`python
 
 TERNARY EXPRESSION: Python's compact conditional assignment. Use for simple value selection—NEVER nest ternary expressions!
 
@@ -899,7 +600,7 @@ elif cond3:
     x = c
 else:
     x = d
-\`\`\`
+\`\`\`python
 
 When to Use Ternary:
 - - Simple value assignment based on one condition
@@ -953,7 +654,7 @@ def calculate(x, op, y):
 
 # Usage
 result = calculate(10, "+", 5)  # → 15
-\`\`\`
+\`\`\`python
 
 When to Use Dict Dispatch:
 - - 5+ simple equality branches
@@ -999,7 +700,7 @@ def withdraw(account, amount):
     # Happy path at lowest indent
     account.balance -= amount
     return True
-\`\`\`
+\`\`\`python
 
 Guard Clause Benefits:
 - Reduces cognitive load (no deep nesting)
@@ -1019,7 +720,7 @@ if 1 < x < 10:  # Pythonic!
 # Works with any operators
 if a == b == c:  # All equal
 if x <= y < z:  # Mixed operators
-\`\`\`
+\`\`\`python
 
 all() and any() for Collections:
 \`\`\`python
@@ -1034,7 +735,7 @@ if any(x < 0 for x in numbers):
 # Empty iterables
 all([])  # → True (vacuous truth)
 any([])  # → False
-\`\`\`
+\`\`\`python
 
 Membership Testing with \`in\`:
 \`\`\`python
@@ -1049,7 +750,7 @@ if user_id in admin_ids:  # O(1) for sets, O(n) for lists!
 # Dict keys
 if "name" in user_dict:
     print(user_dict["name"])
-\`\`\`
+\`\`\`python
 
 WHEN TO USE WHAT: Decision matrix for choosing the right conditional construct.
 
@@ -1144,7 +845,7 @@ HTTP_MESSAGES = {
 
 def get_http_message(status_code):
     return HTTP_MESSAGES.get(status_code, "Unknown")  # Always 1 lookup!
-\`\`\`
+\`\`\`python
 
 Function Dispatch Pattern: Map values to functions for behavior selection.
 
@@ -1171,7 +872,7 @@ def calculate(x, operator, y):
 # Usage: O(1) dispatch
 result = calculate(10, '+', 5)  # → 15
 result = calculate(10, '/', 2)  # → 5.0
-\`\`\`
+\`\`\`python
 
 Lazy Evaluation with Lambdas:
 
@@ -1194,7 +895,7 @@ def process(action):
     }
     handler = handlers.get(action, lambda: None)
     return handler()  # Execute the selected function
-\`\`\`
+\`\`\`python
 
 When to Use Dict Dispatch:
 - - 5+ simple equality branches (value == constant)
@@ -1228,7 +929,7 @@ if collection and len(collection) > 0:
 # DIVISION BY ZERO PREVENTION
 if denominator != 0 and numerator / denominator > threshold:
     proceed()
-\`\`\`
+\`\`\`python
 
 Ordering Strategy for AND chains:
 1. Null/existence checks first
@@ -1243,7 +944,7 @@ if (cache_available and           # 1. Cheap field check
     validate_cache_entry(key) and # 3. Expensive validation
     decrypt_entry(key)):          # 4. Most expensive
     use_cached(key)
-\`\`\`
+\`\`\`python
 
 STRATEGY PATTERN: Eliminate if-elif explosion by mapping conditions to behavior objects. Use when you have multiple algorithms/behaviors that vary by some condition.
 
@@ -1300,7 +1001,7 @@ class PaymentProcessor:
             raise ValueError(f"Unknown payment type: {payment_type}")
         return strategy.process(amount)
         # Adding new payment type = add new strategy class + dict entry!
-\`\`\`
+\`\`\`python
 
 Strategy Pattern Benefits:
 - Each strategy is isolated (easier to test)
@@ -1376,7 +1077,7 @@ doc.transition("submit")      # draft → pending_review
 doc.transition("approve")     # pending_review → published
 doc.transition("archive")     # published → archived
 # doc.transition("delete")    # ValueError! Can't delete from archived
-\`\`\`
+\`\`\`python
 
 State Machine Benefits:
 - All transitions visible in one place
@@ -1441,7 +1142,7 @@ MONTHS = {
 
 def month_name(month_num):
     return MONTHS.get(month_num, "Invalid")  # O(1) vs if-elif O(n)
-\`\`\`
+\`\`\`python
 
 DECISION MATRIX FOR INTERVIEWS: When the interviewer asks "how would you implement X?" choose the right pattern.
 
@@ -1495,7 +1196,7 @@ if user.is_admin() and user.is_active():
     grant_access()
 elif user.is_guest():
     limited_access()
-\`\`\`
+\`\`\`python
 
 PYTHON 3.10+ ONLY REQUIREMENT: Match statements are a Python 3.10+ feature. Code using match will raise SyntaxError on Python 3.9 or earlier. Check version with \`python --version\` or use if/elif fallback for backwards compatibility.
 
@@ -1512,7 +1213,7 @@ else:
     match status:
         case 200: handle_ok()
         case 404: handle_not_found()
-\`\`\`
+\`\`\`python
 
 PATTERN TYPES COMPREHENSIVE: Match supports multiple pattern types, each with different semantics and performance characteristics.
 
@@ -1528,7 +1229,7 @@ match status:
         return "Internal Error"
     case _:                # Wildcard (default)
         return "Unknown"
-\`\`\`
+\`\`\`python
 
 Sequence Patterns: Match sequences (lists, tuples) and destructure elements. Length must match exactly unless using \`*rest\`.
 
@@ -1551,7 +1252,7 @@ match items:
         print(f"One item: {first}")
     case [first, *rest]:
         print(f"First: {first}, Rest: {rest}")
-\`\`\`
+\`\`\`python
 
 Mapping Patterns: Match dictionaries with PARTIAL matching—extra keys are ignored! Only specified keys need to match.
 
@@ -1563,7 +1264,7 @@ match user:
 
     case {"type": "admin", **rest}:
         print(f"Admin with extra data: {rest}")
-\`\`\`
+\`\`\`python
 
 Class Patterns: Match objects by type and attributes. Requires \`__match_args__\` for positional matching.
 
@@ -1582,7 +1283,7 @@ match shape:
         print(f"Diagonal point ({x}, {y})")
     case Point(x, y):
         print(f"Point ({x}, {y})")
-\`\`\`
+\`\`\`python
 
 ADVANCED FEATURES: Guards, OR patterns, AS patterns give match even more power.
 
@@ -1601,7 +1302,7 @@ match point:
 match value:
     case x if x > 100:       # Pattern matches any value, then checks guard
         print("Large")
-\`\`\`
+\`\`\`python
 
 OR Patterns (|): Match any of several alternatives—like multiple conditions in one case.
 
@@ -1618,7 +1319,7 @@ match status_code:
 match shape:
     case ("circle", r) | ("sphere", r):
         return 3.14159 * r * r
-\`\`\`
+\`\`\`python
 
 AS Patterns: Capture matched value while also matching pattern—useful for nested structures.
 
@@ -1632,7 +1333,7 @@ match event:
 match data:
     case {"items": [first, *rest] as all_items}:
         print(f"First: {first}, All: {all_items}")
-\`\`\`
+\`\`\`python
 
 WHEN TO USE MATCH VS ALTERNATIVES: Choose the right tool based on your pattern complexity and performance needs.
 
@@ -1657,7 +1358,7 @@ elif user.has_permission("admin"):
     show_admin_panel()
 elif time_is_weekend():
     show_weekend_mode()
-\`\`\`
+\`\`\`python
 
 Match vs Dict Dispatch Decision:
 - Use DICT when: Simple value→value mapping, O(1) lookup critical, no destructuring needed
@@ -1676,7 +1377,7 @@ match expression:
         return x * y
     case ("div", x, 0):
         raise ValueError("Division by zero")
-\`\`\`
+\`\`\`python
 
 PERFORMANCE CHARACTERISTICS: Match performance varies by pattern complexity.
 
@@ -1697,7 +1398,7 @@ match status:
         handle_not_found()
     case _:                # Rare → check last
         handle_other()
-\`\`\`
+\`\`\`python
 
 COMMON INTERVIEW PATTERNS: These patterns appear frequently in coding problems.
 
@@ -1716,7 +1417,7 @@ def handle_command(cmd):
             return delete_files(files)
         case _:
             return "Unknown command"
-\`\`\`
+\`\`\`python
 
 Parser Pattern: Validate and extract structured data.
 
@@ -1731,7 +1432,7 @@ def parse_expression(expr):
             return parse_expression(left) * parse_expression(right)
         case _:
             raise ValueError(f"Invalid expression: {expr}")
-\`\`\`
+\`\`\`python
 
 Validation Pattern: Check data structure with guards.
 
@@ -1744,7 +1445,7 @@ def validate_user(data):
             return User(username=u, age=None)
         case _:
             raise ValueError("Invalid user data")
-\`\`\`
+\`\`\`python
 
 HTTP Status Handler: Real-world API response handling.
 
@@ -1760,7 +1461,7 @@ match response.status_code:
         raise ServerError("Service unavailable")
     case _:
         raise UnknownError(f"Status {response.status_code}")
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS AND PITFALLS: These mistakes trip up beginners and appear in interviews.
 
@@ -1774,7 +1475,7 @@ match value:
 match value:
     case x:              # x captures the value
         print(x)         # Works!
-\`\`\`
+\`\`\`python
 
 Dict Patterns Are Partial: Extra keys don't prevent matching—only specified keys must be present.
 
@@ -1784,7 +1485,7 @@ user = {"name": "Alice", "age": 30, "email": "alice@example.com"}
 match user:
     case {"name": n, "age": a}:
         print(f"{n}, {a}")   # MATCHES even with extra "email" key!
-\`\`\`
+\`\`\`python
 
 Guard Evaluation Order: Pattern must match BEFORE guard runs. Guard failure tries next case.
 
@@ -1794,7 +1495,7 @@ match x:
         print("Positive")
     case int(n):             # Catches non-positive ints
         print("Non-positive")
-\`\`\`
+\`\`\`python
 
 OR Patterns Can't Mix Capture Names: All alternatives in an OR must capture the same variables.
 
@@ -1844,7 +1545,7 @@ for i in range(len(arr)):
 # RIGHT: enumerate()
 for i, item in enumerate(arr):
     print(f"Index {i}: {item}")
-\`\`\`
+\`\`\`python
 
 FOR LOOP MASTERY: Python's for loop iterates over ANY iterable—not just lists!
 
@@ -1872,7 +1573,7 @@ for line in open("file.txt"):
 # GENERATORS
 for x in (i**2 for i in range(5)):
     print(x)  # 0, 1, 4, 9, 16
-\`\`\`
+\`\`\`python
 
 The iteration protocol: Any object with \`__iter__\` method is iterable.
 
@@ -1909,7 +1610,7 @@ while left <= right:
         left = mid + 1
     else:
         right = mid - 1
-\`\`\`
+\`\`\`python
 
 ITERATION TOOLS: Python provides powerful built-in tools for common iteration patterns.
 
@@ -1980,7 +1681,7 @@ print(nums)  # [3, 1, 2] — original unchanged!
 words = ["apple", "pie", "zoo"]
 for w in sorted(words, key=len):
     print(w)  # pie, zoo, apple (sorted by length)
-\`\`\`
+\`\`\`python
 
 LOOP ELSE CLAUSE: Runs if loop completes WITHOUT hitting break. Perfect for search patterns!
 
@@ -2017,7 +1718,7 @@ def find_item_ugly(items, target):
             break
     if not found:
         print("Not found")
-\`\`\`
+\`\`\`python
 
 Loop else benefits:
 - No flag variable needed
@@ -2045,7 +1746,7 @@ for i in range(5):
         pass  # TODO: implement even handling
     else:
         print(f"Odd: {i}")
-\`\`\`
+\`\`\`python
 
 PERFORMANCE PATTERNS AND OPTIMIZATION:
 
@@ -2061,7 +1762,7 @@ for item in data:
     append(item)  # Direct call, no lookup
 
 # Benchmark: 10-15% faster for tight loops!
-\`\`\`
+\`\`\`python
 
 2. Membership Testing: Use Sets, Not Lists
 \`\`\`python
@@ -2078,7 +1779,7 @@ for item in data:
         process(item)
 
 # For 10K items: 1000x faster with set!
-\`\`\`
+\`\`\`python
 
 3. List Comprehensions vs Append Loops:
 \`\`\`python
@@ -2091,7 +1792,7 @@ for x in range(1000000):
 result = [x**2 for x in range(1000000)]
 
 # Use comprehensions for simple transforms!
-\`\`\`
+\`\`\`python
 
 4. Generator Expressions for One-Time Use:
 \`\`\`python
@@ -2100,7 +1801,7 @@ total = sum([x**2 for x in range(1000000)])  # ~8MB!
 
 # GOOD: Generator for one-time sum (O(1) memory)
 total = sum(x**2 for x in range(1000000))  # ~100 bytes!
-\`\`\`
+\`\`\`python
 
 TWO-POINTER PATTERNS IN LOOPS: Common interview pattern using while loops.
 
@@ -2136,7 +1837,7 @@ def reverse(arr):
         arr[left], arr[right] = arr[right], arr[left]
         left += 1
         right -= 1
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS AND MISTAKES:
 
@@ -2156,7 +1857,7 @@ nums = [x for x in nums if x % 2 != 0]
 for x in nums[:]:  # [:] creates copy
     if x % 2 == 0:
         nums.remove(x)
-\`\`\`
+\`\`\`python
 
 2. Iterator Exhaustion:
 \`\`\`python
@@ -2167,7 +1868,7 @@ list(gen)  # [] — Exhausted!
 
 # FIX: Convert to list once
 data = list(x for x in range(5))
-\`\`\`
+\`\`\`python
 
 3. Range Oddities:
 \`\`\`python
@@ -2178,7 +1879,7 @@ list(range(10, 0, -1))  # [10, 9, 8, ..., 1]
 # GOTCHA: range is lazy
 r = range(1000000)  # Instant, O(1) memory
 l = list(range(1000000))  # Slow, O(n) memory
-\`\`\`
+\`\`\`python
 
 4. Variable Scope in Loops:
 \`\`\`python
@@ -2190,7 +1891,7 @@ print(i)  # 4 (last value!)
 # In list comp: variable is local (Python 3+)
 [x for x in range(5)]
 # print(x)  # NameError! (x not defined)
-\`\`\`
+\`\`\`python
 
 ADVANCED ITERTOOLS PATTERNS:
 
@@ -2213,7 +1914,7 @@ for x in chain([1, 2], [3, 4]):
 # COMBINATIONS: All k-element combinations
 for combo in combinations([1, 2, 3], 2):
     print(combo)  # (1, 2), (1, 3), (2, 3)
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES SUMMARY:
 
@@ -2261,7 +1962,7 @@ squares_gen = (x**2 for x in range(1000000))
 squares_list = list(squares_gen)  # One-time conversion
 sum(squares_list)  # Works
 sum(squares_list)  # Still works!
-\`\`\`
+\`\`\`python
 
 ALL COMPREHENSION TYPES: Python has four comprehension types—all share the same syntax structure but produce different collections.
 
@@ -2284,7 +1985,7 @@ square_map = {x: x**2 for x in range(5)}
 # GENERATOR EXPRESSION: () yields items lazily
 squares_lazy = (x**2 for x in range(10))
 # → <generator object> (not computed yet!)
-\`\`\`
+\`\`\`python
 
 Note: Tuple comprehension DOESN'T exist! \`()\` creates a generator, not a tuple.
 
@@ -2296,7 +1997,7 @@ gen = (x for x in range(5))  # Generator!
 tup = tuple(x for x in range(5))  # → (0, 1, 2, 3, 4)
 # OR use tuple() on list comprehension
 tup = tuple([x for x in range(5)])
-\`\`\`
+\`\`\`python
 
 LIST VS GENERATOR: MEMORY AND PERFORMANCE TRADE-OFFS.
 
@@ -2315,7 +2016,7 @@ sys.getsizeof(list_comp)  # ~8,000,000 bytes (8MB)
 # Generator: Stores only state
 gen_expr = (x**2 for x in range(1000000))
 sys.getsizeof(gen_expr)  # ~100 bytes (constant!)
-\`\`\`
+\`\`\`python
 
 When to Use List vs Generator:
 
@@ -2350,7 +2051,7 @@ total = sum([x**2 for x in range(10000000)])  # Wastes ~80MB!
 gen = (x**2 for x in range(100))
 print(list(gen))  # Works
 print(list(gen))  # [] Empty! Generator exhausted
-\`\`\`
+\`\`\`python
 
 NESTED COMPREHENSIONS: Comprehensions can be nested, but readability degrades quickly. Use regular loops beyond 2 levels of nesting.
 
@@ -2383,7 +2084,7 @@ transposed = [[row[i] for row in matrix] for i in range(3)]
 # → [[1, 4], [2, 5], [3, 6]]
 # OR use zip:
 transposed = list(zip(*matrix))  # Clearer for transpose!
-\`\`\`
+\`\`\`python
 
 CRITICAL: Nested comp order reads LEFT-TO-RIGHT!
 
@@ -2395,7 +2096,7 @@ result = [x*y for x in A for y in B]
 for x in A:          # Left part = outer loop
     for y in B:      # Right part = inner loop
         result.append(x*y)
-\`\`\`
+\`\`\`python
 
 FILTERING AND MAPPING: Combine transformation (mapping) and filtering in one expression.
 
@@ -2421,7 +2122,7 @@ filtered = [y for x in data if (y := expensive(x)) > 0]
 # WRONG: Calling expensive twice
 filtered = [expensive(x) for x in data if expensive(x) > 0]
 # Calls expensive() TWICE per passing item! (once in if, once in expr)
-\`\`\`
+\`\`\`python
 
 COMPREHENSIONS VS MAP/FILTER: Comprehensions are more Pythonic and flexible.
 
@@ -2437,7 +2138,7 @@ evens_comp = [x for x in range(10) if x % 2 == 0]  # Clearer!
 # map() + filter() combined
 result = list(map(lambda x: x**2, filter(lambda x: x % 2 == 0, range(10))))
 result = [x**2 for x in range(10) if x % 2 == 0]  # Much clearer!
-\`\`\`
+\`\`\`python
 
 Use map/filter ONLY when:
 - You already have a named function: \`list(map(str.upper, words))\`
@@ -2461,7 +2162,7 @@ for x in data:
         result.append(-x)
     else:
         result.append(0)
-\`\`\`
+\`\`\`python
 
 2. Side effects (print, logging, mutation):
 \`\`\`python
@@ -2471,7 +2172,7 @@ for x in data:
 # GOOD: Regular loop
 for x in data:
     print(x)
-\`\`\`
+\`\`\`python
 
 3. Triple nesting or more:
 \`\`\`python
@@ -2488,7 +2189,7 @@ for x in A:
             col.append(x*y*z)
         row.append(col)
     result.append(row)
-\`\`\`
+\`\`\`python
 
 4. Exception handling:
 \`\`\`python
@@ -2502,7 +2203,7 @@ for x in data:
         result.append(int(x))
     except ValueError:
         pass  # Skip invalid items
-\`\`\`
+\`\`\`python
 
 Rule of Thumb: If your comprehension has >3 clauses or doesn't fit cleanly on one readable line, use a loop!
 
@@ -2513,28 +2214,28 @@ Unique Ordered Elements (remove duplicates, preserve order):
 items = [1, 2, 1, 3, 2, 4]
 unique = list(dict.fromkeys(items))  # → [1, 2, 3, 4]
 # dict.fromkeys() maintains insertion order (3.7+)
-\`\`\`
+\`\`\`python
 
 Flatten Nested Lists:
 \`\`\`python
 nested = [[1, 2], [3, 4], [5]]
 flat = [item for sublist in nested for item in sublist]
 # → [1, 2, 3, 4, 5]
-\`\`\`
+\`\`\`python
 
 Transpose Matrix:
 \`\`\`python
 matrix = [[1, 2, 3], [4, 5, 6]]
 transposed = list(zip(*matrix))  # → [(1, 4), (2, 5), (3, 6)]
 # OR: [[row[i] for row in matrix] for i in range(len(matrix[0]))]
-\`\`\`
+\`\`\`python
 
 Conditional Expression in Output:
 \`\`\`python
 # Simple ternary OK
 result = ["even" if x % 2 == 0 else "odd" for x in range(5)]
 # → ["even", "odd", "even", "odd", "even"]
-\`\`\`
+\`\`\`python
 
 Dict from Two Lists:
 \`\`\`python
@@ -2542,7 +2243,7 @@ keys = ['a', 'b', 'c']
 values = [1, 2, 3]
 mapping = {k: v for k, v in zip(keys, values)}
 # → {'a': 1, 'b': 2, 'c': 3}
-\`\`\`
+\`\`\`python
 
 PERFORMANCE COMPARISON: Real benchmarks for 1M items.
 
@@ -2557,7 +2258,7 @@ for x in range(1000000):
     squares.append(x**2)
 
 # Comprehensions are 20-30% faster for simple operations!
-\`\`\`
+\`\`\`python
 
 List Comprehension vs map():
 \`\`\`python
@@ -2570,7 +2271,7 @@ squares = list(map(lambda x: x**2, range(1000000)))
 # map with function: ~45ms (slightly faster if function is pre-defined)
 def square(x): return x**2
 squares = list(map(square, range(1000000)))
-\`\`\`
+\`\`\`python
 
 Generator vs List for sum():
 \`\`\`python
@@ -2581,7 +2282,7 @@ total = sum(x**2 for x in range(1000000))
 total = sum([x**2 for x in range(1000000)])
 
 # Generator slower but 80,000x less memory!
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS:
 
@@ -2593,14 +2294,14 @@ list(gen)  # → [] GOTCHA! Empty!
 
 # FIX: Convert once
 data = list(x for x in range(5))
-\`\`\`
+\`\`\`python
 
 2. Variable Leakage (Python 2 only, fixed in Python 3):
 \`\`\`python
 # Python 3: Comprehension variables are local
 [x for x in range(5)]
 # x is NOT defined outside! (NameError)
-\`\`\`
+\`\`\`python
 
 3. Nested Loop Order:
 \`\`\`python
@@ -2610,7 +2311,7 @@ data = list(x for x in range(5))
 # CORRECT: Reads left-to-right
 for x in A:     # Left part
     for y in B: # Right part
-\`\`\`
+\`\`\`python
 
 4. Set/Dict Need {}, Not ():
 \`\`\`python
@@ -2619,7 +2320,7 @@ gen = (x for x in range(5))  # Generator!
 
 # RIGHT: {} for set
 my_set = {x for x in range(5)}  # Set!
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES SUMMARY:
 
@@ -2645,50 +2346,179 @@ export function ComprehensionsPage() {
   )
 }
 
-const functionsIntro = `Functions are the most basic way to package code for reuse. They let you write logic once and call it many times with different inputs, avoiding redundant code.
+const functionsIntro = `Functions as First-Class Objects
+Functions package reusable code logic. Use \`def\` for named functions, \`lambda\` for single-expression anonymous functions. Python functions are first-class objects—assign to variables, pass as arguments, store in data structures. Parentheses trigger calls: \`func()\` calls, \`func\` references. Functions return \`None\` by default without explicit \`return\`.
 
-Creation: Use \`def\` for named functions or \`lambda\` for anonymous expressions. Functions are "first-class objects"—they can be assigned to variables, passed as arguments, and stored in data structures.
+\`\`\`python
+# FUNCTION BASICS
+def greet(name):
+    return f"Hello, {name}!"
 
-Calling: Parentheses are always required to trigger a call, even with no arguments: \`func()\`. Without parentheses, you're referencing the function object, not calling it.
+# First-class: assign to variable
+say_hi = greet
+say_hi("Alice")  # "Hello, Alice!"
 
-Return Values: The \`return\` statement sends results back to the caller. Without an explicit return, functions return \`None\` by default. Functions that perform actions without returning meaningful values are sometimes called "procedures."
+# Lambda for simple expressions
+square = lambda x: x ** 2
+square(5)  # 25
 
-Arguments: Function arguments are implicit assignment—passed objects are bound to parameter names. Python supports multiple passing modes:
-• Positional: Matched by position (\`func(1, 2, 3)\`)
-• Keyword: Matched by name (\`func(x=1, y=2)\`)—order doesn't matter
-• Defaults: Parameters with \`=value\` are optional (\`def func(x, y=10)\`)
-• Positional-only (\`/\`): Must be passed by position, not name
-• Keyword-only (\`*\`): Must be passed by name, not position
+# Multiple arguments and defaults
+def power(base, exponent=2):
+    return base ** exponent
 
-Star Syntax: In headers, \`*args\` collects extra positional args into a tuple, \`**kwargs\` collects extra keyword args into a dict. In calls, \`*iterable\` unpacks into positional args, \`**dict\` unpacks into keyword args. The \`*\` accepts any iterable—lists, tuples, even file objects.
+power(3)     # 9 (default exponent=2)
+power(3, 3)  # 27 (override default)
 
-Scopes (LEGB Rule): A scope is where a name is visible. Unlike languages with declarations, Python uses the physical location of assignment to determine scope. When referencing a name, Python searches four nested scopes in order:
-• Local (L): Names assigned inside the current function (not declared \`global\` or \`nonlocal\`). Exist only while the function executes.
-• Enclosing (E): Names in outer functions when you have nested \`def\`s. Searched from innermost to outermost enclosing function.
-• Global (G): Names assigned at module top-level, or declared \`global\` inside a function.
-• Built-in (B): Names preassigned by Python itself (\`len\`, \`open\`, \`range\`, \`SyntaxError\`).
+# ARGUMENT PASSING MODES
+def func(pos_only, /, standard, *, kw_only):
+    # pos_only: positional only (before /)
+    # standard: positional or keyword
+    # kw_only: keyword only (after *)
+    pass
 
-Built-ins vs Reserved Words: Reserved words (\`if\`, \`while\`, \`class\`) are hardwired syntax—you cannot use them as names. Built-in names are different: they're just the outermost scope and CAN be reassigned (e.g., \`len = 99\`), which "shadows" the built-in. This is legal but dangerous—avoid it.
+func(1, 2, kw_only=3)        # Valid
+func(1, standard=2, kw_only=3)  # Valid
+# func(pos_only=1)  # ERROR! Must use position
 
-Modifying Outer Scopes: Reading outer scope variables works automatically. But to modify them, you must declare: \`global x\` to modify module-level \`x\`, or \`nonlocal x\` to modify an enclosing function's \`x\`. Without these declarations, assignment creates a new local variable.
+# STAR SYNTAX - Collect and unpack
+def variadic(*args, **kwargs):
+    print(f"Positional: {args}")
+    print(f"Keyword: {kwargs}")
 
-Namespaces: Each module is a self-contained namespace. Variables named \`x\` in different functions or modules don't collide—Python's scope rules keep them separate automatically.
+variadic(1, 2, x=3, y=4)
+# Positional: (1, 2)
+# Keyword: {'x': 3, 'y': 4}
 
-Polymorphism: Since Python doesn't constrain types, a function's behavior depends on the types of objects passed at runtime. The same function can work on strings, lists, or custom objects if they support the required operations.
+# Unpacking in calls
+nums = [1, 2, 3]
+print(*nums)  # Unpacks to: print(1, 2, 3)
+\`\`\`python
+---
+Scopes and the LEGB Rule
+Python searches scopes in order: Local → Enclosing → Global → Built-in. Assignment creates local variables unless declared \`global\` or \`nonlocal\`. Reading outer scopes works automatically. Modifying requires declaration. Each module is a separate namespace—same variable names in different modules don't collide.
 
-Methods vs Functions: Methods are functions attached to objects. When you call \`obj.method()\`, Python implicitly passes the object as the first argument.
+\`\`\`python
+# LEGB SCOPE SEARCH
+x = "global"
 
-Functional Programming: Python supports functional paradigms alongside procedural and OOP. Key tools: \`map\` (apply function to each item), \`filter\` (select items where function is true), \`reduce\` (combine items into single result), plus generators, comprehensions, closures, decorators, and lambda expressions.
+def outer():
+    x = "enclosing"
 
-Recursion: Functions can call themselves to process nested/hierarchical structures. Always needs a base case to stop. For cyclic data (objects referencing themselves), track visited items with a set to avoid infinite loops. Use \`@lru_cache\` to memoize expensive recursive calls.
+    def inner():
+        x = "local"  # Creates new local x
+        print(x)     # "local" (L)
 
-DECORATORS: A decorator is a callable that accepts a function/class and returns a callable (often a wrapper). \`@decorator\` before \`def F\` is syntax sugar for \`F = decorator(F)\`. Decorators run at definition time, not call time—ideal for registration, initialization, or wrapping.
+    inner()
+    print(x)  # "enclosing" (E)
 
-DECORATOR PATTERNS: Function decorators intercept calls—add logging, timing, validation. Usually return a wrapper that invokes the original via closure. Class decorators intercept class creation—augment the class or return a wrapper for instance creation. Can use classes (with \`__call__\`) or nested functions.
+outer()
+print(x)  # "global" (G)
+print(len)  # <built-in function len> (B)
 
-DECORATOR STATE: Three ways to retain state (e.g., call counter): (1) instance attributes if decorator is a class, (2) \`nonlocal\` variables in enclosing closure, (3) attributes on wrapper function object. Use \`@functools.wraps\` to preserve original \`__name__\`, \`__doc__\`.
+# MODIFYING OUTER SCOPES
+count = 0
 
-NESTING & ARGUMENTS: Stack decorators—applied bottom to top: \`@A @B def f\` = \`f = A(B(f))\`. Decorators with arguments need extra layer: \`decorator(args)\` returns the actual decorator which takes the function.`
+def increment_global():
+    global count  # Declare to modify global
+    count += 1
+
+increment_global()
+print(count)  # 1
+
+# ENCLOSING SCOPE MODIFICATION
+def make_counter():
+    count = 0
+
+    def increment():
+        nonlocal count  # Declare to modify enclosing
+        count += 1
+        return count
+
+    return increment
+
+counter = make_counter()
+print(counter())  # 1
+print(counter())  # 2
+
+# SHADOWING BUILT-INS (avoid!)
+len = 99  # Shadows built-in len
+# len([1, 2])  # ERROR! len is now int, not function
+del len  # Restore built-in
+len([1, 2])  # 2 (works again)
+\`\`\`python
+---
+Decorators and Advanced Patterns
+Decorators wrap functions to add behavior—logging, timing, validation. Syntax \`@decorator\` before \`def\` equals \`func = decorator(func)\`. Decorators run at definition time. Stack decorators bottom-to-top: \`@A @B def f\` = \`A(B(f))\`. Decorators with arguments need extra nesting: \`decorator(args)\` returns the actual decorator. Use \`@functools.wraps\` to preserve metadata. Recursion needs base case and can use \`@lru_cache\` for memoization.
+
+\`\`\`python
+# BASIC DECORATOR
+import functools
+
+def log_calls(func):
+    @functools.wraps(func)  # Preserve __name__, __doc__
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} returned {result}")
+        return result
+    return wrapper
+
+@log_calls
+def add(x, y):
+    return x + y
+
+add(3, 5)
+# Calling add
+# add returned 8
+
+# DECORATOR WITH ARGUMENTS
+def repeat(times):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for _ in range(times):
+                result = func(*args, **kwargs)
+            return result
+        return wrapper
+    return decorator
+
+@repeat(3)
+def greet(name):
+    print(f"Hello, {name}!")
+
+greet("Alice")
+# Hello, Alice!
+# Hello, Alice!
+# Hello, Alice!
+
+# RECURSION WITH MEMOIZATION
+@functools.lru_cache(maxsize=None)
+def fibonacci(n):
+    if n < 2:  # Base case
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(100))  # Fast! Results cached
+
+# CLASS AS DECORATOR (stateful)
+class CallCounter:
+    def __init__(self, func):
+        self.func = func
+        self.count = 0
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+        print(f"Call #{self.count}")
+        return self.func(*args, **kwargs)
+
+@CallCounter
+def say_hi():
+    print("Hi!")
+
+say_hi()  # Call #1 \n Hi!
+say_hi()  # Call #2 \n Hi!
+\`\`\`python
+`
 
 export function FunctionsPage() {
   return (
@@ -2701,25 +2531,166 @@ export function FunctionsPage() {
   )
 }
 
-const oopIntro = `CLASS CODING BASICS: Classes are factories for generating instance objects. The \`class\` statement is executable code—Python runs nested statements to build class attributes. Assignments in the class body create class attributes; assignments to \`self\` in methods create instance attributes. The \`__init__\` constructor runs automatically when an instance is created—use it to initialize state via \`self.name = value\`. Methods always receive the instance as their first argument (\`self\`).
+const oopIntro = `Classes and Objects Fundamentals
+Classes are blueprints for creating objects that bundle data and behavior. Use def to create methods—they automatically receive the instance as first argument (self). The __init__ constructor runs when creating instances. Classes beat dictionaries for structured data because they provide consistent interfaces, type checking, and can add behavior.
 
-REALISTIC EXAMPLE PATTERNS: Encapsulation bundles data + logic together—define methods inside the class rather than external functions. This means changes to logic update in one place. Classes are superior to dicts for records because they ensure consistent interface and can add behavior. Use \`if __name__ == "__main__":\` for self-test code that runs when executed directly but not when imported. Objects can be persisted with \`shelve\` for simple database-like storage.
+\`\`\`python
+# BASIC CLASS SYNTAX
+class Dog:
+    species = "Canis familiaris"  # Class attribute (shared)
 
-CLASS CODING DETAILS: Namespaces are dictionaries (\`__dict__\`). Instances link to class via \`__class__\`, classes to superclasses via \`__bases__\`. Two lookup mechanisms: simple names (\`x\`) use LEGB scopes; qualified names (\`obj.x\`) search the inheritance tree. \`instance.method(args)\` translates to \`Class.method(instance, args)\`. Bound methods package self; unbound methods (accessed via class) are just functions.
+    def __init__(self, name, age):  # Constructor
+        self.name = name        # Instance attribute
+        self.age = age
 
-DESIGNING WITH CLASSES: Inheritance ("is-a") for specialization. Composition ("has-a") for embedding objects. Delegation via \`__getattr__\` forwards calls to wrapped objects—adds logging, validation. Mix-ins are small focused classes providing orthogonal capabilities. Factories create objects dynamically. MRO (Method Resolution Order) determines search path in multiple inheritance (C3 linearization).
+    def bark(self):             # Instance method
+        return f"{self.name} says woof!"
 
-ADVANCED TOPICS: \`__slots__\` restricts attributes and reduces memory. \`@dataclass\` auto-generates \`__init__\`, \`__repr__\`, \`__eq__\`. ABC (Abstract Base Classes) define interfaces that subclasses must implement. Name mangling (\`__name\` → \`_Class__name\`) prevents accidental override in inheritance. Four specialization patterns: inherit, override, extend (super + add), provide (implement abstract).
+# CREATE INSTANCES
+dog1 = Dog("Buddy", 3)
+dog2 = Dog("Max", 5)
+print(dog1.bark())  # "Buddy says woof!"
+print(Dog.species)  # "Canis familiaris" (shared)
 
-MANAGED ATTRIBUTES: Run code when attributes are fetched or set—for validation, computed values, or logging. \`@property\` is simplest: define getter/setter/deleter for specific attributes. Descriptors are the low-level mechanism (classes with \`__get__\`/\`__set__\`/\`__delete__\`)—they power properties, slots, and staticmethod.
+# WHEN TO USE CLASSES VS DICTS
+# Dict - flexible, no behavior
+person = {"name": "Alice", "age": 30}
 
-ATTRIBUTE INTERCEPTION: \`__getattr__(name)\` runs only when lookup fails (undefined attributes)—ideal for delegation. \`__getattribute__(name)\` runs for ALL fetches—powerful but risky; avoid recursion via \`object.__getattribute__(self, name)\`. \`__setattr__(name, value)\` runs for all assignments—must use \`self.__dict__[name]\` to avoid recursion.
+# Class - consistent interface, can add methods
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
 
-BUILT-IN LIMITATION: Built-in operations (\`str(x)\`, \`len(x)\`, \`x + y\`) look up special methods (\`__str__\`, \`__len__\`, \`__add__\`) directly in the class, bypassing \`__getattr__\` and \`__getattribute__\`. To intercept these, you must define the specific dunder methods in your class.
+    def greet(self):  # Behavior bundled with data
+        return f"Hi, I'm {self.name}"
+\`\`\`python
+---
+Inheritance and Composition Patterns
+Inheritance (is-a) creates specialized classes from general ones. Composition (has-a) embeds objects inside others—often clearer than inheritance. Delegation forwards attribute access to wrapped objects using __getattr__. MRO (Method Resolution Order) determines lookup path in multiple inheritance using C3 linearization.
 
-METACLASSES: Classes are themselves objects—created by metaclasses. \`type\` is the default metaclass. The class statement runs body to build dict, then calls \`Metaclass(name, bases, dict)\`. Subclass \`type\` and override \`__new__\` to intercept class creation—modify class dict, add methods, validate attributes.
+\`\`\`python
+# INHERITANCE - "is-a" relationship
+class Animal:
+    def __init__(self, name):
+        self.name = name
 
-METACLASS VS DECORATOR: Class decorators run after creation, modify specific class, not inherited. Metaclasses run during creation, are inherited by all subclasses—ideal for frameworks. Use syntax: \`class C(metaclass=MyMeta)\`. "If you wonder whether you need metaclasses, you probably don't"—99% of cases use simpler tools.`
+    def speak(self):
+        raise NotImplementedError
+
+class Dog(Animal):  # Dog IS-AN Animal
+    def speak(self):
+        return f"{self.name} barks"
+
+class Cat(Animal):
+    def speak(self):
+        return f"{self.name} meows"
+
+# COMPOSITION - "has-a" relationship
+class Engine:
+    def start(self):
+        return "Engine started"
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()  # Car HAS-AN Engine
+
+    def start(self):
+        return self.engine.start()
+
+# DELEGATION - Forward to wrapped object
+class LoggedList:
+    def __init__(self):
+        self._list = []
+
+    def __getattr__(self, name):  # Delegate unknown attrs
+        return getattr(self._list, name)
+
+    def append(self, item):  # Override to add logging
+        print(f"Adding {item}")
+        self._list.append(item)
+
+logged = LoggedList()
+logged.append(1)  # Logs then delegates
+logged.pop()      # Delegates directly to list.pop()
+\`\`\`python
+---
+Advanced OOP: Properties, Descriptors, and Metaclasses
+Use @property for computed attributes and validation—runs code on access. @dataclass auto-generates __init__, __repr__, __eq__. __slots__ restricts attributes and reduces memory 50%+. ABC defines interfaces that subclasses must implement. Metaclasses customize class creation—rarely needed but powerful.
+
+\`\`\`python
+# @PROPERTY - Computed attributes with validation
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def radius(self):  # Getter
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):  # Setter with validation
+        if value < 0:
+            raise ValueError("Radius must be positive")
+        self._radius = value
+
+    @property
+    def area(self):  # Computed attribute
+        return 3.14159 * self._radius ** 2
+
+c = Circle(5)
+print(c.area)     # 78.54 (computed on access)
+c.radius = -1     # ValueError!
+
+# @DATACLASS - Auto-generate boilerplate
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: float
+    y: float
+    # Auto-generates __init__, __repr__, __eq__
+
+p = Point(1, 2)
+print(p)  # Point(x=1, y=2)
+
+# __SLOTS__ - Restrict attributes, save memory
+class SlottedClass:
+    __slots__ = ['x', 'y']  # Only these attributes allowed
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        # self.z = 3  # AttributeError!
+
+# ABC - Define interfaces
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self):
+        pass
+
+class Rectangle(Shape):
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+
+    def area(self):  # Must implement
+        return self.w * self.h
+
+# METACLASS - Customize class creation (advanced)
+class Meta(type):
+    def __new__(cls, name, bases, dct):
+        dct['added'] = 42  # Add attribute to all classes
+        return super().__new__(cls, name, bases, dct)
+
+class MyClass(metaclass=Meta):
+    pass
+
+print(MyClass.added)  # 42
+\`\`\`python
+`
 
 export function OOPPage() {
   return (

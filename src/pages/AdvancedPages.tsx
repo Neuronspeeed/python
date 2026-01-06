@@ -46,7 +46,7 @@ for user in users:
 
 # BAD: Obvious information
 x = 5  # Set x to 5
-\`\`\`
+\`\`\`python
 
 When to Use Comments:
 - Explain WHY you chose this approach (not WHAT the code does)
@@ -90,7 +90,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
         3935.746
     """
     # Implementation here...
-\`\`\`
+\`\`\`python
 
 Docstring Formats (choose one, be consistent):
 
@@ -111,7 +111,7 @@ def function(arg1, arg2):
     Raises:
         ValueError: When and why
     """
-\`\`\`
+\`\`\`python
 
 2. **NumPy Style** (for scientific code):
 \`\`\`python
@@ -132,7 +132,7 @@ def function(arg1, arg2):
     type
         Description
     """
-\`\`\`
+\`\`\`python
 
 3. **reStructuredText** (Sphinx default):
 \`\`\`python
@@ -147,7 +147,7 @@ def function(arg1, arg2):
     :returns: Description
     :rtype: type
     """
-\`\`\`
+\`\`\`python
 
 Module-Level Docstrings:
 \`\`\`python
@@ -165,7 +165,7 @@ Typical usage example:
 
 import math
 # Rest of module...
-\`\`\`
+\`\`\`python
 
 Class Docstrings:
 \`\`\`python
@@ -188,7 +188,7 @@ class BankAccount:
         self.account_number = account_number
         self.owner = owner
         self.balance = 0.0
-\`\`\`
+\`\`\`python
 
 TYPE HINTS: Static typing for documentation and tooling.
 
@@ -210,7 +210,7 @@ def greet(name: str, age: int) -> str:
 # Static analysis catches errors:
 greet("Alice", "30")  # mypy error: Expected int, got str
 greet(42, 30)         # mypy error: Expected str, got int
-\`\`\`
+\`\`\`python
 
 Common Type Hints:
 \`\`\`python
@@ -239,7 +239,7 @@ def get_coords() -> Tuple[float, float]:
 # Callable (function type)
 def apply(func: Callable[[int], str], x: int) -> str:
     return func(x)
-\`\`\`
+\`\`\`python
 
 Modern Type Hints (Python 3.9+):
 \`\`\`python
@@ -250,7 +250,7 @@ def process(items: list[int]) -> dict[str, int]:
 # Use | instead of Union
 def parse(value: int | str) -> float:
     pass
-\`\`\`
+\`\`\`python
 
 DIR() FUNCTION: Runtime introspection—what attributes are available?
 
@@ -274,7 +274,7 @@ dir(s)
 # Filter to just public methods (no dunder)
 [name for name in dir(str) if not name.startswith('_')]
 # ['capitalize', 'center', 'count', 'endswith', 'find', ...]
-\`\`\`
+\`\`\`python
 
 HELP() FUNCTION: Interactive documentation browser.
 
@@ -298,7 +298,7 @@ help(math.sqrt)
 #
 # sqrt(x, /)
 #     Return the square root of x.
-\`\`\`
+\`\`\`python
 
 PYDOC: Generate HTML documentation from docstrings.
 
@@ -313,7 +313,7 @@ python -m pydoc -p 8080
 
 # Open browser to module docs
 python -m pydoc -b mymodule
-\`\`\`
+\`\`\`python
 
 SPHINX: Professional documentation for projects.
 
@@ -331,7 +331,7 @@ sphinx-quickstart
 
 # Build HTML docs
 make html
-\`\`\`
+\`\`\`python
 
 Sphinx Features:
 - Auto-generates API docs from docstrings
@@ -350,7 +350,7 @@ Welcome to My Project
    :members:
    :undoc-members:
    :show-inheritance:
-\`\`\`
+\`\`\`python
 
 DOCUMENTATION BEST PRACTICES:
 
@@ -412,7 +412,7 @@ def factorial(n):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-\`\`\`
+\`\`\`python
 
 WHEN TO DOCUMENT WHAT:
 
@@ -475,7 +475,7 @@ def find_duplicates(items: List[int], threshold: int = 1) -> List[int]:
             seen.add(item)
 
     return result
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES SUMMARY:
 
@@ -517,7 +517,7 @@ def greet(name):
 import mymodule
 print(mymodule.x)        # 42
 print(mymodule.greet("Alice"))  # Hello, Alice
-\`\`\`
+\`\`\`python
 
 IMPORT MECHANICS: The three-step process.
 
@@ -544,7 +544,7 @@ import expensive_module  # Still instant
 # Verify caching:
 import sys
 print('expensive_module' in sys.modules)  # True
-\`\`\`
+\`\`\`python
 
 MODULE SEARCH PATH (sys.path): Where Python looks for modules.
 
@@ -559,7 +559,7 @@ print(sys.path)
 #   '/usr/lib/python3.11/site-packages',  # Third-party packages
 #   ...
 # ]
-\`\`\`
+\`\`\`python
 
 Search Order:
 1. **Current directory** (where script is running)
@@ -581,7 +581,7 @@ print(random.randint(1, 10))  # AttributeError: no 'randint'!
 # Your local random.py shadows stdlib random module!
 
 # FIX: Rename your file to something else (my_random.py)
-\`\`\`
+\`\`\`python
 
 IMPORT VS FROM: Preserving vs collapsing namespaces.
 
@@ -601,7 +601,7 @@ from math import *
 print(sqrt(16))  # Works, but where did sqrt come from?
 print(pi)        # Works, but code is harder to understand
 # Pollutes namespace, makes debugging hard
-\`\`\`
+\`\`\`python
 
 When to Use What:
 - **\`import module\`**: Default choice, clear origin of names
@@ -618,13 +618,13 @@ plt.plot([1, 2, 3])  # Shorter than matplotlib.pyplot.plot()
 # Avoiding conflicts
 from collections import Counter
 from my_stats import Counter as MyCounter  # Avoid name collision
-\`\`\`
+\`\`\`python
 
 PACKAGES: Organizing modules into directories.
 
 A package is a directory containing \`__init__.py\`. This makes the directory importable as a module.
 
-\`\`\`
+\`\`\`python
 myproject/
     __init__.py         # Makes 'myproject' a package
     utils.py            # myproject.utils
@@ -632,7 +632,7 @@ myproject/
         __init__.py     # Makes 'myproject.database' a package
         models.py       # myproject.database.models
         queries.py      # myproject.database.queries
-\`\`\`
+\`\`\`python
 
 \`\`\`python
 # Import from package
@@ -649,7 +649,7 @@ from .database import models
 import myproject
 myproject.utils.some_function()
 myproject.models.User()
-\`\`\`
+\`\`\`python
 
 RELATIVE VS ABSOLUTE IMPORTS: Within packages.
 
@@ -667,7 +667,7 @@ from .submodule import func    # Subdirectory
 
 # Relative imports ONLY work inside packages!
 # They DON'T work in scripts run directly.
-\`\`\`
+\`\`\`python
 
 Best Practice:
 - Use **absolute imports** for clarity (explicit is better than implicit)
@@ -691,7 +691,7 @@ def foo():
 
 # main.py
 import a  # ImportError: cannot import name 'bar' from partially initialized module 'a'
-\`\`\`
+\`\`\`python
 
 Why It Fails:
 1. main.py imports a
@@ -712,7 +712,7 @@ from shared import bar
 
 # b.py
 from shared import bar
-\`\`\`
+\`\`\`python
 
 2. **Import inside function** (defer import until needed):
 \`\`\`python
@@ -720,7 +720,7 @@ from shared import bar
 def bar():
     from b import foo  # Import when function is CALLED, not at module load
     return foo()
-\`\`\`
+\`\`\`python
 
 3. **Import at bottom** (after definitions):
 \`\`\`python
@@ -729,7 +729,7 @@ def bar():
     return "bar"
 
 from b import foo  # Import AFTER defining bar
-\`\`\`
+\`\`\`python
 
 MODULE RELOADING: For interactive development.
 
@@ -748,7 +748,7 @@ import mymodule  # Uses cached version!
 import importlib
 importlib.reload(mymodule)  # Re-executes mymodule.py
 mymodule.some_function()    # Now uses new code
-\`\`\`
+\`\`\`python
 
 Reload Gotchas:
 - Objects created from OLD module still use old code
@@ -774,7 +774,7 @@ if __name__ == "__main__":
     doctest.testmod()
 
 # When imported, __name__ is "mymodule", so this block is skipped
-\`\`\`
+\`\`\`python
 
 Use Cases:
 - Self-testing code
@@ -801,7 +801,7 @@ def _internal_function():
 # - _internal_helper
 # - _internal_function
 # But they're still accessible via mymodule._internal_function
-\`\`\`
+\`\`\`python
 
 Control \`from module import *\` with \`__all__\`:
 
@@ -821,13 +821,13 @@ def another_function():  # Not in __all__
 # from mymodule import * will ONLY import:
 # - public_function
 # - PUBLIC_CONSTANT
-\`\`\`
+\`\`\`python
 
 NAMESPACE PACKAGES (PEP 420): Packages without __init__.py.
 
 Python 3.3+ allows packages without \`__init__.py\`. Useful for splitting a package across multiple directories:
 
-\`\`\`
+\`\`\`python
 site-packages/
     mynamespace/
         plugin1.py
@@ -838,7 +838,7 @@ site-packages/
 # Both directories contribute to 'mynamespace' package
 import mynamespace.plugin1
 import mynamespace.plugin2
-\`\`\`
+\`\`\`python
 
 Use for: Plugin systems, splitting packages across repos.
 
@@ -867,7 +867,7 @@ COMMON GOTCHAS:
 
 REAL-WORLD PATTERN: Structured project.
 
-\`\`\`
+\`\`\`python
 myproject/
     __init__.py           # Empty or exports main API
     __main__.py           # python -m myproject runs this
@@ -885,7 +885,7 @@ myproject/
     setup.py              # Package metadata
     README.md
     requirements.txt
-\`\`\`
+\`\`\`python
 
 \`\`\`python
 # myproject/__init__.py
@@ -936,7 +936,7 @@ try:
         data = f.read()
 except FileNotFoundError:
     handle_missing_file()
-\`\`\`
+\`\`\`python
 
 Why EAFP wins: (1) Atomic—no race condition between check and use. (2) Faster—one operation instead of check + operation. (3) More readable—exception handling is separate from main logic. (4) Handles unexpected errors—what if file exists but lacks read permission?
 
@@ -963,7 +963,7 @@ finally:
     # ALWAYS runs—even if exception, even if return/break
     # Cleanup: close files, release locks, restore state
     cleanup_resources()
-\`\`\`
+\`\`\`python
 
 Key Rules:
 - Order must be: try → except(s) → else → finally
@@ -997,7 +997,7 @@ BaseException                    # Don't catch this! System exits inherit from i
     │   ├── PermissionError     # Insufficient permissions
     │   └── IOError             # I/O operation failed
     └── RuntimeError            # Generic runtime error
-\`\`\`
+\`\`\`python
 
 CRITICAL: NEVER use bare \`except:\` or \`except BaseException:\`—this catches SystemExit (sys.exit()) and KeyboardInterrupt (Ctrl+C), making your program impossible to stop! Use \`except Exception:\` for catch-all handlers.
 
@@ -1013,7 +1013,7 @@ try:
     do_something()
 except Exception as e:
     handle_error(e)  # Ctrl+C and sys.exit() still work
-\`\`\`
+\`\`\`python
 
 COMMON EXCEPTION TYPES: Understanding when each exception is raised helps you write targeted handlers.
 
@@ -1024,7 +1024,7 @@ try:
     age = data["age"]  # Raises KeyError
 except KeyError:
     age = None  # Or use data.get("age")
-\`\`\`
+\`\`\`python
 
 **IndexError**: List/tuple index out of range
 \`\`\`python
@@ -1033,7 +1033,7 @@ try:
     item = items[10]  # Raises IndexError
 except IndexError:
     item = None
-\`\`\`
+\`\`\`python
 
 **ValueError**: Correct type but invalid value
 \`\`\`python
@@ -1041,7 +1041,7 @@ try:
     number = int("not a number")  # Raises ValueError
 except ValueError:
     number = 0
-\`\`\`
+\`\`\`python
 
 **TypeError**: Wrong type for operation
 \`\`\`python
@@ -1049,7 +1049,7 @@ try:
     result = "5" + 5  # Raises TypeError (can't add str + int)
 except TypeError:
     result = "5" + str(5)
-\`\`\`
+\`\`\`python
 
 **FileNotFoundError**: File doesn't exist
 \`\`\`python
@@ -1058,7 +1058,7 @@ try:
         data = f.read()
 except FileNotFoundError:
     data = ""
-\`\`\`
+\`\`\`python
 
 **AttributeError**: Object lacks attribute
 \`\`\`python
@@ -1066,7 +1066,7 @@ try:
     length = obj.length  # obj has no 'length' attribute
 except AttributeError:
     length = len(obj)  # Try len() instead
-\`\`\`
+\`\`\`python
 
 RAISING EXCEPTIONS: Use \`raise\` to signal errors in your own code.
 
@@ -1088,7 +1088,7 @@ try:
     process_data()
 except ValueError as e:
     raise RuntimeError("Processing failed") from e  # Chain exceptions
-\`\`\`
+\`\`\`python
 
 EXCEPTION CHAINING: Use \`raise ... from ...\` to preserve context when wrapping exceptions.
 
@@ -1113,7 +1113,7 @@ try:
     data = json.loads(text)
 except json.JSONDecodeError:
     raise ValueError("Invalid data") from None  # Hide original error
-\`\`\`
+\`\`\`python
 
 CUSTOM EXCEPTIONS: Create domain-specific exceptions for your application.
 
@@ -1152,7 +1152,7 @@ except QueryError as e:
     log_invalid_query(e)
 except DatabaseError:  # Catches both subclasses
     alert_admin()
-\`\`\`
+\`\`\`python
 
 THE ELSE CLAUSE: Runs only if try completes with NO exception. Keeps success logic separate from error handling.
 
@@ -1172,7 +1172,7 @@ except IOError:
 else:
     process(data)  # Only runs if load succeeded
     # If process() raises, it propagates up (clearer!)
-\`\`\`
+\`\`\`python
 
 THE FINALLY CLAUSE: ALWAYS executes—even if exception propagates, even if return/break in try/except.
 
@@ -1193,7 +1193,7 @@ try:
     critical_section()
 finally:
     lock.release()  # Guaranteed to release, even if exception
-\`\`\`
+\`\`\`python
 
 CONTEXT MANAGERS: The \`with\` statement is syntactic sugar for try/finally cleanup.
 
@@ -1228,7 +1228,7 @@ class Timer:
 with Timer() as t:
     slow_operation()
 # Prints elapsed time automatically
-\`\`\`
+\`\`\`python
 
 ASSERTION: Use \`assert\` for debugging and development checks, NOT production validation.
 
@@ -1248,7 +1248,7 @@ def withdraw(amount):
 def withdraw(amount):
     if amount <= 0:
         raise ValueError("Amount must be positive")
-\`\`\`
+\`\`\`python
 
 PERFORMANCE IMPACT: Exceptions are expensive when raised but free when not raised.
 
@@ -1276,7 +1276,7 @@ try:
         return f.read()
 except FileNotFoundError:  # Rare: file missing is exceptional
     return default_content()
-\`\`\`
+\`\`\`python
 
 Cost breakdown:
 - Setting up try block: nearly free (no overhead)
@@ -1301,7 +1301,7 @@ except Exception as e:
     # Catch-all for unexpected errors
     log_unexpected(e)
     raise
-\`\`\`
+\`\`\`python
 
 **Pattern 2: Multi-Exception Handler**
 \`\`\`python
@@ -1310,7 +1310,7 @@ try:
 except (KeyError, IndexError, TypeError) as e:
     # Handle any of these similarly
     result = default_value
-\`\`\`
+\`\`\`python
 
 **Pattern 3: Cleanup in Finally**
 \`\`\`python
@@ -1324,7 +1324,7 @@ else:
     connection.commit()
 finally:
     connection.close()  # Always cleanup
-\`\`\`
+\`\`\`python
 
 **Pattern 4: Suppress Specific Errors**
 \`\`\`python
@@ -1332,7 +1332,7 @@ try:
     os.remove(temp_file)  # Delete if exists
 except FileNotFoundError:
     pass  # Already deleted, that's fine
-\`\`\`
+\`\`\`python
 
 **Pattern 5: Retry with Backoff**
 \`\`\`python
@@ -1346,7 +1346,7 @@ for attempt in range(3):
         if attempt == 2:  # Last attempt
             raise
         time.sleep(2 ** attempt)  # Exponential backoff
-\`\`\`
+\`\`\`python
 
 EXCEPTION ANTI-PATTERNS: Common mistakes to avoid.
 
@@ -1411,7 +1411,7 @@ except StopIteration:
 # FIX: Use for loop (Pythonic iteration)
 for item in iterator:
     process(item)
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES SUMMARY:
 
@@ -1459,7 +1459,7 @@ logging.error("Error occurred!")        # Level: ERROR (always shown)
 # Output includes timestamp, level, module:
 # 2024-01-15 14:23:45 INFO User logged in
 # 2024-01-15 14:23:46 ERROR Error occurred!
-\`\`\`
+\`\`\`python
 
 THE FIVE LOG LEVELS: Understanding when to use each level is critical for effective logging.
 
@@ -1489,7 +1489,7 @@ def handle_api_request(user_id, data):
     except Exception as e:
         logging.error(f"Processing failed for user {user_id}: {e}", exc_info=True)
         return error_response()
-\`\`\`
+\`\`\`python
 
 BASIC LOGGING CONFIGURATION: Set up logging with \`basicConfig()\` for simple cases, or use \`logging.config\` for complex setups.
 
@@ -1509,7 +1509,7 @@ logging.error("Something went wrong")
 # Output:
 # 2024-01-15 14:30:15,123 - root - INFO - Application started
 # 2024-01-15 14:30:16,456 - root - ERROR - Something went wrong
-\`\`\`
+\`\`\`python
 
 Format String Keys (Common):
 - \`%(asctime)s\`: Timestamp (2024-01-15 14:30:15)
@@ -1549,7 +1549,7 @@ logger.addHandler(file_handler)
 logger.debug("Debug message")   # → File only (below WARNING)
 logger.info("Info message")     # → File only
 logger.warning("Warning!")      # → Console + File (WARNING+)
-\`\`\`
+\`\`\`python
 
 Common Handler Types:
 - \`StreamHandler()\`: Console output (stdout/stderr)
@@ -1579,7 +1579,7 @@ def func():
 # Configure separately:
 logging.getLogger("module1").setLevel(logging.DEBUG)  # Verbose
 logging.getLogger("module2").setLevel(logging.WARNING)  # Quiet
-\`\`\`
+\`\`\`python
 
 Logger Hierarchy: Loggers form a tree based on names. \`app.db.query\` is a child of \`app.db\` which is a child of \`app\`. Child loggers inherit configuration from parents unless overridden.
 
@@ -1601,7 +1601,7 @@ logger.info("order_placed", user_id=user_id, order_id=order_id, amount=amount)
 
 # Output: JSON for log aggregation tools (Elasticsearch, Splunk)
 # {"event": "order_placed", "user_id": 123, "order_id": 456, "amount": 99.99, "timestamp": "2024-01-15T14:30:15"}
-\`\`\`
+\`\`\`python
 
 DEBUGGING WITH PDB: Python's built-in debugger for interactive code inspection.
 
@@ -1619,7 +1619,7 @@ def buggy_function(data):
 # (Pdb) n  # Next line
 # (Pdb) s  # Step into function
 # (Pdb) c  # Continue execution
-\`\`\`
+\`\`\`python
 
 Common PDB Commands:
 - \`n\` (next): Execute next line
@@ -1641,7 +1641,7 @@ try:
     buggy_function()
 except:
     pdb.post_mortem()  # Drop into debugger at exception point
-\`\`\`
+\`\`\`python
 
 PERFORMANCE PROFILING WITH TIMEIT: Accurate micro-benchmarking for comparing implementations.
 
@@ -1662,7 +1662,7 @@ print(f"Generator: {gen_time:.4f}s")   # ~0.52s
 
 # For one-liners, use -m timeit from command line:
 # python -m timeit "[x**2 for x in range(1000)]"
-\`\`\`
+\`\`\`python
 
 Best Practices:
 - Use \`number=\` parameter to control iterations (default: 1 million)
@@ -1693,7 +1693,7 @@ stats.print_stats(10)  # Top 10 slowest functions
 # - tottime: time in function (excluding subcalls)
 # - cumtime: total time (including subcalls)
 # - filename:lineno(function): where defined
-\`\`\`
+\`\`\`python
 
 MEMORY PROFILING: Track memory usage and find leaks.
 
@@ -1717,7 +1717,7 @@ print("Top 10 memory allocations:")
 for stat in top_stats[:10]:
     print(stat)
 # Shows: filename:line, size, count of allocations
-\`\`\`
+\`\`\`python
 
 WHEN TO USE WHAT:
 
@@ -1816,7 +1816,7 @@ def fibonacci(n):
         return n
     return fibonacci(n-1) + fibonacci(n-2)  # CPU works hard
 # → Use multiprocessing
-\`\`\`
+\`\`\`python
 
 THE GLOBAL INTERPRETER LOCK (GIL): Why Python's threading is "weird."
 
@@ -1859,7 +1859,7 @@ p2 = multiprocessing.Process(target=cpu_task)
 p1.start(); p2.start()
 p1.join(); p2.join()
 print(f"Multiprocessing: {time.time() - start:.2f}s")  # ~1.0s (2x speedup!)
-\`\`\`
+\`\`\`python
 
 THREADING: Best for I/O-bound tasks with moderate concurrency.
 
@@ -1887,7 +1887,7 @@ for thread in threads:
 # Wait for all to complete
 for thread in threads:
     thread.join()
-\`\`\`
+\`\`\`python
 
 ThreadPoolExecutor (Modern Approach): Simpler API, thread pooling, easier error handling.
 
@@ -1910,7 +1910,7 @@ with ThreadPoolExecutor(max_workers=10) as executor:
     for future in concurrent.futures.as_completed(futures):
         url, size = future.result()
         print(f"Fetched {url}: {size} bytes")
-\`\`\`
+\`\`\`python
 
 Threading Gotchas:
 - **Race conditions**: Multiple threads accessing shared state without locks can corrupt data
@@ -1942,7 +1942,7 @@ results = [cpu_intensive_task(n) for n in numbers]
 with multiprocessing.Pool(processes=4) as pool:
     results = pool.map(cpu_intensive_task, numbers)
     # Automatically distributes work across 4 processes
-\`\`\`
+\`\`\`python
 
 ProcessPoolExecutor (Modern Approach): Consistent API with ThreadPoolExecutor.
 
@@ -1957,7 +1957,7 @@ numbers = [10_000_000, 10_000_000, 10_000_000, 10_000_000]
 with ProcessPoolExecutor(max_workers=4) as executor:
     results = list(executor.map(cpu_intensive_task, numbers))
     # Results in same order as input
-\`\`\`
+\`\`\`python
 
 Multiprocessing Gotchas:
 - **Startup overhead**: Creating processes is expensive (~100ms each)
@@ -1997,7 +1997,7 @@ async def main():
 
 # Run the async main function
 asyncio.run(main())
-\`\`\`
+\`\`\`python
 
 Async vs Threading for I/O:
 - **Async**: Scales to 10,000+ concurrent connections with low memory overhead. But requires async libraries (can't use \`requests\`, must use \`aiohttp\`).
@@ -2033,7 +2033,7 @@ DECISION MATRIX: Choosing the right concurrency model.
 
 # Scenario 4: Download + process images → Multiprocessing + Async
 # Download (I/O) with async, process (CPU) with multiprocessing
-\`\`\`
+\`\`\`python
 
 COMMON PATTERNS:
 
@@ -2045,7 +2045,7 @@ data = [1, 2, 3, 4, 5, 6, 7, 8]
 
 with ProcessPoolExecutor() as executor:
     results = list(executor.map(expensive_function, data))
-\`\`\`
+\`\`\`python
 
 2. **As-Completed Pattern**: Process results as they finish (not in order).
 \`\`\`python
@@ -2058,7 +2058,7 @@ with ThreadPoolExecutor(max_workers=10) as executor:
         url = future_to_url[future]
         result = future.result()
         print(f"Completed: {url}")
-\`\`\`
+\`\`\`python
 
 3. **Rate Limiting**: Limit concurrent requests (e.g., API rate limits).
 \`\`\`python
@@ -2067,7 +2067,7 @@ from concurrent.futures import ThreadPoolExecutor
 with ThreadPoolExecutor(max_workers=5) as executor:
     # Only 5 requests at a time
     results = list(executor.map(api_call, items))
-\`\`\`
+\`\`\`python
 
 4. **Timeout Handling**: Cancel slow tasks.
 \`\`\`python
@@ -2077,7 +2077,7 @@ with ThreadPoolExecutor() as executor:
         result = future.result(timeout=5)  # Wait max 5 seconds
     except TimeoutError:
         print("Function took too long!")
-\`\`\`
+\`\`\`python
 
 WHEN NOT TO USE CONCURRENCY:
 
@@ -2131,7 +2131,7 @@ with open('data.txt', 'r') as f:
 with open('image.png', 'rb') as f:
     content = f.read()  # Returns bytes
     print(type(content))  # <class 'bytes'>
-\`\`\`
+\`\`\`python
 
 FILE MODES: Reading, writing, appending.
 
@@ -2158,7 +2158,7 @@ with open('data.txt', 'w+') as f:
     f.write("Data")
     f.seek(0)  # Go back to start
     content = f.read()
-\`\`\`
+\`\`\`python
 
 Common Mode Combinations:
 - \`'r'\`: Read text (default)
@@ -2190,7 +2190,7 @@ with open('data.txt') as f:
 with open('input.txt') as infile, open('output.txt', 'w') as outfile:
     outfile.write(infile.read())
 # Both files closed automatically
-\`\`\`
+\`\`\`python
 
 ENCODING: The #1 source of file I/O bugs.
 
@@ -2208,7 +2208,7 @@ with open('data.txt', 'r', encoding='utf-8') as f:
 # READ with ASCII (WRONG!)
 with open('data.txt', 'r', encoding='ascii') as f:
     print(f.read())  # UnicodeDecodeError!
-\`\`\`
+\`\`\`python
 
 Common Encodings:
 - **UTF-8**: Universal standard, handles all Unicode (RECOMMENDED!)
@@ -2227,7 +2227,7 @@ with open('data.txt', 'r', encoding='utf-8') as f:
 # NOT THIS (relies on platform default):
 with open('data.txt', 'r') as f:  # encoding=None → platform default
     content = f.read()
-\`\`\`
+\`\`\`python
 
 READING STRATEGIES: read(), readline(), readlines(), iteration.
 
@@ -2251,7 +2251,7 @@ with open('data.txt') as f:
     while line:
         process(line)
         line = f.readline()
-\`\`\`
+\`\`\`python
 
 Performance Comparison (1 GB file):
 - \`f.read()\`: Loads entire 1 GB into memory → 1 GB RAM used
@@ -2277,7 +2277,7 @@ with open('output.txt', 'w') as f:
 with open('output.txt', 'w') as f:
     print("First line", file=f)
     print("Second line", file=f)
-\`\`\`
+\`\`\`python
 
 GOTCHA: writelines() does NOT add newlines!
 
@@ -2292,7 +2292,7 @@ with open('output.txt', 'w') as f:
 with open('output.txt', 'w') as f:
     f.writelines(line + '\\n' for line in lines)
 # Output: First\\nSecond\\nThird
-\`\`\`
+\`\`\`python
 
 PATHLIB: Modern, cross-platform path handling.
 
@@ -2330,7 +2330,7 @@ p.mkdir()           # Create directory
 p.mkdir(parents=True, exist_ok=True)  # Like mkdir -p
 p.unlink()          # Delete file
 p.rmdir()           # Delete empty directory
-\`\`\`
+\`\`\`python
 
 Reading/Writing with Path:
 
@@ -2354,7 +2354,7 @@ p.write_bytes(b'\\x89PNG...')
 # OPEN FILE (with statement still works)
 with p.open('r', encoding='utf-8') as f:
     content = f.read()
-\`\`\`
+\`\`\`python
 
 GLOB PATTERNS: Find files matching patterns.
 
@@ -2372,7 +2372,7 @@ for py_file in Path('.').rglob('*.py'):
 # FIND FILES MATCHING PATTERN
 for log in Path('/var/log').glob('app-*.log'):
     process(log)
-\`\`\`
+\`\`\`python
 
 ERROR HANDLING: Common file I/O exceptions.
 
@@ -2403,7 +2403,7 @@ try:
         content = f.read()
 except FileNotFoundError:
     handle_missing_file()
-\`\`\`
+\`\`\`python
 
 CSV FILES: Working with tabular data.
 
@@ -2430,7 +2430,7 @@ with open('data.csv', 'r', encoding='utf-8') as f:
     reader = csv.DictReader(f)
     for row in reader:
         print(row['Name'], row['Age'], row['City'])
-\`\`\`
+\`\`\`python
 
 JSON FILES: Serializing Python objects.
 
@@ -2449,7 +2449,7 @@ with open('data.json', 'r', encoding='utf-8') as f:
 
 # PRETTY PRINT JSON
 print(json.dumps(data, indent=2))
-\`\`\`
+\`\`\`python
 
 PERFORMANCE TIPS:
 
@@ -2463,7 +2463,7 @@ with open('huge.txt', 'w') as f:
 # FAST: Batch writes (fewer system calls)
 with open('huge.txt', 'w') as f:
     f.write('\\n'.join(lines))
-\`\`\`
+\`\`\`python
 
 2. **Iterate don't load**: For huge files, iterate line-by-line
 \`\`\`python
@@ -2477,14 +2477,14 @@ with open('huge.log') as f:
 with open('huge.log') as f:
     for line in f:  # ~4KB in memory
         process(line)
-\`\`\`
+\`\`\`python
 
 3. **Binary mode is faster**: No encoding overhead
 \`\`\`python
 # For large data, binary mode faster
 with open('data.bin', 'wb') as f:
     f.write(bytes_data)
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS:
 

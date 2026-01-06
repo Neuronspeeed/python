@@ -52,7 +52,7 @@ def fib(n):
 
 # Cache stats for optimization
 print(fib.cache_info())  # CacheInfo(hits=8, misses=11, maxsize=None, currsize=11)
-\`\`\`
+\`\`\`python
 
 **Other functools tools:**
 
@@ -72,7 +72,7 @@ print(double(5))  # 10
 @cache
 def expensive_function(n):
     return n ** 2
-\`\`\`
+\`\`\`python
 
 COLLECTIONS: COUNTER - FREQUENCY ANALYSIS GOLD
 
@@ -107,7 +107,7 @@ c1 - c2  # Difference: Counter({'a': 1, 'c': 1})
 
 # Elements: flatten back to list
 Counter(['a', 'a', 'b']).elements()  # ['a', 'a', 'b']
-\`\`\`
+\`\`\`python
 
 COLLECTIONS: DEQUE - DOUBLE-ENDED QUEUE (MANDATORY FOR BFS)
 
@@ -155,7 +155,7 @@ def max_sliding_window(nums, k):
             result.append(nums[dq[0]])
 
     return result
-\`\`\`
+\`\`\`python
 
 COLLECTIONS: DEFAULTDICT - NO MORE KEYERROR
 
@@ -182,7 +182,7 @@ for char in string:
 groups = defaultdict(list)  # Auto-creates [] for new keys
 for key, value in items:
     groups[key].append(value)
-\`\`\`
+\`\`\`python
 
 COLLECTIONS: NAMEDTUPLE - READABLE RECORDS
 
@@ -197,7 +197,7 @@ x, y = point
 Point = namedtuple('Point', ['x', 'y'])
 p = Point(3, 4)
 print(p.x, p.y)  # Readable attribute access
-\`\`\`
+\`\`\`python
 
 ITERTOOLS: COMBINATORICS MADE EASY
 
@@ -218,7 +218,7 @@ list(combinations_with_replacement([1, 2], 2))  # [(1,1), (1,2), (2,2)]
 
 # Cartesian product
 list(product([1, 2], ['a', 'b']))  # [(1,'a'), (1,'b'), (2,'a'), (2,'b')]
-\`\`\`
+\`\`\`python
 
 ITERTOOLS: INFINITE ITERATORS
 
@@ -236,7 +236,7 @@ for i, item in zip(range(5), cycle(['a', 'b'])):
 
 # repeat: repeat value
 list(islice(repeat(10), 3))  # [10, 10, 10]
-\`\`\`
+\`\`\`python
 
 ITERTOOLS: SLICING AND GROUPING
 
@@ -260,7 +260,7 @@ list(chain([1, 2], [3, 4]))  # [1, 2, 3, 4]
 
 # accumulate: running totals
 list(accumulate([1, 2, 3, 4]))  # [1, 3, 6, 10]
-\`\`\`
+\`\`\`python
 
 HEAPQ: MIN-HEAP OPERATIONS (INTERVIEW ESSENTIAL)
 
@@ -289,7 +289,7 @@ largest = -heapq.heappop(max_heap)  # Get largest
 
 # Merge sorted sequences
 heapq.merge([1, 3, 5], [2, 4, 6])  # Lazy iterator: 1, 2, 3, 4, 5, 6
-\`\`\`
+\`\`\`python
 
 BISECT: BINARY SEARCH IN SORTED LISTS
 
@@ -310,7 +310,7 @@ bisect.insort_left(sorted_arr, 5)  # [1, 3, 4, 4, 5, 6, 8]
 # Interview pattern: sorted ranges
 def count_range(arr, left, right):
     return bisect.bisect_right(arr, right) - bisect.bisect_left(arr, left)
-\`\`\`
+\`\`\`python
 
 MATH MODULE ESSENTIALS
 
@@ -333,7 +333,7 @@ math.sqrt(16)  # 4.0
 math.ceil(4.2)  # 5
 math.floor(4.8)  # 4
 math.isqrt(16)  # 4 (integer sqrt, Python 3.8+)
-\`\`\`
+\`\`\`python
 
 WHEN STDLIB BEATS MANUAL
 
@@ -387,7 +387,7 @@ list(groupby(data))  # [(1, [1]), (2, [2]), (1, [1])] - three groups!
 defaultdict(list)  # ✅ OK
 defaultdict(lambda: [])  # ✅ OK
 defaultdict(list(10))  # ❌ WRONG - calls list(10) immediately
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES FOR INTERVIEWS
 
@@ -448,7 +448,7 @@ class LRUCache:
 # - move_to_end(key) moves to end (most recent) in O(1)
 # - popitem(last=False) removes from front (least recent) in O(1)
 # - All operations O(1) time complexity!
-\`\`\`
+\`\`\`python
 
 **Approach 2: HashMap + Doubly Linked List (universal, ~80 lines)**
 
@@ -520,7 +520,7 @@ class LRUCache:
 # - Doubly Linked List: O(1) move/remove operations
 # - Head = most recent, Tail = least recent
 # - All operations maintain O(1) time!
-\`\`\`
+\`\`\`python
 
 LFU CACHE - LEAST FREQUENTLY USED
 
@@ -609,7 +609,7 @@ class LFUCache:
             self.min_freq = 1
 
 # Complexity: All operations O(1)!
-\`\`\`
+\`\`\`python
 
 **LRU vs LFU - When to use which:**
 - **LRU**: General-purpose caching (web browsers, file systems, database buffers)
@@ -650,7 +650,7 @@ class MinStack:
 
 # Time: O(1) all operations
 # Space: O(n) for tuples
-\`\`\`
+\`\`\`python
 
 **Variant: Max Stack** - Same pattern, just track max instead of min.
 
@@ -688,7 +688,7 @@ class QueueWithStacks:
 
 # Time: Amortized O(1) for all operations
 # Each element moved at most twice (in→out, out→return)
-\`\`\`
+\`\`\`python
 
 INSERT DELETE GETRANDOM O(1)
 
@@ -735,7 +735,7 @@ class RandomizedSet:
         return random.choice(self.vals)  # O(1) random access
 
 # All operations O(1)!
-\`\`\`
+\`\`\`python
 
 RATE LIMITER - SYSTEM DESIGN CLASSIC
 
@@ -767,7 +767,7 @@ class FixedWindowLimiter:
 
 # Problem: Allows 2N requests at window boundary!
 # Example: 100 requests at 0:59, 100 more at 1:00
-\`\`\`
+\`\`\`python
 
 **Approach 2: Sliding Window** (accurate, higher space)
 \`\`\`python
@@ -793,7 +793,7 @@ class SlidingWindowLimiter:
         return False
 
 # Accurate rate limiting, O(1) amortized
-\`\`\`
+\`\`\`python
 
 **Approach 3: Token Bucket** (smooth rate limiting)
 \`\`\`python
@@ -820,7 +820,7 @@ class TokenBucketLimiter:
         return False
 
 # Smooth rate limiting, allows bursts up to capacity
-\`\`\`
+\`\`\`python
 
 ITERATOR PROTOCOL - CUSTOM ITERATION
 
@@ -857,7 +857,7 @@ class FlattenIterator:
 nested = [1, [2, [3, 4]], 5]
 for num in FlattenIterator(nested):
     print(num)  # 1, 2, 3, 4, 5
-\`\`\`
+\`\`\`python
 
 MEDIAN FINDER - TWO HEAPS PATTERN
 
@@ -892,7 +892,7 @@ class MedianFinder:
         return (-self.small[0] + self.large[0]) / 2
 
 # Time: addNum O(log n), findMedian O(1)
-\`\`\`
+\`\`\`python
 
 COMMON DESIGN PATTERNS SUMMARY
 
@@ -961,7 +961,7 @@ def range_gen(n):
 huge_gen = range_gen(1_000_000_000)  # ~128 bytes memory
 for num in huge_gen:
     process(num)  # Only one number in memory at a time
-\`\`\`
+\`\`\`python
 
 **Real-world example: Reading huge log files**
 \`\`\`python
@@ -982,7 +982,7 @@ def read_log_generator(filename):
 
 for line in read_log_generator('huge.log'):
     process(line)  # Memory: O(1) per line
-\`\`\`
+\`\`\`python
 
 YIELD KEYWORD: HOW GENERATORS WORK
 
@@ -1007,7 +1007,7 @@ print(next(gen))    # "Done!", raises StopIteration
 # Generators work with for loops
 for num in countdown(3):
     print(num)  # 3, 2, 1 (for handles StopIteration)
-\`\`\`
+\`\`\`python
 
 **Generator state preservation:**
 \`\`\`python
@@ -1024,7 +1024,7 @@ print(next(fib))  # 1
 print(next(fib))  # 2
 print(next(fib))  # 3
 # State (a, b) preserved between calls!
-\`\`\`
+\`\`\`python
 
 GENERATOR EXPRESSIONS: LAZY COMPREHENSIONS
 
@@ -1050,7 +1050,7 @@ for sq in squares_gen:      # Iterate once
 # Generator exhausted - can't iterate again!
 for sq in squares_gen:      # Nothing printed
     print(sq)
-\`\`\`
+\`\`\`python
 
 **When to use which:**
 - Generator \`()\`: One-time iteration, large data, memory-constrained
@@ -1062,7 +1062,7 @@ gen = (x**2 for x in range(10))
 lst = list(gen)  # Materialize all values
 # Now have: len(), indexing, multiple iterations
 # But: defeats memory benefits!
-\`\`\`
+\`\`\`python
 
 GENERATOR PIPELINES: COMPOSABLE DATA PROCESSING
 
@@ -1103,7 +1103,7 @@ hourly_counts = count_by_hour(timestamps)
 
 # Entire pipeline uses O(1) memory!
 # Processes 100GB file with constant memory
-\`\`\`
+\`\`\`python
 
 **Pipeline pattern:**
 1. **Source**: Generator that produces data
@@ -1129,7 +1129,7 @@ def flatten(nested):
 
 nested = [[1, 2], [3, 4], [5]]
 list(flatten(nested))  # [1, 2, 3, 4, 5]
-\`\`\`
+\`\`\`python
 
 **Recursive tree traversal:**
 \`\`\`python
@@ -1145,7 +1145,7 @@ def traverse(node):
 
 tree = Node(1, [Node(2, [Node(4), Node(5)]), Node(3)])
 list(traverse(tree))  # [1, 2, 4, 5, 3]
-\`\`\`
+\`\`\`python
 
 **Why \`yield from\` vs manual loop:**
 - Cleaner syntax
@@ -1172,7 +1172,7 @@ next(avg)  # Prime the generator
 print(avg.send(10))  # 10.0
 print(avg.send(20))  # 15.0
 print(avg.send(30))  # 20.0
-\`\`\`
+\`\`\`python
 
 **Use cases for send():**
 - Streaming aggregations
@@ -1214,7 +1214,7 @@ print(len(lst))
 import itertools
 gen1, gen2 = itertools.tee(gen, 2)
 # Now can iterate gen1 and gen2 independently
-\`\`\`
+\`\`\`python
 
 COMMON PATTERNS AND IDIOMS
 
@@ -1228,7 +1228,7 @@ def count(start=0):
 # Use with itertools.islice
 from itertools import islice
 first_10 = list(islice(count(), 10))  # [0, 1, ..., 9]
-\`\`\`
+\`\`\`python
 
 **Pattern 2: File processing with context**
 \`\`\`python
@@ -1241,7 +1241,7 @@ def process_file(filename):
 for line in process_file('data.txt'):
     print(line)
 # File automatically closed when generator exhausted
-\`\`\`
+\`\`\`python
 
 **Pattern 3: Batching**
 \`\`\`python
@@ -1257,7 +1257,7 @@ def batch(iterable, n):
 
 for batch in batch(range(10), 3):
     print(batch)  # [0,1,2], [3,4,5], [6,7,8], [9]
-\`\`\`
+\`\`\`python
 
 **Pattern 4: Generator state machine**
 \`\`\`python
@@ -1269,7 +1269,7 @@ def stateful_processor():
             state = 'START'
         elif value == 'next':
             state = 'PROCESSING' if state == 'START' else 'DONE'
-\`\`\`
+\`\`\`python
 
 COMMON GOTCHAS
 
@@ -1280,7 +1280,7 @@ list(gen)  # [0, 1, 2]
 list(gen)  # [] - generator exhausted!
 
 # Solution: recreate or use itertools.tee
-\`\`\`
+\`\`\`python
 
 **2. Early binding in generator expressions:**
 \`\`\`python
@@ -1291,7 +1291,7 @@ funcs = [(lambda: i) for i in range(3)]
 # ✅ CORRECT with generator
 funcs = list((lambda i=i: i) for i in range(3))
 [f() for f in funcs]  # [0, 1, 2]
-\`\`\`
+\`\`\`python
 
 **3. Forgetting to consume:**
 \`\`\`python
@@ -1300,7 +1300,7 @@ funcs = list((lambda i=i: i) for i in range(3))
 
 # ✅ Consume the generator
 list(print(x) for x in range(10))  # Prints 0-9
-\`\`\`
+\`\`\`python
 
 **4. Can't check containment efficiently:**
 \`\`\`python
@@ -1310,7 +1310,7 @@ if 500 in gen:  # O(n), exhausts generator
     pass
 
 # ✅ GOOD - use set or list if need membership testing
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES FOR INTERVIEWS
 
@@ -1360,7 +1360,7 @@ def primes():
 # Get first 1000 primes without storing all primes
 from itertools import islice
 first_1000 = list(islice(primes(), 1000))
-\`\`\`
+\`\`\`python
 
 **Example 2: Process logs with filtering**
 \`\`\`python
@@ -1371,7 +1371,7 @@ def error_logs(filename):
                 yield line.strip()
 
 errors = list(error_logs('app.log'))
-\`\`\`
+\`\`\`python
 
 Generators are Python's answer to scalable iteration. They turn memory nightmares into elegant constant-space solutions. When you see "large data" or "infinite sequence" in an interview, think generators.`
 
@@ -1406,7 +1406,7 @@ PROOF TECHNIQUES: HOW TO VERIFY GREEDY CORRECTNESS
 
 Assume an optimal solution exists that differs from greedy. Show you can "exchange" elements to match greedy's choice without making it worse. If you can always do this, greedy must be optimal.
 
-\`\`\`
+\`\`\`python
 Proof pattern:
 1. Assume optimal solution O differs from greedy solution G at some point
 2. Take first difference: O chose x, G chose y
@@ -1415,7 +1415,7 @@ Proof pattern:
    - Still optimal (same or better objective value)
 4. Repeat exchange until O becomes G
 5. Therefore: G is optimal
-\`\`\`
+\`\`\`python
 
 **Example: Activity Selection**
 - Greedy: Always pick activity ending earliest
@@ -1425,12 +1425,12 @@ Proof pattern:
 
 Show that after each step, greedy maintains a solution at least as good as any other algorithm.
 
-\`\`\`
+\`\`\`python
 Proof pattern:
 1. Define what "better partial solution" means
 2. Prove: after each greedy choice, greedy's partial solution ≥ any other algorithm's
 3. Therefore: at the end, greedy has the best solution
-\`\`\`
+\`\`\`python
 
 **Example: Fractional Knapsack**
 - Greedy: Take items in order of value/weight ratio
@@ -1476,7 +1476,7 @@ def max_non_overlapping_intervals(intervals):
 # Why it works: Exchange argument
 # If optimal solution chose different interval first,
 # swapping it with earliest-ending leaves same or more room
-\`\`\`
+\`\`\`python
 
 **Pattern 2: Fractional Knapsack**
 
@@ -1510,7 +1510,7 @@ def fractional_knapsack(items, capacity):
 # Time: O(n log n)
 # Why it works: Stays-ahead argument
 # At each step, we've packed maximum value for weight used
-\`\`\`
+\`\`\`python
 
 **Pattern 3: Huffman Coding (Minimum Cost Tree)**
 
@@ -1540,7 +1540,7 @@ def huffman_encoding(frequencies):
 
 # Time: O(n log n)
 # Why it works: Stays-ahead - minimum frequency nodes should be deepest
-\`\`\`
+\`\`\`python
 
 **Pattern 4: Minimum Spanning Tree (Kruskal's)**
 
@@ -1593,7 +1593,7 @@ def kruskal_mst(n, edges):
 
 # Time: O(E log E) for sorting edges
 # Why it works: Cut property - lightest edge crossing a cut is in some MST
-\`\`\`
+\`\`\`python
 
 **Pattern 5: Jump Game (Can Reach End)**
 
@@ -1618,7 +1618,7 @@ def can_jump(nums):
 
 # Time: O(n)
 # Why it works: If we can reach position i, we can try all jumps from i
-\`\`\`
+\`\`\`python
 
 **Pattern 6: Gas Station (Circular Tour)**
 
@@ -1649,7 +1649,7 @@ def can_complete_circuit(gas, cost):
 # Time: O(n)
 # Why it works: If sum(gas) >= sum(cost), solution exists.
 # If can't reach from A to B, can't start anywhere between A and B either.
-\`\`\`
+\`\`\`python
 
 WHEN GREEDY FAILS: CLASSIC COUNTER-EXAMPLES
 
@@ -1680,7 +1680,7 @@ def knapsack_01(items, capacity):
 
     return dp[n][capacity]
 # Time: O(n * capacity)
-\`\`\`
+\`\`\`python
 
 **Failure 2: Coin Change (Arbitrary Denominations)**
 
@@ -1707,7 +1707,7 @@ def coin_change(coins, amount):
 # Time: O(amount * len(coins))
 
 # NOTE: Greedy DOES work for canonical coin systems (US coins: 1,5,10,25)
-\`\`\`
+\`\`\`python
 
 **Failure 3: Longest Path in General Graph**
 
@@ -1722,11 +1722,11 @@ Greedy (pick longest edge available) FAILS.
 # Optimal: A->C->D (1+9=10)
 
 # Solution: DFS with backtracking or DP on DAG
-\`\`\`
+\`\`\`python
 
 GREEDY VS DYNAMIC PROGRAMMING: THE DECISION TREE
 
-\`\`\`
+\`\`\`python
 ┌─ Problem involves optimization? (min/max) ──┐
 │                                              │
 ├─ Can you prove greedy choice property? ─────┤
@@ -1743,7 +1743,7 @@ GREEDY VS DYNAMIC PROGRAMMING: THE DECISION TREE
 │                                              │
 └─ Need to count ways? → Always DP            │
    (Greedy finds one solution, can't count)   │
-\`\`\`
+\`\`\`python
 
 **When to try greedy first:**
 - Sorting seems natural for the problem
@@ -1773,7 +1773,7 @@ def solve(items):
     # Proof: By exchange argument, swapping any other value
     # with minimum doesn't decrease total...
     return min(items)
-\`\`\`
+\`\`\`python
 
 **Mistake 2: Sorting by wrong criterion**
 
@@ -1787,7 +1787,7 @@ def max_intervals_wrong(intervals):
 def max_intervals_correct(intervals):
     intervals.sort(key=lambda x: x[1])  # Sort by end - CORRECT!
     # Picks (2,3) first, then (4,5), max = 2
-\`\`\`
+\`\`\`python
 
 **Mistake 3: Greedy on wrong subproblem**
 
@@ -1821,7 +1821,7 @@ def min_jumps_correct(nums):
 
     return jumps
 # Time: O(n)
-\`\`\`
+\`\`\`python
 
 INTERVIEW STRATEGY:
 
@@ -1835,7 +1835,7 @@ INTERVIEW STRATEGY:
 # Test greedy on 2-3 examples
 # If it works, proceed to proof
 # If it fails, switch to DP
-\`\`\`
+\`\`\`python
 
 **Step 3: Prove correctness (if greedy works)**
 - Use exchange argument (most common)
@@ -1849,7 +1849,7 @@ def greedy_solution(items):
     # Proof: By stays-ahead, this maximizes value per weight
     items.sort(key=lambda x: x[0]/x[1], reverse=True)
     ...
-\`\`\`
+\`\`\`python
 
 BEST PRACTICES:
 
@@ -1918,7 +1918,7 @@ sorted_start = [[1, 4], [2, 3], [3, 6]]
 # Sort by END
 sorted_end = [[2, 3], [1, 4], [3, 6]]
 # Best for max non-overlapping: pick [2,3], skip [1,4] (overlaps), pick [3,6] = 2 intervals
-\`\`\`
+\`\`\`python
 
 PATTERN 1: MERGE OVERLAPPING INTERVALS
 
@@ -1957,7 +1957,7 @@ def merge_intervals(intervals):
 intervals = [[1,3], [2,6], [8,10], [15,18]]
 # Result: [[1,6], [8,10], [15,18]]
 # Explanation: [1,3] and [2,6] overlap → [1,6]
-\`\`\`
+\`\`\`python
 
 **Key insights:**
 - Must use \`max(merged[-1][1], end)\` not just \`end\` - current might be inside previous!
@@ -2008,7 +2008,7 @@ intervals = [[1,3], [6,9]]
 new = [2,5]
 # Result: [[1,5], [6,9]]
 # Explanation: [2,5] merges with [1,3] → [1,5]
-\`\`\`
+\`\`\`python
 
 PATTERN 3: NON-OVERLAPPING INTERVALS (GREEDY MAXIMUM)
 
@@ -2043,7 +2043,7 @@ def max_non_overlapping(intervals):
 intervals = [[1,3], [2,4], [3,5]]
 # Sorted by end: [[1,3], [2,4], [3,5]]
 # Pick [1,3] (end=3), skip [2,4] (starts at 2 < 3), pick [3,5] = 2 intervals
-\`\`\`
+\`\`\`python
 
 **Why sort by END?**
 - Greedy: pick interval that ends earliest
@@ -2056,7 +2056,7 @@ def min_intervals_to_remove(intervals):
     # Remove fewest to make non-overlapping
     # Answer: total - max_non_overlapping
     return len(intervals) - max_non_overlapping(intervals)
-\`\`\`
+\`\`\`python
 
 PATTERN 4: SWEEP LINE TECHNIQUE
 
@@ -2099,7 +2099,7 @@ intervals = [[0,30], [5,10], [15,20]]
 # Events: (0,+1), (5,+1), (10,-1), (15,+1), (20,-1), (30,-1)
 # Rooms:    1       2       1        2        1       0
 # Max = 2
-\`\`\`
+\`\`\`python
 
 **Why sweep line works:**
 - Processes events in time order (causality!)
@@ -2115,7 +2115,7 @@ intervals = [[0,30], [5,10], [15,20]]
 # Better: handle tie-breaking
 events.sort(key=lambda x: (x[0], x[1]))  # time, then delta
 # end=-1 comes before start=+1 alphabetically
-\`\`\`
+\`\`\`python
 
 PATTERN 5: PRIORITY QUEUE / MIN-HEAP
 
@@ -2155,7 +2155,7 @@ def min_meeting_rooms_heap(intervals):
 # Process [5,10]: heap = [10, 30], size = 2
 # Process [15,20]: pop 10 (ended), heap = [20, 30], size = 2
 # Max heap size = 2
-\`\`\`
+\`\`\`python
 
 **Heap vs Sweep Line:**
 - Heap: O(n log n), tracks specific intervals
@@ -2200,7 +2200,7 @@ def interval_intersection(list1, list2):
 list1 = [[0,2], [5,10], [13,23], [24,25]]
 list2 = [[1,5], [8,12], [15,24], [25,26]]
 # Result: [[1,2], [5,5], [8,10], [15,23], [24,24], [25,25]]
-\`\`\`
+\`\`\`python
 
 PATTERN 7: REMOVE COVERED INTERVALS
 
@@ -2234,7 +2234,7 @@ intervals = [[1,4], [2,3], [3,6]]
 # Process [3,6]: 6 > 4, count = 2, max_end = 6
 # Process [2,3]: 3 <= 6, skip (covered by [1,4])
 # Result: 2
-\`\`\`
+\`\`\`python
 
 **Why sort by (start ascending, end descending)?**
 - Intervals with same start: process longest first
@@ -2260,7 +2260,7 @@ COMMON GOTCHAS AND EDGE CASES
 # Depends on problem! Usually YES (use <=)
 if start <= last_end:  # Touching counts as overlap
     merge()
-\`\`\`
+\`\`\`python
 
 **2. Merging must use max, not just end:**
 \`\`\`python
@@ -2269,21 +2269,21 @@ merged[-1][1] = end  # Fails for [[1,5], [2,3]]
 
 # ✅ CORRECT
 merged[-1][1] = max(merged[-1][1], end)
-\`\`\`
+\`\`\`python
 
 **3. Sweep line tie-breaking:**
 \`\`\`python
 # If meeting ends at time T and another starts at T,
 # end should process first (room becomes free)
 events.sort(key=lambda x: (x[0], x[1]))  # -1 (end) before +1 (start)
-\`\`\`
+\`\`\`python
 
 **4. Empty intervals edge case:**
 \`\`\`python
 # What if intervals = []?
 if not intervals:
     return []  # or 0, or appropriate default
-\`\`\`
+\`\`\`python
 
 **5. Interval representation:**
 - Some problems use \`[start, end]\`
@@ -2437,7 +2437,7 @@ def simplify_fraction(num, denom):
 # Example: Check if coprime
 def are_coprime(a, b):
     return math.gcd(a, b) == 1
-\`\`\`
+\`\`\`python
 
 **Euclidean Algorithm** (how GCD works):
 \`\`\`python
@@ -2447,7 +2447,7 @@ def gcd_manual(a, b):
     return a
 # Time: O(log min(a,b))
 # Why: Each step reduces problem by at least half
-\`\`\`
+\`\`\`python
 
 **Interview Pattern - Cycle Detection:**
 \`\`\`python
@@ -2459,7 +2459,7 @@ def next_alignment(period_a, period_b):
 # Example: Traffic lights
 # Light A: 30 seconds, Light B: 45 seconds
 # Both green again in lcm(30, 45) = 90 seconds
-\`\`\`
+\`\`\`python
 
 PRIME NUMBERS: TRIAL DIVISION VS SIEVE OF ERATOSTHENES
 
@@ -2492,7 +2492,7 @@ def is_prime(n):
 
 # Why √n? If n = a*b and a > √n, then b < √n
 # So we find all factors by checking up to √n
-\`\`\`
+\`\`\`python
 
 **Sieve of Eratosthenes** (finding ALL primes up to N):
 
@@ -2525,7 +2525,7 @@ primes = sieve_of_eratosthenes(100)
 
 # Optimization: Start at i² because smaller multiples
 # (like 2i, 3i, ..., (i-1)i) already marked by smaller primes
-\`\`\`
+\`\`\`python
 
 **Performance comparison:**
 - N = 1,000,000
@@ -2564,7 +2564,7 @@ def prime_factors(n):
 
 # Example: prime_factors(84)
 # [2, 2, 3, 7] because 84 = 2² × 3 × 7
-\`\`\`
+\`\`\`python
 
 MODULAR ARITHMETIC: THE 10⁹+7 PATTERN
 
@@ -2591,7 +2591,7 @@ MOD = 10**9 + 7
 pow(base, exp, MOD)  # Built-in uses fast binary exponentiation
 
 # Division - DOESN'T WORK DIRECTLY! Use modular inverse
-\`\`\`
+\`\`\`python
 
 **Apply mod to intermediate results** to prevent overflow:
 
@@ -2609,7 +2609,7 @@ def factorial_mod_correct(n):
     for i in range(1, n + 1):
         result = (result * i) % MOD  # Keep result manageable
     return result
-\`\`\`
+\`\`\`python
 
 **Binary exponentiation** (fast power):
 
@@ -2634,7 +2634,7 @@ def pow_mod(base, exp, mod):
 # Example: pow(2, 1000, MOD) - instant!
 # Naive: 2^1000 is ~10³⁰⁰ digit number - impossible!
 # Binary exp: Only 10 iterations (log₂ 1000 ≈ 10)
-\`\`\`
+\`\`\`python
 
 MODULAR INVERSE: DIVISION UNDER MODULO
 
@@ -2678,7 +2678,7 @@ def nCr_mod(n, r, mod=MOD):
 
     # Can't divide directly! Use modular inverse
     return (numerator * mod_inverse(denominator, mod)) % mod
-\`\`\`
+\`\`\`python
 
 COMBINATORICS: COUNTING ARRANGEMENTS
 
@@ -2715,7 +2715,7 @@ def combinations_mod(n, r, mod=10**9 + 7):
     denominator = (fact[r] * fact[n - r]) % mod
 
     return (numerator * pow(denominator, mod - 2, mod)) % mod
-\`\`\`
+\`\`\`python
 
 **Pascal's Triangle** (dynamic programming approach):
 
@@ -2737,7 +2737,7 @@ def pascal_triangle(n):
     return triangle
 
 # Triangle[n][r] = C(n, r)
-\`\`\`
+\`\`\`python
 
 ADDITIONAL MATH PATTERNS
 
@@ -2767,7 +2767,7 @@ def reverse_number(n):
         result = result * 10 + (n % 10)
         n //= 10
     return result
-\`\`\`
+\`\`\`python
 
 **Fast exponentiation pattern:**
 
@@ -2783,7 +2783,7 @@ def fast_power(a, n):
     return result
 
 # Example: 2^1000 takes 10 iterations, not 1000!
-\`\`\`
+\`\`\`python
 
 **Perfect squares and sqrt:**
 
@@ -2814,7 +2814,7 @@ def sqrt_binary_search(n):
             right = mid - 1
 
     return right  # Floor of sqrt
-\`\`\`
+\`\`\`python
 
 WHEN MATH APPEARS IN INTERVIEWS: PATTERN RECOGNITION
 
@@ -2838,7 +2838,7 @@ result = a / b  # Returns float!
 
 # ✅ CORRECT
 result = a // b  # Integer division
-\`\`\`
+\`\`\`python
 
 **2. Negative modulo:**
 \`\`\`python
@@ -2848,7 +2848,7 @@ result = a // b  # Integer division
 
 # Safe formula (works everywhere)
 result = ((a % MOD) + MOD) % MOD
-\`\`\`
+\`\`\`python
 
 **3. Factorial overflow:**
 \`\`\`python
@@ -2863,7 +2863,7 @@ fact = 1
 for i in range(1, n+1):
     fact = (fact * i) % MOD
 return fact
-\`\`\`
+\`\`\`python
 
 **4. Sieve optimization:**
 \`\`\`python
@@ -2872,7 +2872,7 @@ for i in range(2, int(n**0.5) + 1):
     if is_prime[i]:
         for j in range(i*i, n+1, i):  # Start at i*i!
             is_prime[j] = False
-\`\`\`
+\`\`\`python
 
 **5. Edge cases:**
 - GCD(0, n) = n, GCD(n, 0) = n
@@ -3016,7 +3016,7 @@ bit.build(arr)
 print(bit.range_sum(1, 4))  # sum([3, 5, 7, 9]) = 24
 bit.update(2, 10)           # arr[2] = 5 + 10 = 15
 print(bit.range_sum(1, 4))  # sum([3, 15, 7, 9]) = 34
-\`\`\`
+\`\`\`python
 
 **Why i & (-i) works:**
 - -i in two's complement: flip bits, add 1
@@ -3156,7 +3156,7 @@ seg_min = SegmentTree(arr, 'min')
 print(seg_min.query(1, 4))  # min([3, 5, 7, 9]) = 3
 seg_min.update(1, 20)       # arr[1] = 20
 print(seg_min.query(1, 4))  # min([20, 5, 7, 9]) = 5
-\`\`\`
+\`\`\`python
 
 LAZY PROPAGATION: EFFICIENT RANGE UPDATES
 
@@ -3228,7 +3228,7 @@ class SegmentTreeLazy:
         self._push(2*node+1, start, mid)
         self._push(2*node+2, mid+1, end)
         self.tree[node] = self.tree[2*node+1] + self.tree[2*node+2]
-\`\`\`
+\`\`\`python
 
 **When lazy propagation matters:**
 - Range updates are frequent (not just point updates)
@@ -3289,7 +3289,7 @@ tree = [0] * (2 * n)  # May overflow!
 
 # ✅ CORRECT - safe size
 tree = [0] * (4 * n)  # Always sufficient
-\`\`\`
+\`\`\`python
 
 **2. 0-indexed vs 1-indexed:**
 - BIT traditionally uses 1-indexed (tree[0] unused)
@@ -3302,7 +3302,7 @@ tree = [0] * (4 * n)  # Always sufficient
 # Common mistake: forgetting endpoints are inclusive
 seg.query(0, n-1)  # Entire array
 seg.query(0, 0)    # Just first element
-\`\`\`
+\`\`\`python
 
 **4. Update vs set in BIT:**
 - BIT.update(i, delta) ADDS delta to arr[i]
