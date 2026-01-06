@@ -3,7 +3,7 @@ import type { Method, Section } from '../types'
 import { computeSections } from '../types'
 import { useSectionScroll } from '../hooks/useSectionScroll'
 import { SectionNav } from './SectionNav'
-import { MethodCard } from './CodeDisplay'
+import { MethodCard, HighlightedCode } from './CodeDisplay'
 import { Footer } from './Footer'
 import { PageHeader } from './PageHeader'
 
@@ -32,70 +32,66 @@ function parseIntroContent(text: string): React.ReactNode[] {
   })
 }
 
-// Parse a section that may contain bullet points
-function parseSectionContent(content: string): { mainText: string; bullets: string[] } {
-  const lines = content.split('\n')
-  const bullets: string[] = []
-  const mainLines: string[] = []
+// Parse content with code blocks and inline code
+function parseBoxContent(content: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = []
+  const codeBlockPattern = /```(\w+)?\n([\s\S]*?)```/g
+  let lastIndex = 0
 
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (trimmed.startsWith('•')) {
-      bullets.push(trimmed.slice(1).trim())
-    } else if (trimmed) {
-      mainLines.push(trimmed)
+  // Find all code blocks using regex match iteration
+  const matches = Array.from(content.matchAll(codeBlockPattern))
+
+  matches.forEach((match, idx) => {
+    // Add text before code block
+    if (match.index !== undefined && match.index > lastIndex) {
+      const textBefore = content.slice(lastIndex, match.index)
+      parts.push(...parseIntroContent(textBefore))
     }
+
+    // Add code block with syntax highlighting
+    const language = match[1] || 'python'  // Default to python if no language specified
+    const code = match[2]
+    parts.push(
+      <pre key={`code-${idx}`} className={`language-${language}`}>
+        {language === 'python' ? <HighlightedCode code={code} /> : <code>{code}</code>}
+      </pre>
+    )
+
+    lastIndex = (match.index || 0) + match[0].length
+  })
+
+  // Add remaining text after last code block
+  if (lastIndex < content.length) {
+    const textAfter = content.slice(lastIndex)
+    parts.push(...parseIntroContent(textAfter))
   }
 
-  return { mainText: mainLines.join(' '), bullets }
+  return parts.length > 0 ? parts : parseIntroContent(content)
 }
 
 function IntroBox({ intro }: { intro: string }) {
-  const rawSections = intro.split('\n\n').filter(p => p.trim())
-
-  // Separate lead paragraph from topic sections
-  const firstSection = rawSections[0]
-  const hasLeadParagraph = !firstSection.includes(':') || firstSection.indexOf(':') > 40
-
-  const leadParagraph = hasLeadParagraph ? firstSection : null
-  const topicSections = hasLeadParagraph ? rawSections.slice(1) : rawSections
-
-  const sections = topicSections.map(p => {
-    const colonIndex = p.indexOf(':')
-    if (colonIndex > 0 && colonIndex < 40) {
-      const header = p.slice(0, colonIndex)
-      const content = p.slice(colonIndex + 1).trim()
-      const { mainText, bullets } = parseSectionContent(content)
-      return { header, mainText, bullets }
-    }
-    return { header: null, mainText: p, bullets: [] }
-  }).filter(s => s.header) // Only keep sections with headers
+  // Parse sections separated by '---' for single-column decision boxes
+  const boxes = intro.split('\n---\n').filter(box => box.trim())
 
   return (
-    <div className="intro-box">
-      {leadParagraph && (
-        <p className="intro-lead">{parseIntroContent(leadParagraph)}</p>
-      )}
+    <div className="intro-boxes">
+      {boxes.map((box, i) => {
+        const lines = box.trim().split('\n')
+        const title = lines[0].trim()
+        const content = lines.slice(1).join('\n').trim()
 
-      {sections.length > 0 && (
-        <div className="intro-grid">
-          {sections.map((section, i) => (
-            <div key={i} className="intro-card">
-              <h4 className="intro-card-header">{section.header}</h4>
-              {section.mainText && (
-                <p className="intro-card-text">{parseIntroContent(section.mainText)}</p>
-              )}
-              {section.bullets.length > 0 && (
-                <ul className="intro-card-list">
-                  {section.bullets.map((bullet, j) => (
-                    <li key={j}>{parseIntroContent(bullet)}</li>
-                  ))}
-                </ul>
-              )}
+        return (
+          <div key={i} className="decision-box">
+            <div className="decision-box-header">
+              <h3>{title}</h3>
+              <span className="badge">Concept</span>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="decision-box-content">
+              {parseBoxContent(content)}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
