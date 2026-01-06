@@ -428,12 +428,11 @@ export function StatementsPage() {
   )
 }
 
-const conditionalsIntro = `Conditionals control program flow through decision-making. Python's if/elif/else, truthiness, short-circuit evaluation, and ternary expressions form the foundation of all branching logic. The key insight: master guard clauses and early returns to reduce nesting, understand truthiness to write Pythonic code, and leverage short-circuit evaluation for both safety and performance.
-
-EARLY RETURNS AND GUARD CLAUSES. The most common conditional anti-pattern is deep nesting. Instead of nesting if statements inside if statements, use guard clauses—validate inputs at the top, return early on failure, and let the happy path flow without indentation. This pattern improves readability, reduces cognitive load, and makes bugs more obvious.
+const conditionalsIntro = `Guard Clauses and Early Returns
+Avoid deep nesting with guard clauses—validate inputs at the top, return early on failure, let the happy path flow without indentation. This pattern improves readability, reduces cognitive load, and makes bugs obvious. The key insight: flatten nested if statements by inverting conditions and returning/raising early.
 
 \`\`\`python
-# ANTI-PATTERN: Deep nesting
+# ANTI-PATTERN: Deep nesting (arrow code)
 def process(data):
     if data:
         if data.is_valid():
@@ -454,345 +453,123 @@ def process(data):
         raise ValueError("Invalid data")
     if not data.has_permission():
         raise PermissionError("Permission denied")
+    
+    return data.process()  # Happy path at lowest indent
 
-    return data.process()  # Happy path at lowest indent level
+# PATTERN: Validate early, fail fast
+def calculate_discount(price, user):
+    if price <= 0:
+        return 0  # Early return for invalid input
+    if not user or not user.is_member:
+        return price  # Early return for non-members
+    
+    # Main logic flows naturally
+    discount = price * 0.1
+    return price - discount
+\`\`\`
+---
+Truthiness and Short-Circuit Evaluation
+Python has 9 falsy values: False, None, 0, 0.0, "", [], {}, (), set(). Everything else is truthy. Short-circuit evaluation: \`and\` returns first falsy or last value, \`or\` returns first truthy or last value. Use this for null safety, default values, and performance optimization. Gotcha: 0 and "" are falsy but might be valid data—use explicit None checks.
+
 \`\`\`python
-
-TRUTHINESS DEEP DIVE: Python's truthiness system enables elegant, idiomatic code—but also introduces subtle bugs. Understanding what's truthy vs falsy is CRITICAL for interviews and production code.
-
-Falsy Values (8 total):
-- \`False\` — boolean false
-- \`None\` — null/nothing
-- \`0\` — integer zero
-- \`0.0\` — float zero
-- \`""\` — empty string
-- \`[]\` — empty list
-- \`{}\` — empty dict
-- \`()\` — empty tuple
-- \`set()\` — empty set
-
-EVERYTHING ELSE IS TRUTHY: Non-empty collections, non-zero numbers, all objects (by default).
-
-\`\`\`python
-# GOTCHA: 0 and "" are falsy but might be VALID data!
-user_input = input("Enter age: ")  # User enters "0"
-age = int(user_input)  # age = 0
-
-# WRONG: Treats 0 as missing data
-if age:
+# TRUTHINESS GOTCHAS
+age = 0  # Valid data but falsy!
+if age:  # WRONG: treats 0 as missing
     print(f"Age: {age}")
-else:
-    print("No age provided")  # BUG: This runs for age=0!
 
-# RIGHT: Explicit None check
-if age is not None:
-    print(f"Age: {age}")  # Correctly handles 0
-else:
-    print("No age provided")
+if age is not None:  # RIGHT: explicit None check
+    print(f"Age: {age}")
 
-# GOTCHA: Empty string is falsy
-search = ""  # Valid: search for empty string
-if search:  # WRONG: treats "" as missing
-    results = find(search)
-# RIGHT: Use is not None or explicitly check != ""
-\`\`\`python
-
-Custom Truthiness with \`__bool__\` or \`__len__\`:
-
-\`\`\`python
-class ShoppingCart:
-    def __init__(self):
-        self.items = []
-
-    def __bool__(self):
-        # Cart is truthy if it has items
-        return len(self.items) > 0
-
-cart = ShoppingCart()
-if cart:  # False, uses __bool__
-    checkout(cart)
-
-cart.items.append("item")
-if cart:  # True now
-    checkout(cart)
-\`\`\`python
-
-SHORT-CIRCUIT EVALUATION MASTERY: Understanding short-circuit logic is essential for writing safe, performant Python code. \`and\` and \`or\` don't just return True/False—they return the actual values that determined the result.
-
-How \`and\` Works:
-1. Evaluate left operand
-2. If falsy → return it (don't evaluate right)
-3. If truthy → return right operand
-
-How \`or\` Works:
-1. Evaluate left operand
-2. If truthy → return it (don't evaluate right)
-3. If falsy → return right operand
-
-\`\`\`python
-# and returns first falsy or last value
+# SHORT-CIRCUIT BEHAVIOR
 result = 1 and 2 and 3  # → 3 (all truthy, returns last)
-result = 1 and 0 and 3  # → 0 (first falsy)
-result = [] and "hello"  # → [] (first falsy)
-
-# or returns first truthy or last value
-result = 0 or 1 or 2  # → 1 (first truthy)
+result = 1 and 0 and 3  # → 0 (returns first falsy)
+result = 0 or 1 or 2    # → 1 (returns first truthy)
 result = 0 or "" or []  # → [] (all falsy, returns last)
-result = False or 0 or "x"  # → "x" (first truthy)
 
-# PRACTICAL: Default values
+# PRACTICAL USES
+# Default values
 name = user_input or "Guest"  # If user_input is "", use "Guest"
-count = config.get("count") or 10  # If missing/None, use 10
 
-# GOTCHA: Watch for 0 being falsy!
-timeout = config.get("timeout") or 30  # BUG if timeout=0 is valid!
-# FIX: Use explicit None check
-timeout = 30 if config.get("timeout") is None else config.get("timeout")
-# OR: Use dict.get() default parameter
-timeout = config.get("timeout", 30)  # Better!
-\`\`\`python
-
-Short-Circuit for Safety and Performance:
-
-\`\`\`python
-# NULL SAFETY: Check before access
-if user and user.is_admin():  # If user is None, short-circuits!
+# Null safety (avoid AttributeError)
+if user and user.is_admin():  # If user is None, short-circuits
     grant_access()
 
-# AVOID ERRORS: Check before division
+# Avoid division by zero
 if denominator != 0 and numerator / denominator > 1:
     do_something()
 
-# PERFORMANCE: Put cheap checks first
+# Performance: cheap checks first
 if is_cached(key) and expensive_validation(key):
-    # expensive_validation() only runs if is_cached() is True
-    use_cached(key)
+    use_cached(key)  # expensive_validation() only runs if cached
 
-# AVOID EXPENSIVE CALLS: Check likely-false first
-if user.age < 13 and slow_database_check(user):
-    # Most users age >= 13, avoid DB call
-    restrict_content()
+# CUSTOM TRUTHINESS
+class ShoppingCart:
+    def __init__(self):
+        self.items = []
+    
+    def __bool__(self):
+        return len(self.items) > 0
+
+cart = ShoppingCart()
+if cart:  # False - empty cart
+    checkout(cart)
+\`\`\`
+---
+Ternary Expressions and Dictionary Dispatch
+Ternary syntax: \`value_if_true if condition else value_if_false\`. Use for simple value selection—never nest. Dictionary dispatch replaces long if/elif chains with O(1) lookups when mapping values to values or functions. Choose if/elif for complex conditions, dict dispatch for simple mappings.
+
 \`\`\`python
-
-TERNARY EXPRESSION: Python's compact conditional assignment. Use for simple value selection—NEVER nest ternary expressions!
-
-Syntax: \`value_if_true if condition else value_if_false\`
-
-\`\`\`python
-# GOOD: Simple value assignment
+# TERNARY EXPRESSIONS
 status = "active" if user.logged_in else "inactive"
 max_val = a if a > b else b
 message = "Even" if n % 2 == 0 else "Odd"
 
-# ACCEPTABLE: With simple logic
+# GOOD: With simple logic
 price = base_price * 0.9 if is_member else base_price
-result = value if value is not None else default
 
 # BAD: Nested ternary (unreadable!)
-x = a if cond1 else b if cond2 else c if cond3 else d  # NO!
+x = a if cond1 else b if cond2 else c  # NO!
 
-# BETTER: Use if/elif for multiple conditions
+# BETTER: Use if/elif
 if cond1:
     x = a
 elif cond2:
     x = b
-elif cond3:
-    x = c
 else:
-    x = d
-\`\`\`python
+    x = c
 
-When to Use Ternary:
-- - Simple value assignment based on one condition
-- - Default value selection
-- - Fits on one readable line
-- - NEVER nest ternary expressions
-- - Complex logic (use if/else instead)
-- - Side effects (use if/else for clarity)
-
-DICTIONARY DISPATCH: Replace long if/elif chains with O(1) dictionary lookups when you have simple value-to-value or value-to-function mappings.
-
-\`\`\`python
-# SLOW: O(n) if/elif chain
-def get_day_name(day_num):
+# DICTIONARY DISPATCH - O(1) lookups
+# Instead of O(n) if/elif chain:
+def get_day(day_num):
     if day_num == 0:
         return "Monday"
     elif day_num == 1:
         return "Tuesday"
-    elif day_num == 2:
-        return "Wednesday"
-    # ... 4 more elif clauses
+    # ... 5 more elif
 
-# FAST: O(1) dictionary lookup
+# Use O(1) dict lookup:
 DAYS = {
-    0: "Monday",
-    1: "Tuesday",
-    2: "Wednesday",
-    3: "Thursday",
-    4: "Friday",
-    5: "Saturday",
-    6: "Sunday"
+    0: "Monday", 1: "Tuesday", 2: "Wednesday",
+    3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"
 }
+day = DAYS.get(day_num, "Invalid")  # O(1)
 
-def get_day_name(day_num):
-    return DAYS.get(day_num, "Invalid")  # O(1) with default
+# DISPATCH TO FUNCTIONS
+def add(a, b): return a + b
+def sub(a, b): return a - b
+def mul(a, b): return a * b
 
-# Function dispatch pattern
-def add(x, y): return x + y
-def sub(x, y): return x - y
-def mul(x, y): return x * y
-def div(x, y): return x / y if y != 0 else None
+operations = {"+": add, "-": sub, "*": mul}
+result = operations[operator](x, y)  # Dispatch
 
-OPERATIONS = {"+": add, "-": sub, "*": mul, "/": div}
+# WHEN TO USE:
+# ✓ Simple value mappings (like day_num → "Monday")
+# ✓ Function dispatch based on key
+# ✗ Complex conditions (use if/elif)
+# ✗ Ranges or comparisons (dict keys must be exact)
+\`\`\`
+`
 
-def calculate(x, op, y):
-    func = OPERATIONS.get(op)
-    if func:
-        return func(x, y)
-    else:
-        raise ValueError(f"Unknown operation: {op}")
-
-# Usage
-result = calculate(10, "+", 5)  # → 15
-\`\`\`python
-
-When to Use Dict Dispatch:
-- - 5+ simple equality branches
-- - Value-to-value mapping
-- - Function/method dispatch
-- - Static mappings (days, months, status codes)
-- - Complex conditions (different variables)
-- - Range checks (use if/elif)
-- - Pattern matching (use match in 3.10+)
-
-GUARD CLAUSES AND EARLY RETURNS: The most important conditional pattern for writing readable, maintainable code. Validate inputs early, fail fast, keep happy path at lowest indentation.
-
-\`\`\`python
-# ANTI-PATTERN: Arrow code (deep nesting)
-def withdraw(account, amount):
-    if account:
-        if account.is_active:
-            if account.balance >= amount:
-                if amount > 0:
-                    account.balance -= amount
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-
-# BETTER: Guard clauses
-def withdraw(account, amount):
-    # Validate inputs (fail fast)
-    if not account:
-        return False
-    if not account.is_active:
-        return False
-    if amount <= 0:
-        return False
-    if account.balance < amount:
-        return False
-
-    # Happy path at lowest indent
-    account.balance -= amount
-    return True
-\`\`\`python
-
-Guard Clause Benefits:
-- Reduces cognitive load (no deep nesting)
-- Makes validation explicit and obvious
-- Happy path flows naturally
-- Easier to add new validations
-- Bugs stand out (missing validations obvious)
-
-COMMON PATTERNS FOR INTERVIEWS:
-
-Chained Comparisons:
-\`\`\`python
-# Instead of: x > 1 and x < 10
-if 1 < x < 10:  # Pythonic!
-    process(x)
-
-# Works with any operators
-if a == b == c:  # All equal
-if x <= y < z:  # Mixed operators
-\`\`\`python
-
-all() and any() for Collections:
-\`\`\`python
-# all(): True if ALL elements truthy (short-circuits on first False)
-if all(x > 0 for x in numbers):
-    print("All positive")
-
-# any(): True if ANY element truthy (short-circuits on first True)
-if any(x < 0 for x in numbers):
-    print("Has negative")
-
-# Empty iterables
-all([])  # → True (vacuous truth)
-any([])  # → False
-\`\`\`python
-
-Membership Testing with \`in\`:
-\`\`\`python
-# String contains
-if "error" in log_message:
-    handle_error()
-
-# Collection membership
-if user_id in admin_ids:  # O(1) for sets, O(n) for lists!
-    grant_admin()
-
-# Dict keys
-if "name" in user_dict:
-    print(user_dict["name"])
-\`\`\`python
-
-WHEN TO USE WHAT: Decision matrix for choosing the right conditional construct.
-
-Use **if/elif/else** when:
-- Different variables in conditions
-- Complex boolean logic (and/or/not)
-- Range checks or comparisons
-- Conditions involve different values
-- Most flexible, always works
-
-Use **ternary** when:
-- Simple value assignment
-- One condition, fits on one line
-- Readability maintained
-- NEVER nest ternary expressions!
-
-Use **dict dispatch** when:
-- 5+ simple equality branches
-- Value-to-value or value-to-function mapping
-- O(1) lookup performance matters
-- Static/known mapping
-
-Use **match** (3.10+) when:
-- Same value with structural patterns
-- Destructuring sequences/dicts/classes
-- Pattern matching with guards
-- Type-based dispatch
-
-Use **all()/any()** when:
-- Checking collection properties
-- "All elements satisfy X"
-- "At least one element satisfies X"
-
-COMMON GOTCHAS AND MISTAKES:
-
-1. Zero and empty string are falsy but might be valid data
-2. Short-circuit can skip needed side effects
-3. Nested ternary expressions are unreadable
-4. \`or\` for defaults fails when 0/False are valid values
-5. Dict dispatch can't handle complex conditions
-6. Deep nesting (arrow code) is hard to maintain
-7. Forgetting that \`and\`/\`or\` return values, not just True/False`
 
 export function ConditionalsPage() {
   return (
