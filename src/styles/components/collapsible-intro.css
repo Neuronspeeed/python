@@ -145,17 +145,31 @@
   padding: 1.25rem 1.5rem 1.5rem;
 }
 
-/* Content text styles - Enhanced for readability */
-.collapsible-card-inner .intro-card-text {
-  margin: 0;
-  font-size: 0.9375rem;  /* Slightly larger for better readability */
-  line-height: 1.8;  /* More breathing room */
-  color: var(--text-secondary);
-  max-width: 65ch;  /* Optimal line length for reading */
+/* Sentence container - creates visual rhythm */
+.collapsible-card-inner .intro-card-sentences {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;  /* Space between sentences */
+}
 
-  /* Add subtle spacing after sentences for rhythm */
-  word-spacing: 0.05em;
-  letter-spacing: -0.005em;  /* Slight tightening for technical text */
+/* Individual sentence - each gets its own visual space */
+.collapsible-card-inner .intro-sentence {
+  display: block;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 65ch;
+
+  /* Subtle left border for visual rhythm */
+  padding-left: 0.75rem;
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+/* Hover effect for sentence highlighting */
+.collapsible-card-inner .intro-sentence:hover {
+  border-left-color: var(--accent-str);
+  color: var(--text-primary);
 }
 
 .collapsible-card-inner .intro-card-list {
@@ -230,9 +244,10 @@
     padding: 1rem 1.125rem;
   }
 
-  .collapsible-card-inner .intro-card-text {
+  .collapsible-card-inner .intro-sentence {
     font-size: 0.875rem;
-    line-height: 1.75;
+    line-height: 1.7;
+    padding-left: 0.5rem;
   }
 
   .collapsible-card-inner .intro-card-list li {

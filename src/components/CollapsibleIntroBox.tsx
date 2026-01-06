@@ -12,7 +12,7 @@ function parseIntroContent(text: string): React.ReactNode[] {
 }
 
 // Parse a section that may contain bullet points
-function parseSectionContent(content: string): { mainText: string; bullets: string[] } {
+function parseSectionContent(content: string): { sentences: string[]; bullets: string[] } {
   const lines = content.split('\n')
   const bullets: string[] = []
   const mainLines: string[] = []
@@ -26,18 +26,27 @@ function parseSectionContent(content: string): { mainText: string; bullets: stri
     }
   }
 
-  return { mainText: mainLines.join(' '), bullets }
+  // Join into full text, then split by sentences for better rhythm
+  const fullText = mainLines.join(' ')
+
+  // Split by sentence endings (., !, ?) but keep the punctuation
+  const sentences = fullText
+    .split(/(?<=[.!?])\s+/)
+    .filter(s => s.trim())
+    .map(s => s.trim())
+
+  return { sentences, bullets }
 }
 
 interface CollapsibleCardProps {
   header: string
-  mainText: string
+  sentences: string[]
   bullets: string[]
   isOpen: boolean
   onToggle: () => void
 }
 
-function CollapsibleCard({ header, mainText, bullets, isOpen, onToggle }: CollapsibleCardProps) {
+function CollapsibleCard({ header, sentences, bullets, isOpen, onToggle }: CollapsibleCardProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState<number | undefined>(0)
 
@@ -76,8 +85,14 @@ function CollapsibleCard({ header, mainText, bullets, isOpen, onToggle }: Collap
         style={{ height }}
       >
         <div ref={contentRef} className="collapsible-card-inner">
-          {mainText && (
-            <p className="intro-card-text">{parseIntroContent(mainText)}</p>
+          {sentences.length > 0 && (
+            <div className="intro-card-sentences">
+              {sentences.map((sentence, j) => (
+                <span key={j} className="intro-sentence">
+                  {parseIntroContent(sentence)}
+                </span>
+              ))}
+            </div>
           )}
           {bullets.length > 0 && (
             <ul className="intro-card-list">
@@ -111,10 +126,10 @@ export function CollapsibleIntroBox({ intro }: CollapsibleIntroBoxProps) {
     if (colonIndex > 0 && colonIndex < 100) {
       const header = p.slice(0, colonIndex)
       const content = p.slice(colonIndex + 1).trim()
-      const { mainText, bullets } = parseSectionContent(content)
-      return { header, mainText, bullets }
+      const { sentences, bullets } = parseSectionContent(content)
+      return { header, sentences, bullets }
     }
-    return { header: null, mainText: p, bullets: [] }
+    return { header: null, sentences: [], bullets: [] }
   }).filter(s => s.header) // Only keep sections with headers
 
   // State: track which cards are open (default: all closed)
@@ -176,7 +191,7 @@ export function CollapsibleIntroBox({ intro }: CollapsibleIntroBoxProps) {
               <CollapsibleCard
                 key={i}
                 header={section.header!}
-                mainText={section.mainText}
+                sentences={section.sentences}
                 bullets={section.bullets}
                 isOpen={openCards.has(i)}
                 onToggle={() => toggleCard(i)}
