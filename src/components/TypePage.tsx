@@ -3,7 +3,7 @@ import type { Method, Section } from '../types'
 import { computeSections } from '../types'
 import { useSectionScroll } from '../hooks/useSectionScroll'
 import { SectionNav } from './SectionNav'
-import { MethodCard, HighlightedCode } from './CodeDisplay'
+import { MethodCard, CodeBlock } from './CodeDisplay'
 import { Footer } from './Footer'
 import { PageHeader } from './PageHeader'
 
@@ -48,13 +48,10 @@ function parseBoxContent(content: string): React.ReactNode[] {
       parts.push(...parseIntroContent(textBefore))
     }
 
-    // Add code block with syntax highlighting
-    const language = match[1] || 'python'  // Default to python if no language specified
+    // Add code block with dark container, EXAMPLE label, and Copy button
     const code = match[2]
     parts.push(
-      <pre key={`code-${idx}`} className={`language-${language}`}>
-        {language === 'python' ? <HighlightedCode code={code} /> : <code>{code}</code>}
-      </pre>
+      <CodeBlock key={`code-${idx}`} code={code} label="EXAMPLE" />
     )
 
     lastIndex = (match.index || 0) + match[0].length
