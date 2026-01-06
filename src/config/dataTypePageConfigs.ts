@@ -357,7 +357,7 @@ nums = [1, 2, 3, 4, 5, 6]
 count_even = sum(n % 2 == 0 for n in nums)  # 3
 count_positive = sum(n > 0 for n in nums)   # 6
 count_large = sum(n > 3 for n in nums)      # 3
-\`\`\`python
+\`\`\`
 ---
 Truthiness and Falsy Values
 Empty containers ([], {}, "", set()), zero (0, 0.0), and None are falsy. Everything else is truthy. Use if container: instead of if len(container) > 0:. Use bool() to convert to True/False explicitly.
@@ -384,7 +384,7 @@ if items:  # Better than if len(items) > 0:
 
 if not result:  # Better than if result == []:
     handle_empty()
-\`\`\`python
+\`\`\`
 ---
 Boolean Operations
 any() returns True if ANY element is truthy (short-circuits on first True). all() returns True if ALL elements are truthy (short-circuits on first False). Use these for elegant condition checking instead of loops.
