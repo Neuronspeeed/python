@@ -9,331 +9,210 @@ import { comprehensionsMethods } from '../data/comprehensions'
 import { functionsMethods } from '../data/functions'
 import { oopMethods } from '../data/oop'
 
+const fundamentalsIntro = `Python's Object Model Foundation
+Python's object model is the foundation for understanding EVERYTHING in the language. All data in Python is represented as objects—from simple integers to complex classes. The key insight: understanding Python's dynamic typing model, reference semantics, and garbage collection is critical for avoiding 90% of bugs and writing efficient code.
+
+\`\`\`python
+# DYNAMIC: No type declarations
+x = 1        # x is int
+x = "hello"  # x is now str — perfectly legal!
+
+# STRONG: No silent type coercion
+x = "1"
+y = 1
+z = x + y    # TypeError! No automatic conversion
+
+# vs JavaScript (weak typing):
+# "1" + 1 = "11" (silent coercion to string)
+\`\`\`
+---
+Dynamic Typing with Strong Type Checking
+Python tracks types at RUNTIME (dynamic)—no declarations needed. But operations ONLY work on compatible types (strong)—no silent coercion like JavaScript. \`"1" + 1\` raises TypeError, not \`"11"\`. This combination gives flexibility (any variable can hold any type) with safety (type errors caught immediately).
+
+\`\`\`python
+# THREE COMPONENTS OF PYTHON'S MODEL:
+
+# 1. VARIABLES = Names in namespace (no type stored)
+x = 42        # Variable 'x' created, references int(42)
+x = "hello"   # 'x' now references str, perfectly legal
+
+# 2. OBJECTS = Allocated memory with identity, type, value
+# - Type NEVER changes after creation
+# - Immutable: int, str, tuple, frozenset
+# - Mutable: list, dict, set
+
+# 3. REFERENCES = Automatic pointers
+a = [1, 2, 3]
+b = a         # b references SAME list (not a copy!)
+b.append(4)
+print(a)      # [1, 2, 3, 4] — same object!
+
+# CHECK TYPE AT RUNTIME
+type(42)        # <class 'int'>
+isinstance(42, int)  # True
+\`\`\`
+---
+Reference Semantics and Common Pitfalls
+Assignment creates references, NOT copies. Multiple names can reference same object. Use \`is\` for identity (same object), \`==\` for equality (same value). Mutable default arguments are shared across calls—use None instead.
+
+\`\`\`python
+# IS vs == - Identity vs Equality
+a = [1, 2, 3]
+b = [1, 2, 3]
+a == b        # True (same value)
+a is b        # False (different objects)
+
+c = a
+c is a        # True (same object)
+
+# MUTABLE DEFAULT ARGUMENT GOTCHA
+def bad(L=[]):      # BUG! [] created ONCE
+    L.append(1)
+    return L
+
+bad()  # [1]
+bad()  # [1, 1] — Same list!
+
+def good(L=None):   # CORRECT
+    if L is None:
+        L = []
+    L.append(1)
+    return L
+
+good()  # [1]
+good()  # [1] — New list each time
+
+# SHALLOW VS DEEP COPY
+import copy
+original = [[1, 2], [3, 4]]
+shallow = original.copy()     # Copies outer list only
+deep = copy.deepcopy(original)  # Copies everything
+
+shallow[0].append(99)
+print(original)  # [[1, 2, 99], [3, 4]] — nested lists shared!
+
+deep[0].append(99)
+print(original)  # [[1, 2], [3, 4]] — independent
+\`\`\`
+`
 export function FundamentalsPage() {
   return (
     <TypePage
       type="Python Fundamentals" badge="py" color="var(--accent-functions)"
-      description="Python's object model and type categories. Dynamic typing with strong type checking—variables are names, all data is objects, assignment creates references not copies."
+      description="Core concepts: dynamic typing, strong typing, polymorphism. Understanding Python's object model and type categories."
+      intro={fundamentalsIntro}
       methods={fundamentalsMethods}
     />
   )
 }
 
-const statementsIntro = `Statements bind names to objects and control program flow. The key insight: assignment in Python creates references, not copies. Understanding this reference semantics is foundational—it explains 90% of Python gotchas and bugs.
-
-ASSIGNMENT CREATES REFERENCES, NOT COPIES. When you write \`a = b\`, you're creating a new reference to the same object, not copying the object. For immutable objects (int, str, tuple), this distinction doesn't matter because you can't modify them. For mutable objects (list, dict, set), this is CRITICAL—changes through one reference affect ALL references.
+const statementsIntro = `Assignment Creates References, Not Copies
+When you write \`a = b\`, Python creates a new reference to the same object, not a copy. For immutable objects (int, str, tuple), this doesn't matter—you can't modify them. For mutable objects (list, dict, set), this is CRITICAL—changes through one reference affect ALL references. The key insight: Python passes references everywhere, making it fast but requiring careful handling of mutable objects.
 
 \`\`\`python
-# Reference semantics visualization
-a = [1, 2, 3]        # a → [1, 2, 3]
-b = a                # b → [1, 2, 3] (SAME object!)
-b.append(4)          # Modifies the shared object
+# REFERENCE SEMANTICS
+a = [1, 2, 3]        # a references a list
+b = a                # b references SAME list
+b.append(4)
 print(a)             # [1, 2, 3, 4] — a sees the change!
 
-# vs creating a copy
+# CREATE A COPY
 a = [1, 2, 3]
-b = a[:]             # b → [1, 2, 3] (NEW object, copy)
+b = a[:]             # b is a NEW list (copy)
 b.append(4)
-print(a)             # [1, 2, 3] — a unchanged
-\`\`\`python
+print(a)             # [1, 2, 3] — unchanged
 
-ASSIGNMENT SEMANTICS DEEP DIVE: Python's assignment statement \`=\` binds a name to an object. The right side is evaluated first, then the result is bound to names on the left. This evaluation order matters for swap operations and multiple assignments.
+# IMMUTABLE OBJECTS - References don't matter
+x = 5
+y = x                # y references same int
+y += 1               # Creates NEW int, rebinds y
+print(x)             # 5 — unchanged (ints are immutable)
 
-Multiple Assignment Shared Reference: \`a = b = c = []\` creates ONE list object with THREE names pointing to it. Any modification through a, b, or c affects the shared object. This is dangerous for mutable defaults and shared state. Safe for immutables: \`x = y = z = 0\` is fine because integers can't be modified.
+# MULTIPLE REFERENCES TO MUTABLE
+def bad_default(L=[]):
+    L.append(1)
+    return L
 
-\`\`\`python
-# DANGEROUS: Multiple assignment with mutable
-a = b = c = []       # ONE list, THREE names
-a.append(1)          # Modifies shared list
-print(b, c)          # [1] [1] — all three see changes!
+bad_default()  # [1]
+bad_default()  # [1, 1] — Same list!
 
-# SAFE: Multiple assignment with immutable
-x = y = z = 0        # THREE integer objects (small int caching)
-x += 1               # Creates NEW integer object
-print(y, z)          # 0 0 — y and z unchanged
-\`\`\`python
-
-Augmented Assignment Behavior: Augmented operators (\`+=\`, \`*=\`, etc.) behave differently for mutables vs immutables. For immutables, \`x += 1\` creates a new object. For mutables, \`L += [3]\` modifies in-place—this matters when you have shared references!
-
-\`\`\`python
-# Immutable: += creates NEW object
-x = 1
-y = x
-x += 1               # x now points to NEW integer object 2
-print(x, y)          # 2 1 — y still points to old object
-
-# Mutable: += modifies IN-PLACE
-L = [1, 2]
-M = L                # M and L point to SAME list
-L += [3]             # Extends L in-place
-print(M)             # [1, 2, 3] — M sees the change!
-
-# vs creating new list
-L = [1, 2]
-M = L
-L = L + [3]          # Creates NEW list, rebinds L
-print(M)             # [1, 2] — M still points to old list
-\`\`\`python
-
-String Concatenation Performance Trap: Building strings with \`+=\` in a loop is O(n²) because strings are immutable—each \`+=\` creates a new string and copies all characters. Use \`"".join()\` for O(n) performance.
+def good_default(L=None):
+    if L is None:
+        L = []       # New list each call
+    L.append(1)
+    return L
+\`\`\`
+---
+Assignment Forms and Evaluation Order
+Python's assignment evaluates the right side first, then binds names on the left. Multiple assignment \`a = b = c = []\` creates ONE object with three references. Sequence unpacking \`x, y = 1, 2\` evaluates right, then unpacks to left. Augmented assignment \`x += 1\` modifies in-place for mutables, creates new for immutables. Walrus operator \`:=\` assigns within expressions.
 
 \`\`\`python
-# O(n²) — SLOW for large N (creates n new strings!)
-s = ""
-for char in "abcdefg" * 1000:
-    s += char        # Each iteration: copy all previous chars + new char
+# BASIC ASSIGNMENT - Right side first
+x = y = z = []       # ONE list, THREE names
+x.append(1)
+print(z)             # [1] — all names reference same list
 
-# O(n) — FAST (one allocation, one copy)
-chars = []
-for char in "abcdefg" * 1000:
-    chars.append(char)
-s = "".join(chars)   # Single allocation and copy
+# SEQUENCE UNPACKING
+x, y = 1, 2          # Unpack tuple
+a, b = [10, 20]      # Unpack list
+first, *rest = [1, 2, 3, 4]  # first=1, rest=[2,3,4]
 
-# Even better: join directly
-s = "".join("abcdefg" * 1000)
-\`\`\`python
+# SWAP - Classic Python idiom
+a, b = b, a          # Right side evaluates first: (b, a) tuple
+                     # Then unpacks to a, b
 
-WALRUS OPERATOR MASTERY (:= Assignment Expression): Python 3.8+ adds the walrus operator \`:=\` which assigns AND returns a value in a single expression. This eliminates duplicate function calls and makes code more concise—but use sparingly for readability.
+# AUGMENTED ASSIGNMENT
+nums = [1, 2]
+nums += [3, 4]       # Modifies in-place (mutables)
+print(nums)          # [1, 2, 3, 4]
 
-Walrus in While Loops: Avoid duplicate \`input()\` calls by combining assignment and test.
+x = 5
+x += 1               # Creates NEW int (immutables)
 
-\`\`\`python
-# Before: duplicate input() calls
-line = input()
-while line != "quit":
+# WALRUS OPERATOR := (Python 3.8+)
+if (n := len(data)) > 10:  # Assign AND use in one expression
+    print(f"Large dataset: {n} items")
+
+# Useful in while loops
+while (line := file.readline()):
     process(line)
-    line = input()   # Duplicate!
-
-# With walrus: single input() call
-while (line := input()) != "quit":
-    process(line)
-\`\`\`python
-
-Walrus in If Statements: Avoid duplicate expensive function calls.
+\`\`\`
+---
+Expression Statements and Print
+Expression statements evaluate expressions but discard results—useful for function calls with side effects. Print sends output to stdout with automatic newline. Use \`sep\` to change separator, \`end\` to change line ending, \`file\` to redirect output. Print is a function in Python 3, not a statement like Python 2.
 
 \`\`\`python
-# Before: duplicate expensive_func() call
-if expensive_func(data) > threshold:
-    result = expensive_func(data)  # Called AGAIN!
-    print(f"Result: {result}")
+# EXPRESSION STATEMENTS - Call functions for side effects
+mylist.append(1)     # Returns None, but modifies list
+mydict.update(x=1)   # Returns None, but modifies dict
+print("Hello")       # Returns None, but prints
 
-# With walrus: single call
-if (result := expensive_func(data)) > threshold:
-    print(f"Result: {result}")
-\`\`\`python
+# PRINT FUNCTION
+print("Hello", "World")  # Hello World (space separator)
+print("A", "B", sep="-") # A-B (custom separator)
+print("Hello", end="")   # No newline
+print("World")           # HelloWorld (on same line)
 
-Walrus in Comprehensions: Call function once instead of twice when filtering.
-
-\`\`\`python
-# Before: calls func(x) TWICE per item
-[func(x) for x in data if func(x) > 0]
-
-# With walrus: calls func(x) ONCE per item
-[y for x in data if (y := func(x)) > 0]
-\`\`\`python
-
-When NOT to Use Walrus: Don't sacrifice readability for brevity. Walrus is powerful but can make code harder to understand. Use for clear wins (eliminating duplicates), avoid for marginal gains. Also, Python < 3.8 doesn't support it.
-
-SEQUENCE UNPACKING PATTERNS: Python's tuple unpacking is powerful and goes far beyond simple \`a, b = 1, 2\`. Extended unpacking with \`*\` collects remaining items into a list.
-
-Extended Unpacking with \`*\`: The \`*\` operator collects "rest" items into a list. It ALWAYS creates a list, even if there are zero items left!
-
-\`\`\`python
-# Basic extended unpacking
-first, *rest = [1, 2, 3, 4, 5]
-# first = 1, rest = [2, 3, 4, 5]
-
-# * at different positions
-*head, last = [1, 2, 3, 4, 5]
-# head = [1, 2, 3, 4], last = 5
-
-first, *middle, last = [1, 2, 3, 4, 5]
-# first = 1, middle = [2, 3, 4], last = 5
-
-# * ALWAYS creates list (even empty!)
-a, *b = [1]
-# a = 1, b = [] (empty list!)
-
-*x, y = [1]
-# x = [], y = 1
-\`\`\`python
-
-Nested Unpacking: You can unpack nested structures in one statement.
-
-\`\`\`python
-# Nested tuple unpacking
-(a, b), (c, d) = [(1, 2), (3, 4)]
-# a=1, b=2, c=3, d=4
-
-# Practical: destructuring function returns
-def get_stats(data):
-    return min(data), max(data), sum(data)
-
-mn, mx, total = get_stats([1, 2, 3, 4, 5])
-\`\`\`python
-
-Ignoring Values with \`_\`: Use underscore to indicate "I don't care about this value."
-
-\`\`\`python
-# Ignore specific values
-first, _, third = (1, 2, 3)
-
-# Ignore multiple with *_
-first, *_, last = [1, 2, 3, 4, 5, 6, 7]
-# first = 1, last = 7 (middle values discarded)
-\`\`\`python
-
-EXPRESSION STATEMENTS: Any expression can be a statement—the result is simply discarded. This is common for function/method calls with side effects.
-
-In-Place Method Gotcha: Many list methods modify in-place and return \`None\`. Assigning the result loses your list!
-
-\`\`\`python
-# WRONG — L becomes None!
-L = [3, 1, 2]
-L = L.sort()         # sort() returns None!
-print(L)             # None — list is lost!
-
-# CORRECT — sort modifies in-place
-L = [3, 1, 2]
-L.sort()             # Modifies L in-place
-print(L)             # [1, 2, 3]
-\`\`\`python
-
-Methods that Return \`None\` vs New Objects: Know which methods modify in-place (return None) vs return new objects.
-
-\`\`\`python
-# In-place (return None):
-L.sort()             # Sorts L in-place
-L.reverse()          # Reverses L in-place
-L.append(4)          # Adds to L
-L.extend([5, 6])     # Adds to L
-L.remove(3)          # Removes from L
-L.clear()            # Empties L
-
-# Return new object:
-sorted(L)            # Returns NEW sorted list
-reversed(L)          # Returns NEW reversed iterator
-L + [4]              # Returns NEW concatenated list
-L * 2                # Returns NEW repeated list
-\`\`\`python
-
-PRINT FUNCTION ADVANCED: \`print(*objects, sep=' ', end='\\n', file=sys.stdout, flush=False)\` is more powerful than it looks.
-
-Parameters: Control output formatting with \`sep\`, \`end\`, and \`file\`.
-
-\`\`\`python
-# Custom separator
-print("a", "b", "c", sep="-")     # a-b-c
-
-# Suppress newline
-print("loading", end="")          # No newline after
-print("...", end="")              # Prints on same line
-print("done")                     # loading...done
-
-# Print to file
+# PRINT TO FILE
 with open("log.txt", "w") as f:
-    print("logged message", file=f)
+    print("Log entry", file=f)  # Redirect to file
 
-# Print to stderr
-import sys
-print("error!", file=sys.stderr)
-\`\`\`python
+# FORMATTED PRINTING
+name, age = "Alice", 30
+print(f"{name} is {age} years old")  # F-strings (Python 3.6+)
+print("{} is {} years old".format(name, age))  # .format()
+print("%s is %d years old" % (name, age))  # Old %-formatting
 
-f-string Debug Mode (3.8+): Use \`=\` specifier to print variable name and value.
-
-\`\`\`python
-x = 10
-y = 20
-print(f"{x=}, {y=}")             # x=10, y=20
-
-# Combines with format specs
-print(f"{x=:.2f}")               # x=10.00
-\`\`\`python
-
-VARIABLE NAMING CONVENTIONS: Python has naming conventions that signal intent.
-
-Underscore Conventions:
-
-\`\`\`python
-# Single leading _: "internal use" (not enforced, just convention)
-_internal_helper = 42
-
-# Double leading __: name mangling in classes
-class Foo:
-    def __init__(self):
-        self.__private = 1   # Mangled to _Foo__private
-
-# Double leading and trailing __: system-defined (dunder methods)
-__init__, __str__, __add__       # Reserved for Python
-
-# Single _: throwaway variable
-for _ in range(3):               # Loop doesn't use counter
-    print("hello")
-
-first, _, third = (1, 2, 3)      # Don't care about middle value
-\`\`\`python
-
-COMMON GOTCHAS AND INTERVIEW TRAPS: These patterns cause bugs and appear in interviews.
-
-Mutable Default Arguments: The default value is created ONCE when the function is defined, not each time it's called. Mutable defaults are SHARED across all calls!
-
-\`\`\`python
-# WRONG — default list SHARED across calls!
-def append_to(element, lst=[]):
-    lst.append(element)
-    return lst
-
-print(append_to(1))              # [1]
-print(append_to(2))              # [1, 2] — SURPRISE!
-print(append_to(3))              # [1, 2, 3] — same list!
-
-# CORRECT — use None sentinel
-def append_to(element, lst=None):
-    if lst is None:
-        lst = []                 # New list each call
-    lst.append(element)
-    return lst
-
-# Or with walrus (3.8+)
-def append_to(element, lst=None):
-    lst = lst or []              # Convert None to []
-    lst.append(element)
-    return lst
-\`\`\`python
-
-Chained Assignment Creates Shared References: This is the multiple assignment gotcha—all names point to ONE object.
-
-\`\`\`python
-# DANGEROUS with mutables
-a = b = c = []
-a.append(1)
-print(b, c)                      # [1] [1] — shared!
-
-# SAFE: create separate lists
-a, b, c = [], [], []
-a.append(1)
-print(b, c)                      # [] [] — separate objects
-\`\`\`python
-
-Augmented Assignment on Shared References: \`+=\` modifies in-place for mutables, affecting all references.
-
-\`\`\`python
-L = [1, 2]
-M = L                            # Shared reference
-L += [3]                         # Modifies in-place
-print(M)                         # [1, 2, 3] — M sees change!
-
-# To avoid: create new list
-L = [1, 2]
-M = L
-L = L + [3]                      # Creates new list
-print(M)                         # [1, 2] — M unchanged
-\`\`\``
+# DEBUGGING TRICK - Print with value labels
+x = 42
+print(f"{x=}")       # x=42 (Python 3.8+)
+\`\`\`
+`
 
 export function StatementsPage() {
   return (
     <TypePage
-      type="Statements" badge="=" color="var(--accent-none)"
+      type="Statements" badge="=" color="var(--accent-statements)"
       description="Assignment forms, variable naming, expression statements, and print operations. The building blocks of Python programs."
       intro={statementsIntro}
       methods={statementsMethods}
