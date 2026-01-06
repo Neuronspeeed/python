@@ -123,22 +123,38 @@ interface SectionListProps {
   registerSection: (idx: number) => (el: HTMLElement | null) => void
 }
 
-function SectionList({ methods, sections, registerSection }: SectionListProps) {
+interface SectionListPropsWithIntro extends SectionListProps {
+  intro?: string
+}
+
+function SectionList({ methods, sections, registerSection, intro }: SectionListPropsWithIntro) {
   return (
     <>
-      {sections.map((section, idx) => (
+      {intro && (
         <section
           className="section"
-          key={section.title}
-          id={`section-${idx}`}
-          ref={registerSection(idx)}
+          id="section-0"
+          ref={registerSection(0)}
         >
-          <h2 className="section-title">{section.title}</h2>
-          {methods.slice(section.start, section.end).map(m => (
-            <MethodCard key={m.signature} method={m} />
-          ))}
+          <IntroBox intro={intro} />
         </section>
-      ))}
+      )}
+      {sections.map((section, idx) => {
+        const sectionIdx = intro ? idx + 1 : idx
+        return (
+          <section
+            className="section"
+            key={section.title}
+            id={`section-${sectionIdx}`}
+            ref={registerSection(sectionIdx)}
+          >
+            <h2 className="section-title">{section.title}</h2>
+            {methods.slice(section.start, section.end).map(m => (
+              <MethodCard key={m.signature} method={m} />
+            ))}
+          </section>
+        )
+      })}
     </>
   )
 }
@@ -172,21 +188,25 @@ export interface TypePageProps {
 
 export function TypePage({ type, badge, color, description, intro, tip, methods, tabs }: TypePageProps) {
   const sections = useMemo(() => computeSections(methods), [methods])
-  const sectionTitles = sections.map(s => s.title)
+
+  // Add "Overview" as first section if intro exists
+  const sectionTitles = useMemo(() => {
+    const methodTitles = sections.map(s => s.title)
+    return intro ? ['Overview', ...methodTitles] : methodTitles
+  }, [sections, intro])
+
   const { activeSection, sectionNavItems, registerSection } = useSectionScroll(sectionTitles)
 
   return (
     <>
       <PageHeader badge={badge} badgeColor={color} title={type} description={description} />
 
-      {intro && <IntroBox intro={intro} />}
-
       {tip && <TipBox tip={tip} />}
 
       {tabs}
 
       <SectionNav sections={sectionNavItems} activeSection={activeSection} />
-      <SectionList methods={methods} sections={sections} registerSection={registerSection} />
+      <SectionList methods={methods} sections={sections} registerSection={registerSection} intro={intro} />
 
       <Footer />
     </>
