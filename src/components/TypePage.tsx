@@ -66,7 +66,7 @@ function parseBoxContent(content: string): React.ReactNode[] {
   return parts.length > 0 ? parts : parseIntroContent(content)
 }
 
-function IntroBox({ intro }: { intro: string }) {
+function IntroBox({ intro, tip }: { intro: string; tip?: string }) {
   // Parse sections separated by '---' for single-column decision boxes
   const boxes = intro.split('\n---\n').filter(box => box.trim())
 
@@ -89,6 +89,7 @@ function IntroBox({ intro }: { intro: string }) {
           </div>
         )
       })}
+      {tip && <TipBox tip={tip} />}
     </div>
   )
 }
@@ -97,22 +98,21 @@ function TipBox({ tip }: { tip: string }) {
   const items = useMemo(() => parseQA(tip), [tip])
 
   return (
-    <div className="tip-box">
-      <div className="tip-box-header">
-        <svg className="tip-box-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-          <path d="M12 16v.01M12 8a2 2 0 012 2c0 1.1-1 1.5-1.5 2-.5.5-.5 1-.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-        <span className="tip-box-title">Key Insight</span>
+    <div className="decision-box">
+      <div className="decision-box-header">
+        <h3>Quick Reference</h3>
+        <span className="badge">Tips</span>
       </div>
-      <ul className="tip-box-list">
-        {items.map((item, i) => (
-          <li key={i} className="tip-item">
-            {item.question && <><span className="tip-question">{item.question}</span>{' '}</>}
-            <span className="tip-answer">{item.answer}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="decision-box-content">
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {items.map((item, i) => (
+            <li key={i} style={{ marginBottom: '0.75rem' }}>
+              {item.question && <><strong>{item.question}</strong>{' '}</>}
+              {item.answer}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
@@ -125,9 +125,10 @@ interface SectionListProps {
 
 interface SectionListPropsWithIntro extends SectionListProps {
   intro?: string
+  tip?: string
 }
 
-function SectionList({ methods, sections, registerSection, intro }: SectionListPropsWithIntro) {
+function SectionList({ methods, sections, registerSection, intro, tip }: SectionListPropsWithIntro) {
   return (
     <>
       {intro && (
@@ -136,7 +137,7 @@ function SectionList({ methods, sections, registerSection, intro }: SectionListP
           id="section-0"
           ref={registerSection(0)}
         >
-          <IntroBox intro={intro} />
+          <IntroBox intro={intro} tip={tip} />
         </section>
       )}
       {sections.map((section, idx) => {
@@ -201,12 +202,10 @@ export function TypePage({ type, badge, color, description, intro, tip, methods,
     <>
       <PageHeader badge={badge} badgeColor={color} title={type} description={description} />
 
-      {tip && <TipBox tip={tip} />}
-
       {tabs}
 
       <SectionNav sections={sectionNavItems} activeSection={activeSection} />
-      <SectionList methods={methods} sections={sections} registerSection={registerSection} intro={intro} />
+      <SectionList methods={methods} sections={sections} registerSection={registerSection} intro={intro} tip={tip} />
 
       <Footer />
     </>
