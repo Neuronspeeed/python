@@ -15,7 +15,7 @@
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: 1.5rem 2rem;
-  border-left: 4px solid var(--accent-str);
+  border-left: 4px solid #78716c;
   transition: all 0.2s ease;
   position: relative;
 }
