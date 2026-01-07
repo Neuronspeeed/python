@@ -131,31 +131,23 @@ interface SectionListPropsWithIntro extends SectionListProps {
 function SectionList({ methods, sections, registerSection, intro, tip }: SectionListPropsWithIntro) {
   return (
     <>
-      {intro && (
+      {sections.map((section, idx) => (
         <section
           className="section"
-          id="section-0"
-          ref={registerSection(0)}
+          key={section.title}
+          id={`section-${idx}`}
+          ref={registerSection(idx)}
         >
-          <IntroBox intro={intro} tip={tip} />
+          <h2 className="section-title">{section.title}</h2>
+
+          {/* Render intro boxes at the start of the first section */}
+          {idx === 0 && intro && <IntroBox intro={intro} tip={tip} />}
+
+          {methods.slice(section.start, section.end).map(m => (
+            <MethodCard key={m.signature} method={m} />
+          ))}
         </section>
-      )}
-      {sections.map((section, idx) => {
-        const sectionIdx = intro ? idx + 1 : idx
-        return (
-          <section
-            className="section"
-            key={section.title}
-            id={`section-${sectionIdx}`}
-            ref={registerSection(sectionIdx)}
-          >
-            <h2 className="section-title">{section.title}</h2>
-            {methods.slice(section.start, section.end).map(m => (
-              <MethodCard key={m.signature} method={m} />
-            ))}
-          </section>
-        )
-      })}
+      ))}
     </>
   )
 }
@@ -190,10 +182,15 @@ export interface TypePageProps {
 export function TypePage({ type, badge, color, description, intro, tip, methods, tabs }: TypePageProps) {
   const sections = useMemo(() => computeSections(methods), [methods])
 
-  // Add "Overview" as first section if intro exists
+  // If intro exists, prepend it as first section
+  // Use first method section name if it exists (e.g., "Core Concepts"), otherwise use "Overview"
   const sectionTitles = useMemo(() => {
     const methodTitles = sections.map(s => s.title)
-    return intro ? ['Overview', ...methodTitles] : methodTitles
+    if (!intro) return methodTitles
+
+    // If there are method sections, the intro will be merged into the first section
+    // So we don't need to add an extra tab name
+    return methodTitles
   }, [sections, intro])
 
   const { activeSection, sectionNavItems, registerSection } = useSectionScroll(sectionTitles)
