@@ -1,31 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Method } from '../types'
 import { tokenizePython } from '../utils/tokenizePython'
+import { ExecutableCodeBlock } from './ExecutableCodeBlock'
 
-/** Feedback duration for copy button in milliseconds */
-const COPY_FEEDBACK_DURATION = 2000
-
+/** Keep HighlightedCode for backward compatibility */
 export function HighlightedCode({ code }: { code: string }) {
   const tokens = useMemo(() => tokenizePython(code), [code])
   return <code>{tokens.map((t, i) => <span key={i} className={t.type !== 'text' ? t.type : undefined}>{t.value}</span>)}</code>
 }
 
+/** CodeBlock now uses ExecutableCodeBlock for interactive Python execution */
 export function CodeBlock({ code, label = 'Example' }: { code: string; label?: string }) {
-  const [copied, setCopied] = useState(false)
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION)
-  }
-  return (
-    <div className="code-block">
-      <div className="code-header">
-        <span className="code-label">{label}</span>
-        <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>{copied ? 'Copied!' : 'Copy'}</button>
-      </div>
-      <div className="code-content"><HighlightedCode code={code} /></div>
-    </div>
-  )
+  return <ExecutableCodeBlock code={code} label={label} />
 }
 
 /** Map complexity level to CSS class for method cards */
