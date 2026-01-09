@@ -64,6 +64,8 @@
 .boolean { color: #7ee787; }
 .comment { color: #8b949e; font-style: italic; }
 .builtin { color: #d2a8ff; }
+.function { color: #ffa657; }
+.property { color: #79c0ff; }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {

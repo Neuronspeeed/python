@@ -1,6 +1,6 @@
 // Tokenizer for Python syntax highlighting
 
-type TokenType = 'keyword' | 'builtin' | 'string' | 'number' | 'boolean' | 'comment' | 'text'
+type TokenType = 'keyword' | 'builtin' | 'string' | 'number' | 'boolean' | 'comment' | 'function' | 'property' | 'text'
 
 export interface Token {
   type: TokenType
@@ -9,7 +9,7 @@ export interface Token {
 
 const KEYWORDS = ['def', 'return', 'if', 'else', 'elif', 'for', 'in', 'while', 'import', 'from', 'class', 'try', 'except', 'with', 'as', 'lambda', 'yield', 'raise', 'pass', 'break', 'continue', 'and', 'or', 'not', 'is', 'finally', 'async', 'await', 'global', 'nonlocal', 'assert', 'del']
 
-const BUILTINS = ['print', 'range', 'len', 'str', 'int', 'float', 'bool', 'list', 'tuple', 'dict', 'set', 'type', 'isinstance', 'issubclass', 'enumerate', 'zip', 'map', 'filter', 'sum', 'min', 'max', 'sorted', 'reversed', 'abs', 'round', 'ord', 'chr', 'repr', 'format', 'input', 'open', 'all', 'any', 'hash', 'bin', 'oct', 'hex', 'pow', 'divmod', 'super', 'property', 'staticmethod', 'classmethod', 'hasattr', 'getattr', 'setattr', 'callable', 'id', 'next', 'iter', 'object', 'Exception', 'ValueError', 'TypeError', 'KeyError', 'IndexError', 'AttributeError', 'RuntimeError', 'StopIteration', 'breakpoint']
+const BUILTINS = ['print', 'range', 'len', 'str', 'int', 'float', 'bool', 'list', 'tuple', 'dict', 'set', 'type', 'isinstance', 'issubclass', 'enumerate', 'zip', 'map', 'filter', 'sum', 'min', 'max', 'sorted', 'reversed', 'abs', 'round', 'ord', 'chr', 'repr', 'format', 'input', 'open', 'all', 'any', 'hash', 'bin', 'oct', 'hex', 'pow', 'divmod', 'super', 'property', 'staticmethod', 'classmethod', 'hasattr', 'getattr', 'setattr', 'callable', 'id', 'next', 'iter', 'object', 'Exception', 'ValueError', 'TypeError', 'KeyError', 'IndexError', 'AttributeError', 'RuntimeError', 'StopIteration', 'breakpoint', 'logging']
 
 const BOOLEANS = ['True', 'False', 'None']
 
@@ -77,19 +77,36 @@ export function tokenizePython(code: string): Token[] {
       continue
     }
 
-    // Identifiers (keywords, builtins, booleans)
+    // Identifiers (keywords, builtins, booleans, functions, properties)
     if (/[a-zA-Z_]/.test(code[i])) {
       let ident = ''
       while (i < code.length && /[a-zA-Z0-9_]/.test(code[i])) {
         ident += code[i]
         i++
       }
+
+      // Check what follows the identifier
+      let j = i
+      while (j < code.length && /\s/.test(code[j])) j++ // Skip whitespace
+
+      const nextChar = j < code.length ? code[j] : ''
+      const prevToken = tokens[tokens.length - 1]
+
       if (BOOLEANS.includes(ident)) {
         tokens.push({ type: 'boolean', value: ident })
       } else if (KEYWORDS.includes(ident)) {
         tokens.push({ type: 'keyword', value: ident })
-      } else if (BUILTINS.includes(ident) && code[i] === '(') {
+      } else if (prevToken && prevToken.value === '.') {
+        // Method/property access: something.method()
+        tokens.push({ type: 'property', value: ident })
+      } else if (prevToken && prevToken.value === 'def') {
+        // Function definition: def function_name
+        tokens.push({ type: 'function', value: ident })
+      } else if (BUILTINS.includes(ident)) {
         tokens.push({ type: 'builtin', value: ident })
+      } else if (nextChar === '(') {
+        // Function call: function_name(
+        tokens.push({ type: 'function', value: ident })
       } else {
         tokens.push({ type: 'text', value: ident })
       }
