@@ -4,8 +4,11 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import Editor from 'react-simple-code-editor';
+import * as SimpleCodeEditor from 'react-simple-code-editor';
 import { tokenizePython } from '../utils/tokenizePython';
+
+// Handle CJS default export in ESM context
+const Editor = (SimpleCodeEditor as any).default || SimpleCodeEditor;
 
 interface CodeEditorProps {
   value: string;

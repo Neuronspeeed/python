@@ -1,7 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { Method } from '../types'
 import { tokenizePython } from '../utils/tokenizePython'
-import { ExecutableCodeBlock } from './ExecutableCodeBlock'
 
 /** Keep HighlightedCode for backward compatibility */
 export function HighlightedCode({ code }: { code: string }) {
@@ -9,9 +8,42 @@ export function HighlightedCode({ code }: { code: string }) {
   return <code>{tokens.map((t, i) => <span key={i} className={t.type !== 'text' ? t.type : undefined}>{t.value}</span>)}</code>
 }
 
-/** CodeBlock now uses ExecutableCodeBlock for interactive Python execution */
+/** CodeBlock with copy functionality */
 export function CodeBlock({ code, label = 'Example' }: { code: string; label?: string }) {
-  return <ExecutableCodeBlock code={code} label={label} />
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }
+
+  return (
+    <div className="code-block">
+      <div className="code-header">
+        <span className="code-label">{label}</span>
+        <button className="copy-btn" onClick={handleCopy} title="Copy code">
+          {copied ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="4.66667" y="4.66667" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.2" />
+              <path d="M9.33333 4.66667V3.5C9.33333 2.94772 8.88562 2.5 8.33333 2.5H3.5C2.94772 2.5 2.5 2.94772 2.5 3.5V8.33333C2.5 8.88562 2.94772 9.33333 3.5 9.33333H4.66667" stroke="currentColor" strokeWidth="1.2" />
+            </svg>
+          )}
+        </button>
+      </div>
+      <pre className="language-python">
+        <HighlightedCode code={code} />
+      </pre>
+    </div>
+  )
 }
 
 /** Map complexity level to CSS class for method cards */

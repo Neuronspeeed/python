@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Layout } from './components'
 import { routeConfigs } from './config/routes'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { PyodideProvider } from './contexts/PyodideContext'
 import './styles/index.css'
 
 function PageLoader() {
@@ -60,12 +59,10 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <PyodideProvider>
-        <BrowserRouter basename="/python">
-          <ScrollToTop />
-          <AppContent />
-        </BrowserRouter>
-      </PyodideProvider>
+      <BrowserRouter basename="/python">
+        <ScrollToTop />
+        <AppContent />
+      </BrowserRouter>
     </ErrorBoundary>
   )
 }
