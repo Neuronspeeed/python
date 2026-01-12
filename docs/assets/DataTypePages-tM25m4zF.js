@@ -1,4 +1,4 @@
-import{c as e,r as t}from"./index-CXFf_70w.js";const n={string:{type:`String`,badge:`str`,color:`var(--accent-str)`,description:`Immutable text sequences. Every operation returns a NEW string. Use join() for building, f-strings for formatting.`,intro:`String Building Performance: Choose the Right Tool
+import{c as e,r as t}from"./index-BvioVRON.js";const n={string:{type:`String`,badge:`str`,color:`var(--accent-str)`,description:`Immutable text sequences. Every operation returns a NEW string. Use join() for building, f-strings for formatting.`,intro:`String Building Performance: Choose the Right Tool
 Building strings efficiently is critical—the wrong approach costs you O(n²) time. Use \`join()\` for loops (O(n)), \`f-strings\` for formatting (fastest, cleanest), and avoid \`+=\` in loops (O(n²) due to repeated copying). Each concatenation with \`+=\` creates a NEW string and copies all existing characters.
 
 \`\`\`python

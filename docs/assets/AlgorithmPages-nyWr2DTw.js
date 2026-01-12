@@ -1,4 +1,4 @@
-import{c as e,r as t,t as n}from"./index-CXFf_70w.js";import{n as r}from"./learn-Cv_zenSA.js";const i={sorting:{type:`Sorting Algorithms`,badge:`sort`,color:`var(--accent-sorting)`,description:`Master sorting algorithms. Know when to use each. Python's Timsort is usually best.`,intro:`When to Sort First
+import{c as e,r as t,t as n}from"./index-BvioVRON.js";import{n as r}from"./learn-Cv_zenSA.js";const i={sorting:{type:`Sorting Algorithms`,badge:`sort`,color:`var(--accent-sorting)`,description:`Master sorting algorithms. Know when to use each. Python's Timsort is usually best.`,intro:`When to Sort First
 Sorting costs O(n log n) but often unlocks O(n) or O(log n) solutions that would otherwise be O(n²). Use Python's built-in Timsort (sort()/sorted()) for 99% of cases—highly optimized, stable, O(n log n) worst/O(n) best on nearly-sorted data.
 
 \`\`\`python

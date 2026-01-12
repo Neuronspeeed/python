@@ -1,4 +1,4 @@
-import{c as e,r as t}from"./index-CXFf_70w.js";const n={documentation:{type:`Documentation`,badge:`doc`,color:`var(--accent-logging)`,description:`Tools for documenting Python code: comments, docstrings, dir(), help(), and external tools.`,intro:`Documentation is code's instruction manual—it explains what code does, why it exists, and how to use it. Good documentation is the difference between code that's maintained for years and code that's rewritten because nobody understands it. Python offers a spectrum of documentation tools from simple comments to sophisticated auto-generated API docs. Understanding when and how to use each is essential for professional development.
+import{c as e,r as t}from"./index-BvioVRON.js";const n={documentation:{type:`Documentation`,badge:`doc`,color:`var(--accent-logging)`,description:`Tools for documenting Python code: comments, docstrings, dir(), help(), and external tools.`,intro:`Documentation is code's instruction manual—it explains what code does, why it exists, and how to use it. Good documentation is the difference between code that's maintained for years and code that's rewritten because nobody understands it. Python offers a spectrum of documentation tools from simple comments to sophisticated auto-generated API docs. Understanding when and how to use each is essential for professional development.
 
 THE DOCUMENTATION SPECTRUM: From quick notes to professional API docs.
 
@@ -243,6 +243,7 @@ def process(items: list[int]) -> dict[str, int]:
 def parse(value: int | str) -> float:
     pass
 \`\`\`python
+
 
 DIR() FUNCTION: Runtime introspection—what attributes are available?
 
@@ -652,6 +653,7 @@ Best Practice:
 - Use **absolute imports** for clarity (explicit is better than implicit)
 - Use **relative imports** within a package to avoid hard-coding package name
 - NEVER use relative imports in scripts meant to be run directly
+
 
 CIRCULAR IMPORTS: The classic gotcha.
 
@@ -1139,6 +1141,7 @@ else:
     process(data)  # Only runs if load succeeded
     # If process() raises, it propagates up (clearer!)
 \`\`\`python
+
 
 THE FINALLY CLAUSE: ALWAYS executes—even if exception propagates, even if return/break in try/except.
 
@@ -2220,6 +2223,7 @@ with open('output.txt', 'w') as f:
     f.writelines(line + '\\n' for line in lines)
 # Output: First\\nSecond\\nThird
 \`\`\`python
+
 
 PATHLIB: Modern, cross-platform path handling.
 

@@ -1,4 +1,4 @@
-import{a as e,b as t,c as n,i as r,n as i,o as a,s as o}from"./index-CXFf_70w.js";const s=[{signature:`What is Big O?`,description:`Big O is a method to categorize algorithms based on their time complexity or memory performance as input grows.`,complexity:`Concept`,section:`Why & When`,example:`# BIG O NOTATION
+import{a as e,b as t,c as n,i as r,n as i,o as a,s as o}from"./index-BvioVRON.js";const s=[{signature:`What is Big O?`,description:`Big O is a method to categorize algorithms based on their time complexity or memory performance as input grows.`,complexity:`Concept`,section:`Why & When`,example:`# BIG O NOTATION
 # A way to describe algorithm efficiency as input scales
 
 # THREE KEY CONCEPTS:

@@ -1,4 +1,4 @@
-import{c as e,r as t}from"./index-CXFf_70w.js";const n={fundamentals:{type:`Python Fundamentals`,badge:`py`,color:`var(--accent-functions)`,description:`Core concepts: dynamic typing, strong typing, polymorphism. Understanding Python's object model and type categories.`,intro:`Python's Object Model Foundation
+import{c as e,r as t}from"./index-BvioVRON.js";const n={fundamentals:{type:`Python Fundamentals`,badge:`py`,color:`var(--accent-functions)`,description:`Core concepts: dynamic typing, strong typing, polymorphism. Understanding Python's object model and type categories.`,intro:`Python's Object Model Foundation
 Python's object model is the foundation for understanding EVERYTHING in the language. All data in Python is represented as objects—from simple integers to complex classes. The key insight: understanding Python's dynamic typing model, reference semantics, and garbage collection is critical for avoiding 90% of bugs and writing efficient code.
 
 \`\`\`python

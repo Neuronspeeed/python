@@ -1,4 +1,4 @@
-import{c as e,r as ee,t as te}from"./index-CXFf_70w.js";import{n as ne}from"./learn-Cv_zenSA.js";const t={stdlib:{type:`Python Standard Library`,badge:`py`,color:`var(--accent-stdlib)`,description:`Essential functools, itertools, and collections for interviews. @lru_cache is interview gold for DP memoization.`,intro:`Python's Standard Library is interview gold—battle-tested tools that transform hard problems into one-liners. The key insight: @lru_cache converts O(2^n) DP to O(n) with one decorator, Counter eliminates manual frequency counting, deque gives O(1) queue operations, and bisect provides binary search. Mastering stdlib means solving problems faster, cleaner, and with fewer bugs.
+import{c as e,r as ee,t as te}from"./index-BvioVRON.js";import{n as ne}from"./learn-Cv_zenSA.js";const t={stdlib:{type:`Python Standard Library`,badge:`py`,color:`var(--accent-stdlib)`,description:`Essential functools, itertools, and collections for interviews. @lru_cache is interview gold for DP memoization.`,intro:`Python's Standard Library is interview gold—battle-tested tools that transform hard problems into one-liners. The key insight: @lru_cache converts O(2^n) DP to O(n) with one decorator, Counter eliminates manual frequency counting, deque gives O(1) queue operations, and bisect provides binary search. Mastering stdlib means solving problems faster, cleaner, and with fewer bugs.
 
 WHY STDLIB DOMINATES INTERVIEWS: Stdlib tools are optimized in C, battle-tested across millions of projects, and designed by experts. Using Counter instead of manual dict counting shows you know Python idioms. Using @lru_cache instead of manual memoization shows you can recognize patterns. Using deque instead of list.pop(0) shows you understand time complexity. Interviewers notice when you reach for the right tool.
 
@@ -187,6 +187,7 @@ Point = namedtuple('Point', ['x', 'y'])
 p = Point(3, 4)
 print(p.x, p.y)  # Readable attribute access
 \`\`\`python
+
 
 ITERTOOLS: COMBINATORICS MADE EASY
 
