@@ -156,7 +156,7 @@ export function AlgorithmPage() {
             {/* 5. Solution - Interactive Visualizer */}
             <section id="solution" className="learn-solution-section">
               <h3 className="learn-section-title">
-                <span className="adhd-section-icon">▶</span>
+                <span className="adhd-section-icon">&gt;</span>
                 Try It
               </h3>
               <AlgorithmVisualizer algorithm={algorithmData} />

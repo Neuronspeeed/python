@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import type { AlgorithmDefinition, AlgorithmStep } from '../../data/learn/types'
 import { usePlayback } from './usePlayback'
 import { CodePanel } from './CodePanel'
-import { VisualizationPanel } from './VisualizationPanel'
+import { VisualizationPanel } from './visualizations'
 import { PlaybackControls } from './PlaybackControls'
 import { InputCustomizer } from './InputCustomizer'
 

@@ -1,5 +1,5 @@
 import { sortingBasicsMethods } from './sortingBasics'
-import { sortingAdvancedMethods } from './sortingAdvanced'
+import { sortingAdvancedMethods } from './advanced'
 
 // Combined Sorting methods - maintains original order
 export const sortingMethods = [
@@ -9,4 +9,4 @@ export const sortingMethods = [
 
 // Re-export individual modules for granular imports
 export { sortingBasicsMethods } from './sortingBasics'
-export { sortingAdvancedMethods } from './sortingAdvanced'
+export { sortingAdvancedMethods } from './advanced'

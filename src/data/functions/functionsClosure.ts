@@ -48,6 +48,28 @@ def read_x():
 # But cannot modify without global
 def bad_modify():
     x = 20  # Creates new local x, doesn't modify global` },
+  { section: 'Closures', signature: 'Late Binding Gotcha', description: 'Closures capture variables by reference, not value. Loop variables evaluated at call time, not definition time.', complexity: 'Gotcha', example: `# THE GOTCHA - All lambdas share same 'i' reference
+funcs = [lambda: i for i in range(3)]
+print([f() for f in funcs])  # [2, 2, 2] NOT [0, 1, 2]!
+
+# WHY: Python looks up 'i' when lambda is CALLED
+# By then, loop finished and i=2
+
+# FIX 1: Default argument captures current value
+funcs = [lambda i=i: i for i in range(3)]
+print([f() for f in funcs])  # [0, 1, 2]
+
+# FIX 2: Factory function
+def make_func(val):
+    return lambda: val
+funcs = [make_func(i) for i in range(3)]
+
+# FIX 3: functools.partial
+from functools import partial
+funcs = [partial(lambda x: x, i) for i in range(3)]
+
+# INTERVIEW TIP: This is a TOP interview question
+# Know the gotcha AND all three fixes` },
 
   // Higher-Order Functions
   { section: 'Higher-Order Functions', signature: 'map(func, iterable)', description: 'Applies function to each element. Returns iterator.', complexity: 'O(n)', example: `nums = [1, 2, 3, 4, 5]

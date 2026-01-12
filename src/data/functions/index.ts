@@ -1,4 +1,4 @@
-import { functionsBasicsMethods } from './functionsBasics'
+import { functionsBasicsMethods } from './basics'
 import { functionsDecoratorsMethods } from './functionsDecorators'
 import { functionsClosureMethods } from './functionsClosure'
 
@@ -10,6 +10,6 @@ export const functionsMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { functionsBasicsMethods } from './functionsBasics'
+export { functionsBasicsMethods } from './basics'
 export { functionsDecoratorsMethods } from './functionsDecorators'
 export { functionsClosureMethods } from './functionsClosure'

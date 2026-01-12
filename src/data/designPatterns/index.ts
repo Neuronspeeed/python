@@ -1,6 +1,6 @@
-import { designCacheMethods } from './designCache'
+import { designCacheMethods } from './cache'
 import { designStructuresMethods } from './designStructures'
-import { designUtilitiesMethods } from './designUtilities'
+import { designUtilitiesMethods } from './utilities'
 
 // Combined Design Patterns methods
 export const designPatternsMethods = [
@@ -10,6 +10,6 @@ export const designPatternsMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { designCacheMethods } from './designCache'
+export { designCacheMethods } from './cache'
 export { designStructuresMethods } from './designStructures'
-export { designUtilitiesMethods } from './designUtilities'
+export { designUtilitiesMethods } from './utilities'

@@ -61,6 +61,12 @@
   color: #5eead4;
 }
 
+.copy-btn.copy-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
 .code-block pre {
   margin: 0;
   padding: 1.5rem 1.25rem;

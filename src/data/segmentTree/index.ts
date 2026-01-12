@@ -1,5 +1,5 @@
 import { segmentTreeBasicsMethods } from './segmentTreeBasics'
-import { segmentTreeAdvancedMethods } from './segmentTreeAdvanced'
+import { segmentTreeAdvancedMethods } from './advanced'
 
 // Combined Segment Tree methods - basics first, then advanced
 export const segmentTreeMethods = [
@@ -9,4 +9,4 @@ export const segmentTreeMethods = [
 
 // Re-export individual modules for granular imports
 export { segmentTreeBasicsMethods } from './segmentTreeBasics'
-export { segmentTreeAdvancedMethods } from './segmentTreeAdvanced'
+export { segmentTreeAdvancedMethods } from './advanced'

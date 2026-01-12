@@ -1,5 +1,5 @@
-import { exceptionsBasicsMethods } from './exceptionsBasics'
-import { exceptionsAdvancedMethods } from './exceptionsAdvanced'
+import { exceptionsBasicsMethods } from './basics'
+import { exceptionsAdvancedMethods } from './advanced'
 
 // Combined Exceptions methods - maintains original order
 export const exceptionsMethods = [
@@ -8,5 +8,5 @@ export const exceptionsMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { exceptionsBasicsMethods } from './exceptionsBasics'
-export { exceptionsAdvancedMethods } from './exceptionsAdvanced'
+export { exceptionsBasicsMethods } from './basics'
+export { exceptionsAdvancedMethods } from './advanced'

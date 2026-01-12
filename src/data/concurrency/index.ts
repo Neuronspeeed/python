@@ -1,5 +1,5 @@
-import { concurrencyThreadsMethods } from './concurrencyThreads'
-import { concurrencyAsyncMethods } from './concurrencyAsync'
+import { concurrencyThreadsMethods } from './threads'
+import { concurrencyAsyncMethods } from './async'
 
 // Combined Concurrency methods - maintains original order
 export const concurrencyMethods = [
@@ -8,5 +8,5 @@ export const concurrencyMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { concurrencyThreadsMethods } from './concurrencyThreads'
-export { concurrencyAsyncMethods } from './concurrencyAsync'
+export { concurrencyThreadsMethods } from './threads'
+export { concurrencyAsyncMethods } from './async'

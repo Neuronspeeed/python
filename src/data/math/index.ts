@@ -1,5 +1,5 @@
-import { mathBasicsMethods } from './mathBasics'
-import { mathProblemsMethods } from './mathProblems'
+import { mathBasicsMethods } from './basics'
+import { mathProblemsMethods } from './problems'
 
 // Combined Math methods - basics first, then problems
 export const mathMethods = [
@@ -8,5 +8,5 @@ export const mathMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { mathBasicsMethods } from './mathBasics'
-export { mathProblemsMethods } from './mathProblems'
+export { mathBasicsMethods } from './basics'
+export { mathProblemsMethods } from './problems'

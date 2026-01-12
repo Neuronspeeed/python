@@ -30,6 +30,32 @@ rect = Rectangle(5, 3)
 print(rect.area())       # 15
 print(rect.perimeter())  # 16` },
 
+  // Protocol (Structural Subtyping)
+  { signature: 'typing.Protocol', description: 'Structural subtyping (duck typing + type hints). Class matches if it has required methods - no inheritance needed.', complexity: 'O(1)', section: 'Protocol', example: `from typing import Protocol
+
+class Drawable(Protocol):
+    def draw(self) -> None: ...
+
+# No inheritance! Just needs draw() method
+class Circle:
+    def draw(self) -> None:
+        print("O")
+
+class Square:
+    def draw(self) -> None:
+        print("[]")
+
+def render(shape: Drawable) -> None:
+    shape.draw()
+
+render(Circle())  # Works - has draw()
+render(Square())  # Works - has draw()
+
+# ABC vs Protocol:
+# - ABC: Nominal typing - must inherit explicitly
+# - Protocol: Structural typing - just match the shape
+# Use Protocol for duck typing with type safety` },
+
   // Dataclasses
   { signature: '@dataclass', description: 'Auto-generate __init__, __repr__, __eq__ and more. Reduces boilerplate for data-holding classes.', complexity: 'O(1)', section: 'Dataclasses', example: `from dataclasses import dataclass, field
 

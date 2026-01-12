@@ -1,5 +1,5 @@
 import { dpFundamentalsMethods } from './dpFundamentals'
-import { dp2DMethods } from './dp2D'
+import { dp2DMethods } from './dp2d'
 import { dpKnapsackMethods } from './dpKnapsack'
 
 // Combined DP methods - order matches section indices:
@@ -16,5 +16,5 @@ export const dpMethods = [
 
 // Re-export individual modules for granular imports
 export { dpFundamentalsMethods } from './dpFundamentals'
-export { dp2DMethods } from './dp2D'
+export { dp2DMethods } from './dp2d'
 export { dpKnapsackMethods } from './dpKnapsack'

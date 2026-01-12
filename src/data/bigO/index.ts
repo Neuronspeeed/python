@@ -1,5 +1,5 @@
 import { bigOBasicsMethods } from './bigOBasics'
-import { bigOPatternsMethods } from './bigOPatterns'
+import { bigOPatternsMethods } from './patterns'
 
 // Combined Big O methods - maintains original order
 export const bigOMethods = [
@@ -9,4 +9,4 @@ export const bigOMethods = [
 
 // Re-export individual modules for granular imports
 export { bigOBasicsMethods } from './bigOBasics'
-export { bigOPatternsMethods } from './bigOPatterns'
+export { bigOPatternsMethods } from './patterns'

@@ -1,5 +1,5 @@
 import { backtrackingBasicsMethods } from './backtrackingBasics'
-import { backtrackingProblemsMethods } from './backtrackingProblems'
+import { backtrackingProblemsMethods } from './problems'
 
 // Combined Backtracking methods - maintains original order
 export const backtrackingMethods = [
@@ -9,4 +9,4 @@ export const backtrackingMethods = [
 
 // Re-export individual modules for granular imports
 export { backtrackingBasicsMethods } from './backtrackingBasics'
-export { backtrackingProblemsMethods } from './backtrackingProblems'
+export { backtrackingProblemsMethods } from './problems'

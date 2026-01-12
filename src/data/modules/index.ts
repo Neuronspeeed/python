@@ -1,5 +1,5 @@
 import { modulesBasicsMethods } from './modulesBasics'
-import { modulesAdvancedMethods } from './modulesAdvanced'
+import { modulesAdvancedMethods } from './advanced'
 
 // Combined Modules methods - maintains original order
 export const modulesMethods = [
@@ -9,4 +9,4 @@ export const modulesMethods = [
 
 // Re-export individual modules for granular imports
 export { modulesBasicsMethods } from './modulesBasics'
-export { modulesAdvancedMethods } from './modulesAdvanced'
+export { modulesAdvancedMethods } from './advanced'

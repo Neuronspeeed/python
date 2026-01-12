@@ -1,5 +1,5 @@
 import { binarySearchBasicsMethods } from './binarySearchBasics'
-import { binarySearchProblemsMethods } from './binarySearchProblems'
+import { binarySearchProblemsMethods } from './problems'
 
 // Combined Binary Search methods - maintains original order
 export const binarySearchMethods = [
@@ -9,4 +9,4 @@ export const binarySearchMethods = [
 
 // Re-export individual modules for granular imports
 export { binarySearchBasicsMethods } from './binarySearchBasics'
-export { binarySearchProblemsMethods } from './binarySearchProblems'
+export { binarySearchProblemsMethods } from './problems'

@@ -1,5 +1,5 @@
 import { greedyBasicsMethods } from './greedyBasics'
-import { greedyProblemsMethods } from './greedyProblems'
+import { greedyProblemsMethods } from './problems'
 
 // Combined Greedy methods - maintains original order
 export const greedyMethods = [
@@ -9,4 +9,4 @@ export const greedyMethods = [
 
 // Re-export individual modules for granular imports
 export { greedyBasicsMethods } from './greedyBasics'
-export { greedyProblemsMethods } from './greedyProblems'
+export { greedyProblemsMethods } from './problems'

@@ -10,15 +10,16 @@ export function HighlightedCode({ code }: { code: string }) {
 
 /** CodeBlock with copy functionality */
 export function CodeBlock({ code, label = 'Example' }: { code: string; label?: string }) {
-  const [copied, setCopied] = useState(false)
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
+      setCopyState('copied')
+      setTimeout(() => setCopyState('idle'), 2000)
+    } catch {
+      setCopyState('error')
+      setTimeout(() => setCopyState('idle'), 2000)
     }
   }
 
@@ -26,13 +27,21 @@ export function CodeBlock({ code, label = 'Example' }: { code: string; label?: s
     <div className="code-block">
       <div className="code-header">
         <span className="code-label">{label}</span>
-        <button className="copy-btn" onClick={handleCopy} title="Copy code">
-          {copied ? (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <button
+          className={`copy-btn ${copyState === 'error' ? 'copy-error' : ''}`}
+          onClick={handleCopy}
+          title={copyState === 'error' ? 'Failed to copy' : 'Copy code'}
+        >
+          {copyState === 'copied' ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
+          ) : copyState === 'error' ? (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           ) : (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <rect x="4.66667" y="4.66667" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.2" />
               <path d="M9.33333 4.66667V3.5C9.33333 2.94772 8.88562 2.5 8.33333 2.5H3.5C2.94772 2.5 2.5 2.94772 2.5 3.5V8.33333C2.5 8.88562 2.94772 9.33333 3.5 9.33333H4.66667" stroke="currentColor" strokeWidth="1.2" />
             </svg>

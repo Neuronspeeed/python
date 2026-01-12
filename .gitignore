@@ -19,6 +19,7 @@ dist-ssr
 .DS_Store
 .claude/
 CLAUDE.md
+thoughts/
 *.suo
 *.ntvs*
 *.njsproj

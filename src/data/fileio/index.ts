@@ -1,4 +1,4 @@
-import { fileioBasicsMethods } from './fileioBasics'
+import { fileioBasicsMethods } from './basics'
 
 // Combined fileio methods
 export const fileioMethods = [
@@ -6,4 +6,4 @@ export const fileioMethods = [
 ]
 
 // Re-export individual modules for granular imports
-export { fileioBasicsMethods } from './fileioBasics'
+export { fileioBasicsMethods } from './basics'

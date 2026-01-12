@@ -1,5 +1,5 @@
 import { matrixBasicsMethods } from './matrixBasics'
-import { matrixOperationsMethods } from './matrixOperations'
+import { matrixOperationsMethods } from './operations'
 
 // Combined Matrix methods - maintains original order
 export const matrixMethods = [
@@ -9,4 +9,4 @@ export const matrixMethods = [
 
 // Re-export individual modules for granular imports
 export { matrixBasicsMethods } from './matrixBasics'
-export { matrixOperationsMethods } from './matrixOperations'
+export { matrixOperationsMethods } from './operations'

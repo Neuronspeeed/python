@@ -7,8 +7,22 @@ import { useCallback, useMemo } from 'react';
 import * as SimpleCodeEditor from 'react-simple-code-editor';
 import { tokenizePython } from '../utils/tokenizePython';
 
+// Editor component props based on react-simple-code-editor API
+interface EditorComponentProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  highlight: (code: string) => string;
+  padding?: number;
+  disabled?: boolean;
+  textareaClassName?: string;
+  preClassName?: string;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement | HTMLTextAreaElement>) => void;
+  style?: React.CSSProperties;
+}
+
 // Handle CJS default export in ESM context
-const Editor = (SimpleCodeEditor as any).default || SimpleCodeEditor;
+const EditorModule = SimpleCodeEditor as { default?: React.ComponentType<EditorComponentProps> };
+const Editor: React.ComponentType<EditorComponentProps> = EditorModule.default || (SimpleCodeEditor as unknown as React.ComponentType<EditorComponentProps>);
 
 interface CodeEditorProps {
   value: string;
